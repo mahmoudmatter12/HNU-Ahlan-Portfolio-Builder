@@ -1,0 +1,7 @@
+## libraries and third parties 
+- shadcn for ui components 
+- next theam for dark and light mood
+- npm install react-hook-form zod @hookform/resolvers
+- npm install @dnd-kit/core @dnd-kit/sortable for the drag and drop sections
+- framer motion for the animations 
+- npm install @clerk/nextjs third party libarary for auth -- https://clerk.com/docs/references/nextjs/custom-sign-in-or-up-page for docs 
