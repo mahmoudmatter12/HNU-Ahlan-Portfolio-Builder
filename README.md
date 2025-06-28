@@ -5,3 +5,7 @@
 - npm install @dnd-kit/core @dnd-kit/sortable for the drag and drop sections
 - framer motion for the animations 
 - npm install @clerk/nextjs third party libarary for auth -- https://clerk.com/docs/references/nextjs/custom-sign-in-or-up-page for docs 
+- npm install cloudinary
+- npm install prisma @prisma/client
+- npx prisma init
+- 
