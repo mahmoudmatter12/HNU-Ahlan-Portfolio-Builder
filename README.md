@@ -9,3 +9,7 @@
 - npm install prisma @prisma/client
 - npx prisma init
 - 
+
+## front end libraries and components:
+- stepper from reactbits -- will be used in the form sections 
+- hero ui components init - will use the toaster from it

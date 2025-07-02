@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { ThemeProvider } from './theme-provider';
+import { ClerkProvider } from '@clerk/nextjs';
 
 // Import your providers here
 // import { AuthProvider } from './AuthProvider';
@@ -13,13 +14,15 @@ interface GlobalProvidersProps {
 export const GlobalProviders: React.FC<GlobalProvidersProps> = ({ children }) => {
     return (
         <>
-            <ThemeProvider attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-            >
-                {children}
-            </ThemeProvider>
+            <ClerkProvider>
+                <ThemeProvider attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    {children}
+                </ThemeProvider>
+            </ClerkProvider>
         </>
     );
 };
