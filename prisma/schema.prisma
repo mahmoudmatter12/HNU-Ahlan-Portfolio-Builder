@@ -10,6 +10,119 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ENUMS
+enum UserType {
+  ADMIN
+  SUPERADMIN
+}
+
+enum CollegeType {
+  TECHNICAL
+  MEDICAL
+  ARTS
+  OTHER
+}
+
+enum FormFieldType {
+  TEXT
+  TEXTAREA
+  EMAIL
+  NUMBER
+  SELECT
+  CHECKBOX
+  RADIO
+  DATE
+  FILE
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String // e.g., "CREATE_COLLEGE", "DELETE_USER"
+  entity    String // e.g., "College", "User", "FormSection"
+  entityId  String? // optional reference to the entity’s ID
+  metadata  Json? // any extra data you want to store (e.g., fields changed)
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
+// MODELS
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  name            String?
+  userType        UserType   @default(ADMIN)
+  college         College?   @relation(fields: [collegeId], references: [id])
+  collegeId       String?
+  auditLogs       AuditLog[]
+  collegesCreated College[]  @relation("CollegeCreatedBy")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+model College {
+  id             String           @id @default(cuid())
+  name           String
+  slug           String           @unique
+  type           CollegeType
+  theme          Json // Stores theme config like colors, fonts
+  User           User[]
+  sections       Section[]
+  forms          FormSection[]
+  FormSubmission FormSubmission[]
+  createdBy      User?            @relation("CollegeCreatedBy", fields: [createdById], references: [id])
+  createdById    String?          @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  galleryImages  Json
+  projects       Json
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int
+  content   String // for md.
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  collegeId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FormSection {
+  id          String           @id @default(cuid())
+  title       String
+  college     College          @relation(fields: [collegeId], references: [id])
+  collegeId   String
+  fields      FormField[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  submissions FormSubmission[]
+}
+
+model FormField {
+  id            String        @id @default(cuid())
+  label         String
+  type          FormFieldType
+  isRequired    Boolean       @default(false)
+  options       String[] // for select, checkbox, radio
+  formSection   FormSection   @relation(fields: [formSectionId], references: [id])
+  formSectionId String
+  order         Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model FormSubmission {
+  id            String      @id @default(cuid())
+  data          Json // Stores form field responses
+  formSection   FormSection @relation(fields: [formSectionId], references: [id])
+  formSectionId String
+  college       College     @relation(fields: [collegeId], references: [id])
+  collegeId     String
+  submittedAt   DateTime    @default(now())
 }
