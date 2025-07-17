@@ -11,10 +11,20 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+
   {
+    ignores: [
+      "./lib/generated/**/*",
+      "lib/generated/**/*",
+      "**/lib/generated/**/*"
+    ],
+    // This object defines rules and ignore patterns
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-this-alias": "off",
     },
   },
 ];

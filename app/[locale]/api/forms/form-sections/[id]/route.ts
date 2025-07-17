@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withAuditLog } from "@/lib/middleware/withAuditLog";
 
-export async function GET(
+const GetFormSectionController = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+) => {
   try {
+    const { id } = await params;
     const formSection = await db.formSection.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         college: true,
         fields: {
@@ -34,6 +36,15 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+};
 
-
+export const GET = withAuditLog(GetFormSectionController, {
+  action: "GET_FORM_SECTION",
+  extract: (req) => ({
+    userId: req.headers.get("x-user-id") || undefined,
+    entity: "formSection",
+    metadata: {
+      searchParams: req.url,
+    },
+  }),
+});

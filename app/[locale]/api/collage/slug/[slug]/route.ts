@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withAuditLog } from "@/lib/middleware/withAuditLog";
 
-export async function GET(
+const GetCollegeBySlugController = async (
   request: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+  { params }: { params: Promise<{ slug: string }> }
+) => {
   try {
     const { slug } = await params;
-    console.log(slug);
     const college = await db.college.findUnique({
       where: { slug },
       include: {
@@ -40,4 +40,15 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+};
+
+export const GET = withAuditLog(GetCollegeBySlugController, {
+  action: "GET_COLLEGE_BY_SLUG",
+  extract: (req) => ({
+    userId: req.headers.get("x-user-id") || undefined,
+    entity: "college",
+    metadata: {
+      searchParams: req.url,
+    },
+  }),
+});

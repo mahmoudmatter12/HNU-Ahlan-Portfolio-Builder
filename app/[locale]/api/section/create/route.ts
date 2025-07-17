@@ -26,18 +26,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    logAction({
-      action: "CREATE_SECTION",
-      userId: request.headers.get("user-id") || undefined,
-      entity: "Section",
-      entityId: section.id,
-      metadata: {
-        title: section.title,
-        order: section.order,
-        content: section.content,
-        collegeId: section.collegeId,
-      },
-    });
+    // logAction({
+    //   action: "CREATE_SECTION",
+    //   userId: request.headers.get("user-id") || undefined,
+    //   entity: "Section",
+    //   entityId: section.id,
+    //   metadata: {
+    //     title: section.title,
+    //     order: section.order,
+    //     content: section.content,
+    //     collegeId: section.collegeId,
+    //   },
+    // });
 
     return NextResponse.json(section, { status: 201 });
   } catch (error) {

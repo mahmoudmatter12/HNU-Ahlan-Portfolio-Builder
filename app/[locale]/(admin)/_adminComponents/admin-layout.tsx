@@ -33,7 +33,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Header } from "./header"
 import { useLocale } from "next-intl";
-import { SignOutButton } from "@clerk/nextjs";
 import { useCurrentUser } from "@/context/userContext"
 
 interface AdminLayoutProps {
@@ -150,7 +149,7 @@ const navigationSections: NavSection[] = [
                 href: "/admin/projects",
                 icon: FolderOpen,
                 description: "Student projects and research",
-                    roles: ['ADMIN', 'SUPERADMIN']
+                roles: ['ADMIN', 'SUPERADMIN']
             },
             {
                 title: "Achievements",
@@ -234,6 +233,13 @@ function SidebarContent({
     locale: string;
 }) {
     const pathname = usePathname()
+
+    const handleSignOut = () => {
+        // Clear any local storage or cookies if needed
+        localStorage.removeItem('clerk-db');
+        // Redirect to sign-in page
+        window.location.href = '/sign-in';
+    };
     return (
         <div className="flex h-full flex-col bg-gray-950">
             {/* Header */}
@@ -357,10 +363,9 @@ function SidebarContent({
                         variant="ghost"
                         size={collapsed ? "icon" : "default"}
                         className={cn("text-red-400 hover:text-red-300 hover:bg-gray-800", collapsed ? "h-8 w-8" : "h-8")}
+                        onClick={handleSignOut}
                     >
-                        <SignOutButton>
-                            <LogOut className="h-4 w-4" />
-                        </SignOutButton>
+                        <LogOut className="h-4 w-4" />
                         {!collapsed && <span className="ml-2">Logout</span>}
                     </Button>
                 </div>
@@ -438,7 +443,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             {/* Main Content */}
             <div className="flex flex-1 flex-col overflow-hidden bg-gray-950">
                 {/* header */}
-                <Header   />
+                <Header />
                 {/* Mobile Header */}
                 <header className="flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950 px-4 lg:hidden">
                     <MobileSidebar user={currentUser as unknown as typeof mockUsers.admin | typeof mockUsers.superadmin} locale={locale} />

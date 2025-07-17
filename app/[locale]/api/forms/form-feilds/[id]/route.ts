@@ -1,31 +1,48 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { withAuditLog } from "@/lib/middleware/withAuditLog";
 
-export async function GET(
+const GetFormFieldController = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+) => {
   try {
+    const { id } = await params;
     const formField = await db.formField.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         formSection: {
           include: {
-            college: true
-          }
-        }
-      }
-    })
-    
+            college: true,
+          },
+        },
+      },
+    });
+
     if (!formField) {
-      return NextResponse.json({ error: 'Form field not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: "Form field not found" },
+        { status: 404 }
+      );
     }
-    
-    return NextResponse.json(formField)
+
+    return NextResponse.json(formField);
   } catch (error) {
-    console.error('Error fetching form field:', error)
-    return NextResponse.json({ error: 'Failed to fetch form field' }, { status: 500 })
+    console.error("Error fetching form field:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch form field" },
+      { status: 500 }
+    );
   }
-}
+};
 
-
+export const GET = withAuditLog(GetFormFieldController, {
+  action: "GET_FORM_FIELD",
+  extract: (req) => ({
+    userId: req.headers.get("x-user-id") || undefined,
+    entity: "formField",
+    metadata: {
+      searchParams: req.url,
+    },
+  }),
+});

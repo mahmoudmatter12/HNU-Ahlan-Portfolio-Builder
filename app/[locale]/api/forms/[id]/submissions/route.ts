@@ -3,9 +3,10 @@ import { db } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "50");
@@ -13,7 +14,7 @@ export async function GET(
 
     // First check if form exists
     const form = await db.formSection.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       select: { id: true, title: true },
     });
 
@@ -23,7 +24,7 @@ export async function GET(
 
     const [submissions, totalCount] = await Promise.all([
       db.formSubmission.findMany({
-        where: { formSectionId: params.id },
+        where: { formSectionId: id },
         include: {
           formSection: {
             include: {
@@ -39,7 +40,7 @@ export async function GET(
         take: limit,
       }),
       db.formSubmission.count({
-        where: { formSectionId: params.id },
+        where: { formSectionId: id },
       }),
     ]);
 

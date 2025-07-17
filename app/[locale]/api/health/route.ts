@@ -20,17 +20,17 @@ export async function GET() {
 
     const responseTime = Date.now() - startTime;
     
-    logAction({
-      action: "CUSTOM",
-      entity: "HealthCheck",
-      metadata: {
-        responseTime,
-        userCount,
-        collegeCount,
-        formCount,
-        submissionCount,
-      },
-    });
+    // logAction({
+    //   action: "CUSTOM",
+    //   entity: "HealthCheck",
+    //   metadata: {
+    //     responseTime,
+    //     userCount,
+    //     collegeCount,
+    //     formCount,
+    //     submissionCount,
+    //   },
+    // });
 
     return NextResponse.json({
       status: "healthy",

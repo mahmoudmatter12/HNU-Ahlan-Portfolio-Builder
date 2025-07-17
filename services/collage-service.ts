@@ -27,7 +27,6 @@ export class CollegeService {
 
   // Create a new college
   static async createCollege(data: Partial<College>) {
-    console.log("data", data);
     const res = await api.post<College>(`/collage/create`, data);
     return res.data;
   }

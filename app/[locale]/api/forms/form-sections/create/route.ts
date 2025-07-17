@@ -25,16 +25,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    logAction({
-      action: "CREATE_FORM_SECTION",
-      userId: request.headers.get("user-id") || undefined,
-      entity: "FormSection",
-      entityId: formSection.id,
-      metadata: {
-        title: formSection.title,
-        collegeId: formSection.collegeId,
-      },
-    });
+    // logAction({
+    //   action: "CREATE_FORM_SECTION",
+    //   userId: request.headers.get("user-id") || undefined,
+    //   entity: "FormSection",
+    //   entityId: formSection.id,
+    //   metadata: {
+    //     title: formSection.title,
+    //     collegeId: formSection.collegeId,
+    //   },
+    // });
 
     return NextResponse.json(formSection, { status: 201 });
   } catch (error) {

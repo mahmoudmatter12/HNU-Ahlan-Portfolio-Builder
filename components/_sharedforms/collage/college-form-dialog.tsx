@@ -67,7 +67,6 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
         },
     })
 
-    console.log("user", user?.id)
 
     // Reset form when dialog opens/closes or college changes
     useEffect(() => {

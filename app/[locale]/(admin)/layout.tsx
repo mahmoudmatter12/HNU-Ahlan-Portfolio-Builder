@@ -9,13 +9,11 @@ interface AdminLayoutWrapperProps {
   children: React.ReactNode
 }
 
-
-
 export default function AdminLayoutWrapper({ children }: AdminLayoutWrapperProps) {
   return (
     <div className="relative admin-layout-wrapper min-h-screen">
-      <AdminAuthProvider>
-        <GlobalProviders>
+      <GlobalProviders>
+        <AdminAuthProvider>
           <AdminLayout>
             {/* <AdminProvider> */}
             <div className="relative min-h-screen overflow-hidden">
@@ -26,9 +24,8 @@ export default function AdminLayoutWrapper({ children }: AdminLayoutWrapperProps
             </div>
             {/* </AdminProvider> */}
           </AdminLayout>
-        </GlobalProviders>
-      </AdminAuthProvider>
-
+        </AdminAuthProvider>
+      </GlobalProviders>
     </div>
   )
 }

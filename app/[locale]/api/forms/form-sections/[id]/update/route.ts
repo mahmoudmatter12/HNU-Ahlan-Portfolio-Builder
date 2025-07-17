@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withAuditLog } from "@/lib/middleware/withAuditLog";
 
-export async function PUT(
+const UpdateFormSectionController = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+) => {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { title } = body;
 
     const formSection = await db.formSection.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         title,
       },
@@ -39,4 +41,15 @@ export async function PUT(
       { status: 500 }
     );
   }
-}
+};
+
+export const PUT = withAuditLog(UpdateFormSectionController, {
+  action: "UPDATE_FORM_SECTION",
+  extract: (req) => ({
+    userId: req.headers.get("x-user-id") || undefined,
+    entity: "formSection",
+    metadata: {
+      searchParams: req.url,
+    },
+  }),
+});

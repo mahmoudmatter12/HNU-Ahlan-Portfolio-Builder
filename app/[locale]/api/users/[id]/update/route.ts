@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = await request.json()
-    const { email, name, userType, collegeId } = body
-    
+    const { id } = await params;
+    const body = await request.json();
+    const { email, name, userType, collegeId } = body;
+
     const user = await db.user.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         email,
         name,
@@ -20,19 +20,23 @@ export async function PATCH(
       },
       include: {
         college: true,
-      }
-    })
-    
-    return NextResponse.json(user)
+      },
+    });
+
+    return NextResponse.json(user);
   } catch (error) {
-    console.error('Error updating user:', error)
-    if (typeof error === "object" &&
+    console.error("Error updating user:", error);
+    if (
+      typeof error === "object" &&
       error !== null &&
       "code" in error &&
-      (error as { code?: string }).code === "P2025") {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      (error as { code?: string }).code === "P2025"
+    ) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to update user" },
+      { status: 500 }
+    );
   }
 }
-

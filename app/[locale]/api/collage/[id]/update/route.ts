@@ -3,12 +3,12 @@ import { db } from "@/lib/db";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
     const body = await request.json();
-    const { name, slug, type, theme, galleryImages, projects } = body;
+    const { name, slug, type, theme, galleryImages } = body;
 
     const college = await db.college.update({
       where: { id },
@@ -18,7 +18,6 @@ export async function PUT(
         type,
         theme,
         galleryImages,
-        projects,
       },
       include: {
         createdBy: true,

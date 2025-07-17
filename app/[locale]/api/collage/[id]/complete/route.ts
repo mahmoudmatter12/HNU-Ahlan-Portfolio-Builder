@@ -3,11 +3,12 @@ import { db } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const college = await db.college.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         sections: {
           orderBy: { order: "asc" },

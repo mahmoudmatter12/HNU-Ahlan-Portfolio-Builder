@@ -1,13 +1,15 @@
 import { db } from "@/lib/db";
+import { withAuditLog } from "@/lib/middleware/withAuditLog";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(
+const DeleteFormSubmissionController = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+) => {
   try {
+    const { id } = await params;
     await db.formSubmission.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({
@@ -31,4 +33,15 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
+};
+
+export const DELETE = withAuditLog(DeleteFormSubmissionController, {
+  action: "DELETE_FORM_SUBMISSION",
+  extract: (req) => ({
+    userId: req.headers.get("x-user-id") || undefined,
+    entity: "formSubmission",
+    metadata: {
+      searchParams: req.url,
+    },
+  }),
+});

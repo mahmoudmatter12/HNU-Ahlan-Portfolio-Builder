@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 export const UserProfile: React.FC = () => {
     const { user, loading, error, refetchUser } = useUser();
     const currentUser = useCurrentUser();
-    console.log("currentUser", currentUser);
     const isAdmin = useIsAdmin();
     const isSuperAdmin = useIsSuperAdmin();
     const isOnboarded = useIsOnboarded();

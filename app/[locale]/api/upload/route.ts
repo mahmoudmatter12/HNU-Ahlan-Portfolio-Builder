@@ -46,7 +46,6 @@ export async function POST(request: Request) {
     const result = await cloudinary.uploader.upload(base64String, {
       folder: foldername,
     });
-    console.log(result);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Upload error:", error);

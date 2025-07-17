@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../lib/generated/prisma"
 }
 
 datasource db {
@@ -42,10 +41,10 @@ enum FormFieldType {
 
 model AuditLog {
   id        String   @id @default(cuid())
-  action    String  // e.g., "CREATE_COLLEGE", "DELETE_USER"
-  entity    String  // e.g., "College", "User", "FormSection"
+  action    String // e.g., "CREATE_COLLEGE", "DELETE_USER"
+  entity    String // e.g., "College", "User", "FormSection"
   entityId  String? // optional reference to the entity’s ID
-  metadata  Json?   // any extra data you want to store (e.g., fields changed)
+  metadata  Json? // any extra data you want to store (e.g., fields changed)
   user      User?    @relation(fields: [userId], references: [id])
   userId    String?
   createdAt DateTime @default(now())
@@ -70,19 +69,20 @@ model User {
 
 model College {
   id             String           @id @default(cuid())
-  name           String
   slug           String           @unique
+  name           String
   type           CollegeType
-  theme          Json // Stores theme config like colors, fonts
   User           User[]
   sections       Section[]
   forms          FormSection[]
   FormSubmission FormSubmission[]
+  theme          Json
+  galleryImages  Json
+  faq            Json
   createdBy      User?            @relation("CollegeCreatedBy", fields: [createdById], references: [id])
   createdById    String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  galleryImages  Json
 }
 
 model Section {
@@ -99,7 +99,7 @@ model Section {
 model FormSection {
   id          String           @id @default(cuid())
   title       String
-  college     College          @relation(fields: [collegeId], references: [id])
+  college     College          @relation(fields: [collegeId], references: [id], onDelete: Cascade)
   collegeId   String
   fields      FormField[]
   createdAt   DateTime         @default(now())

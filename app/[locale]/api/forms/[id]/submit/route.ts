@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
@@ -35,17 +35,17 @@ export async function POST(
       },
     });
 
-    logAction({
-      action: "SUBMIT_FORM",
-      userId: request.headers.get("user-id") || undefined,
-      entity: "FormSubmission",
-      entityId: formSubmission.id,
-      metadata: {
-        data: formSubmission.data,
-        formSectionId: formSubmission.formSectionId,
-        collegeId: formSubmission.collegeId,
-      },
-    });
+    // logAction({
+    //   action: "SUBMIT_FORM",
+    //   userId: request.headers.get("user-id") || undefined,
+    //   entity: "FormSubmission",
+    //   entityId: formSubmission.id,
+    //   metadata: {
+    //     data: formSubmission.data,
+    //     formSectionId: formSubmission.formSectionId,
+    //     collegeId: formSubmission.collegeId,
+    //   },
+    // });
 
     return NextResponse.json(formSubmission, { status: 201 });
   } catch (error) {

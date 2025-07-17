@@ -23,7 +23,6 @@ import { cn } from '@/lib/utils';
 import { useCurrentUser } from '@/context/userContext';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { SignOutButton } from '@clerk/nextjs';
 
 interface HeaderProps {
   notifications?: {
@@ -52,6 +51,7 @@ export function Header({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const unreadNotifications = notifications.filter(n => !n.read).length;
   const { locale } = useParams();
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -60,6 +60,13 @@ export function Header({
     e.preventDefault();
     // Implement search functionality
     console.log('Searching for:', searchQuery);
+  };
+
+  const handleSignOut = () => {
+    // Clear any local storage or cookies if needed
+    localStorage.removeItem('clerk-db');
+    // Redirect to sign-in page
+    window.location.href = '/sign-in';
   };
 
   const currentUser = useCurrentUser();
@@ -259,12 +266,14 @@ export function Header({
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuSeparator className="bg-gray-700" />
-            <SignOutButton redirectUrl='/'>
-              <DropdownMenuItem className="text-red-400 hover:text-red-300 hover:bg-gray-800">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </SignOutButton>
+            <Button
+              variant="ghost"
+              className="text-red-400 hover:text-red-300 hover:bg-gray-800"
+              onClick={handleSignOut}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </Button>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -4,14 +4,15 @@ import { db } from '@/lib/db'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json()
     const { title, order, content } = body
     
     const section = await db.section.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         title,
         order,

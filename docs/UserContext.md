@@ -99,7 +99,6 @@ function UpdateProfile() {
   const handleUpdateName = async () => {
     try {
       await updateUser({ name: 'New Name' });
-      console.log('User updated successfully');
     } catch (error) {
       console.error('Failed to update user:', error);
     }

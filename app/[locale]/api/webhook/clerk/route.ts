@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "No user ID found" }, { status: 400 });
     }
-    console.log("User ID from Webhook", userId);
     try {
       const user = await clerk.users.getUser(userId);
 

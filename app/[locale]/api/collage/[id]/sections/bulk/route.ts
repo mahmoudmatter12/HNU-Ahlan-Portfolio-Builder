@@ -3,8 +3,9 @@ import { db } from "@/lib/db";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const body = await request.json();
     const { sections } = body;
@@ -20,7 +21,7 @@ export async function POST(
 
     // Verify college exists
     const college = await db.college.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       select: { id: true },
     });
 
@@ -36,7 +37,7 @@ export async function POST(
             title: section.title,
             content: section.content || "",
             order: section.order || index,
-            collegeId: params.id,
+            collegeId: id,
           },
         })
       )
@@ -61,8 +62,9 @@ export async function POST(
 // DELETE - Bulk delete sections
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const body = await request.json();
     const { sectionIds } = body;
@@ -79,7 +81,7 @@ export async function DELETE(
     // Verify all sections belong to this college
     const sections = await db.section.findMany({
       where: {
-        collegeId: params.id,
+        collegeId: id,
         id: { in: sectionIds },
       },
       select: { id: true },
@@ -98,7 +100,7 @@ export async function DELETE(
     const deleteResult = await db.section.deleteMany({
       where: {
         id: { in: sectionIds },
-        collegeId: params.id,
+        collegeId: id,
       },
     });
 

@@ -1,13 +1,15 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { withAuditLog } from "@/lib/middleware/withAuditLog";
 
-export async function DELETE(
+const DeleteFormFieldController = async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+) => {
   try {
+    const { id } = await params;
     await db.formField.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Form field deleted successfully" });
@@ -29,4 +31,15 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
+};
+
+export const DELETE = withAuditLog(DeleteFormFieldController, {
+  action: "DELETE_FORM_FIELD",
+  extract: (req) => ({
+    userId: req.headers.get("x-user-id") || undefined,
+    entity: "formField",
+    metadata: {
+      searchParams: req.url,
+    },
+  }),
+});

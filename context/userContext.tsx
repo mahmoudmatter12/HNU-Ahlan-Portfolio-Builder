@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useUser as useClerkUser } from '@clerk/nextjs';
 import { UserService } from '@/services/user-service';
+import { setUserIdHeader } from '@/lib/axios';
 
 export interface User {
     id: string;
@@ -41,6 +42,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         if (!clerkUser?.id) {
             setUser(null);
             setLoading(false);
+            setUserIdHeader(null);
             return;
         }
 
@@ -57,10 +59,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             };
 
             setUser(user);
+            setUserIdHeader(user.id);
         } catch (err) {
             console.error('Error fetching user:', err);
             setError('Failed to fetch user data');
             setUser(null);
+            setUserIdHeader(null);
         } finally {
             setLoading(false);
         }

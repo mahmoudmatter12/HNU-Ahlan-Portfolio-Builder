@@ -28,20 +28,20 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    logAction({
-      action: "CREATE_FORM_FIELD",
-      userId: request.headers.get("user-id") || undefined,
-      entity: "FormField",
-      entityId: formField.id,
-      metadata: {
-        label: formField.label,
-        type: formField.type,
-        isRequired: formField.isRequired,
-        options: formField.options,
-        formSectionId: formField.formSectionId,
-        order: formField.order,
-      },
-    });
+    // logAction({
+    //   action: "CREATE_FORM_FIELD",
+    //   userId: request.headers.get("user-id") || undefined,
+    //   entity: "FormField",
+    //   entityId: formField.id,
+    //   metadata: {
+    //     label: formField.label,
+    //     type: formField.type,
+    //     isRequired: formField.isRequired,
+    //     options: formField.options,
+    //     formSectionId: formField.formSectionId,
+    //     order: formField.order,
+    //   },
+    // });
 
     return NextResponse.json(formField, { status: 201 });
   } catch (error) {

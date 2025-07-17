@@ -27,7 +27,7 @@ export const resetSomeFields = async (name: string) => {
     case "section":
       await db.section.deleteMany();
       break;
-    case "auditLog":
+    case "logs":
       await db.auditLog.deleteMany();
       break;
     case "user":
@@ -67,7 +67,7 @@ const main = async () => {
     console.log(
       "  npm run reset-db formSection - Reset only formSection table"
     );
-    console.log("  npm run reset-db auditLog - Reset only auditLog table");
+    console.log("  npm run reset-db logs - Reset only logs table");
   }
 };
 

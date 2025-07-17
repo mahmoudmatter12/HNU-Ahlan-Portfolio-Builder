@@ -84,7 +84,7 @@ export function SectionFormDialog({ open, onOpenChange, section, collegeId, onSu
                 })
             }
         }
-    }, [open, section, form, collegeId])
+    }, [open, section, form, collegeId, college])
 
     const sectionService = new SectionService()
 

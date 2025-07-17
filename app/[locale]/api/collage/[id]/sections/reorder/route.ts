@@ -3,8 +3,9 @@ import { db } from '@/lib/db'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const body = await request.json()
     const { sectionOrders } = body
@@ -18,7 +19,7 @@ export async function PUT(
     // Validate that all sections belong to this college
     const sections = await db.section.findMany({
       where: { 
-        collegeId: params.id,
+        collegeId: id,
         id: { in: sectionOrders.map(item => item.id) }
       },
       select: { id: true }
@@ -38,12 +39,11 @@ export async function PUT(
       })
     )
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const updatedSections = await db.$transaction(updatePromises)
 
     // Return updated sections in order
     const orderedSections = await db.section.findMany({
-      where: { collegeId: params.id },
+      where: { collegeId: id },
       orderBy: { order: 'asc' }
     })
     
