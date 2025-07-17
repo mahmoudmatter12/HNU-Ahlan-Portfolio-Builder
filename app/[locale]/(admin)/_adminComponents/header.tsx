@@ -20,15 +20,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useCurrentUser } from '@/context/userContext';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { SignOutButton } from '@clerk/nextjs';
 
 interface HeaderProps {
-  user: {
-    name: string;
-    email: string;
-    avatar?: string;
-    role: 'admin' | 'superadmin';
-  };
-  onLogout: () => void;
   notifications?: {
     id: string;
     title: string;
@@ -43,8 +40,6 @@ interface HeaderProps {
 }
 
 export function Header({
-  user,
-  onLogout,
   notifications = [],
   onNotificationClick,
   onMarkAllAsRead,
@@ -56,7 +51,7 @@ export function Header({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const unreadNotifications = notifications.filter(n => !n.read).length;
-
+  const { locale } = useParams();
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -67,9 +62,12 @@ export function Header({
     console.log('Searching for:', searchQuery);
   };
 
+  const currentUser = useCurrentUser();
+
+
   return (
     <header className={cn(
-      "flex h-16 items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6",
+      "flex h-16 items-center justify-between border-b border-gray-800 bg-gray-950/95 backdrop-blur supports-[backdrop-filter]:bg-gray-950/60 px-4 sm:px-6",
       className
     )}>
       {/* Search Bar */}
@@ -78,10 +76,10 @@ export function Header({
           "relative transition-all duration-200",
           isSearchFocused ? "w-full" : "w-full sm:w-80"
         )}>
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder={searchPlaceholder}
-            className="w-full pl-10 pr-4"
+            className="w-full pl-10 pr-4 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400 focus:border-gray-600 focus:ring-gray-600"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
@@ -91,7 +89,7 @@ export function Header({
             <Button
               variant="ghost"
               size="sm"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-muted-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 text-gray-400 hover:text-white"
               onClick={() => setSearchQuery('')}
             >
               <span className="sr-only">Clear search</span>
@@ -108,7 +106,7 @@ export function Header({
         {/* Theme Toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="hidden sm:flex">
+            <Button variant="ghost" size="sm" className="hidden sm:flex text-gray-300 hover:text-white hover:bg-gray-900">
               {mounted ? (
                 theme === 'dark' ? (
                   <Moon className="h-4 w-4" />
@@ -121,16 +119,16 @@ export function Header({
               <span className="sr-only">Toggle theme</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme("light")}>
+          <DropdownMenuContent align="end" className="bg-gray-900 border-gray-700">
+            <DropdownMenuItem onClick={() => setTheme("light")} className="text-gray-300 hover:text-white hover:bg-gray-800">
               <Sun className="mr-2 h-4 w-4" />
               Light
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
+            <DropdownMenuItem onClick={() => setTheme("dark")} className="text-gray-300 hover:text-white hover:bg-gray-800">
               <Moon className="mr-2 h-4 w-4" />
               Dark
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
+            <DropdownMenuItem onClick={() => setTheme("system")} className="text-gray-300 hover:text-white hover:bg-gray-800">
               <Settings className="mr-2 h-4 w-4" />
               System
             </DropdownMenuItem>
@@ -138,7 +136,7 @@ export function Header({
         </DropdownMenu>
 
         {/* Help Center */}
-        <Button variant="ghost" size="sm" className="hidden sm:flex">
+        <Button variant="ghost" size="sm" className="hidden sm:flex text-gray-300 hover:text-white hover:bg-gray-900">
           <HelpCircle className="h-4 w-4" />
           <span className="sr-only">Help</span>
         </Button>
@@ -146,7 +144,7 @@ export function Header({
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="relative">
+            <Button variant="ghost" size="sm" className="relative text-gray-300 hover:text-white hover:bg-gray-900">
               <Bell className="h-5 w-5" />
               {unreadNotifications > 0 && (
                 <Badge variant="destructive" className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
@@ -155,50 +153,50 @@ export function Header({
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80 sm:w-96">
-            <DropdownMenuLabel className="flex justify-between items-center">
+          <DropdownMenuContent align="end" className="w-80 sm:w-96 bg-gray-900 border-gray-700">
+            <DropdownMenuLabel className="flex justify-between items-center text-white">
               <span>Notifications</span>
               {unreadNotifications > 0 && (
                 <Button
                   variant="link"
                   size="sm"
-                  className="h-6 text-xs text-primary"
+                  className="h-6 text-xs text-blue-400 hover:text-blue-300"
                   onClick={onMarkAllAsRead}
                 >
                   Mark all as read
                 </Button>
               )}
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-gray-700" />
             <div className="space-y-1 max-h-96 overflow-y-auto">
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <DropdownMenuItem
                     key={notification.id}
                     className={cn(
-                      "flex flex-col items-start p-3 rounded-lg cursor-pointer",
-                      !notification.read && "bg-accent/50"
+                      "flex flex-col items-start p-3 rounded-lg cursor-pointer text-gray-300 hover:text-white hover:bg-gray-800",
+                      !notification.read && "bg-gray-800/50"
                     )}
                     onClick={() => onNotificationClick?.(notification.id)}
                   >
                     <div className="flex justify-between w-full">
                       <p className="text-sm font-medium">{notification.title}</p>
-                      <time className="text-xs text-muted-foreground">{notification.time}</time>
+                      <time className="text-xs text-gray-400">{notification.time}</time>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{notification.description}</p>
+                    <p className="text-xs text-gray-400 mt-1">{notification.description}</p>
                     {!notification.read && (
-                      <div className="absolute left-2 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary" />
+                      <div className="absolute left-2 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-blue-400" />
                     )}
                   </DropdownMenuItem>
                 ))
               ) : (
-                <div className="p-4 text-center text-sm text-muted-foreground">
+                <div className="p-4 text-center text-sm text-gray-400">
                   No notifications
                 </div>
               )}
             </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center text-sm text-primary">
+            <DropdownMenuSeparator className="bg-gray-700" />
+            <DropdownMenuItem className="justify-center text-sm text-blue-400 hover:text-blue-300">
               View all notifications
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -207,64 +205,66 @@ export function Header({
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-auto rounded-full pl-2 pr-3 space-x-2">
+            <Button variant="ghost" className="relative h-10 w-auto rounded-full pl-2 pr-3 space-x-2 text-gray-300 hover:text-white hover:bg-gray-900">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                <AvatarImage src={currentUser?.image} alt={currentUser?.name} />
+                <AvatarFallback className="bg-gray-800 text-white">
+                  {currentUser?.name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden sm:flex sm:items-center">
                 <div className="text-left">
-                  <p className="text-sm font-medium truncate max-w-[120px]">{user.name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                  <p className="text-sm font-medium truncate max-w-[120px]">{currentUser?.name}</p>
+                  <p className="text-xs text-gray-400 capitalize">{currentUser?.userType}</p>
                 </div>
-                <ChevronDown className="ml-1 h-4 w-4 text-muted-foreground" />
+                <ChevronDown className="ml-1 h-4 w-4 text-gray-400" />
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
+          <DropdownMenuContent className="w-56 bg-gray-900 border-gray-700" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal text-white">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user.name}</p>
-                <p className="text-xs leading-none text-muted-foreground truncate">
-                  {user.email}
+                <p className="text-sm font-medium leading-none">{currentUser?.name}</p>
+                <p className="text-xs leading-none text-gray-400 truncate">
+                  {currentUser?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-gray-700" />
+            <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-gray-800">
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <Link href={`/${locale}/admin/profile`}>Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-gray-800">
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger className="text-gray-300 hover:text-white hover:bg-gray-800">
                 <Sun className="mr-2 h-4 w-4" />
                 <span>Theme</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuSubContent className="bg-gray-900 border-gray-700">
+                  <DropdownMenuItem onClick={() => setTheme("light")} className="text-gray-300 hover:text-white hover:bg-gray-800">
                     Light
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                  <DropdownMenuItem onClick={() => setTheme("dark")} className="text-gray-300 hover:text-white hover:bg-gray-800">
                     Dark
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                  <DropdownMenuItem onClick={() => setTheme("system")} className="text-gray-300 hover:text-white hover:bg-gray-800">
                     System
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-gray-700" />
+            <SignOutButton redirectUrl='/'>
+              <DropdownMenuItem className="text-red-400 hover:text-red-300 hover:bg-gray-800">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </SignOutButton>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

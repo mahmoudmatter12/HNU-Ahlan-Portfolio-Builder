@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const { id } = await params;
   try {
-    const body = await request.json()
-    const { name, slug, type, theme, galleryImages, projects } = body
-    
+    const body = await request.json();
+    const { name, slug, type, theme, galleryImages, projects } = body;
+
     const college = await db.college.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         slug,
@@ -22,19 +22,23 @@ export async function PUT(
       },
       include: {
         createdBy: true,
-      }
-    })
-    
-    return NextResponse.json(college)
+      },
+    });
+
+    return NextResponse.json(college);
   } catch (error) {
-    console.error('Error updating college:', error)
-    if (typeof error === "object" &&
+    console.error("Error updating college:", error);
+    if (
+      typeof error === "object" &&
       error !== null &&
       "code" in error &&
-      (error as { code?: string }).code === "P2025") {
-      return NextResponse.json({ error: 'College not found' }, { status: 404 })
+      (error as { code?: string }).code === "P2025"
+    ) {
+      return NextResponse.json({ error: "College not found" }, { status: 404 });
     }
-    return NextResponse.json({ error: 'Failed to update college' }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to update college" },
+      { status: 500 }
+    );
   }
 }
-

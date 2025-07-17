@@ -1,6 +1,9 @@
+"use client"
 import React, { ReactNode } from 'react';
 import { ThemeProvider } from './theme-provider';
 import { ClerkProvider } from '@clerk/nextjs';
+import { QueryClientProviderWrapper } from './QueryClientProvider';
+import { UserProvider } from './userContext';
 
 // Import your providers here
 // import { AuthProvider } from './AuthProvider';
@@ -20,7 +23,11 @@ export const GlobalProviders: React.FC<GlobalProvidersProps> = ({ children }) =>
                     enableSystem
                     disableTransitionOnChange
                 >
-                    {children}
+                    <QueryClientProviderWrapper>
+                        <UserProvider>
+                            {children}
+                        </UserProvider>
+                    </QueryClientProviderWrapper>
                 </ThemeProvider>
             </ClerkProvider>
         </>

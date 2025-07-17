@@ -33,6 +33,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Header } from "./header"
 import { useLocale } from "next-intl";
+import { SignOutButton } from "@clerk/nextjs";
+import { useCurrentUser } from "@/context/userContext"
 
 interface AdminLayoutProps {
     children: React.ReactNode
@@ -45,7 +47,8 @@ interface NavItem {
     badge?: string
     description?: string
     dynamicBadge?: boolean
-    roles?: ('admin' | 'superadmin')[]
+    roles?: ('ADMIN' | 'SUPERADMIN')[]
+    subItems?: NavItem[]
 }
 
 interface NavSection {
@@ -59,8 +62,8 @@ const mockUsers = {
         id: "1",
         name: "University Admin",
         email: "admin@university.edu",
-        role: "admin",
-        avatar: "/avatars/admin.png",
+        userType: "ADMIN",
+        image: "/avatars/admin.png",
         unreadMessages: 3,
         lastLogin: new Date().toISOString()
     },
@@ -68,8 +71,8 @@ const mockUsers = {
         id: "0",
         name: "System Superadmin",
         email: "superadmin@university.edu",
-        role: "superadmin",
-        avatar: "/avatars/superadmin.png",
+        userType: "SUPERADMIN",
+        image: "/avatars/superadmin.png",
         unreadMessages: 5,
         lastLogin: new Date().toISOString()
     }
@@ -85,7 +88,7 @@ const navigationSections: NavSection[] = [
                 href: "/",
                 icon: Home,
                 description: "Return to the university website",
-                roles: ['admin', 'superadmin']
+                roles: ['ADMIN', 'SUPERADMIN']
             }
         ]
     },
@@ -97,14 +100,30 @@ const navigationSections: NavSection[] = [
                 href: "/admin",
                 icon: Home,
                 description: "University dashboard and analytics",
-                roles: ['admin', 'superadmin']
+                roles: ['ADMIN', 'SUPERADMIN']
             },
             {
                 title: "Analytics",
                 href: "/admin/analytics",
                 icon: BarChart3,
                 description: "University statistics and insights",
-                roles: ['admin', 'superadmin']
+                roles: ['ADMIN', 'SUPERADMIN'],
+                badge: "Soon"
+            },
+            {
+                title: "Collages",
+                href: "/admin/dashboard/collages",
+                icon: FolderOpen,
+                description: "Manage university collages",
+                roles: ['SUPERADMIN'],
+                subItems: [
+                    {
+                        title: "Specific Collage",
+                        href: "/admin/dashboard/collages/slug",
+                        icon: FolderOpen,
+                        roles: ['SUPERADMIN']
+                    }
+                ]
             }
         ]
     },
@@ -116,14 +135,14 @@ const navigationSections: NavSection[] = [
                 href: "/admin/students",
                 icon: GraduationCap,
                 description: "Manage student profiles",
-                roles: ['admin', 'superadmin']
+                roles: ['ADMIN', 'SUPERADMIN']
             },
             {
                 title: "Portfolios",
                 href: "/admin/portfolios",
                 icon: BookOpen,
                 description: "View and manage student portfolios",
-                roles: ['admin', 'superadmin'],
+                roles: ['ADMIN', 'SUPERADMIN'],
                 dynamicBadge: true
             },
             {
@@ -131,14 +150,14 @@ const navigationSections: NavSection[] = [
                 href: "/admin/projects",
                 icon: FolderOpen,
                 description: "Student projects and research",
-                roles: ['admin', 'superadmin']
+                    roles: ['ADMIN', 'SUPERADMIN']
             },
             {
                 title: "Achievements",
                 href: "/admin/achievements",
                 icon: Award,
                 description: "Student awards and certifications",
-                roles: ['admin', 'superadmin']
+                roles: ['ADMIN', 'SUPERADMIN']
             }
         ]
     },
@@ -150,21 +169,21 @@ const navigationSections: NavSection[] = [
                 href: "/admin/courses",
                 icon: ClipboardList,
                 description: "Manage university courses",
-                roles: ['admin', 'superadmin']
+                roles: ['ADMIN', 'SUPERADMIN']
             },
             {
                 title: "Templates",
                 href: "/admin/templates",
                 icon: Layers,
                 description: "Portfolio templates for students",
-                roles: ['superadmin']
+                roles: ['SUPERADMIN']
             },
             {
                 title: "Departments",
                 href: "/admin/departments",
                 icon: Briefcase,
                 description: "Manage academic departments",
-                roles: ['superadmin']
+                roles: ['SUPERADMIN']
             }
         ]
     },
@@ -176,28 +195,28 @@ const navigationSections: NavSection[] = [
                 href: "/admin/users",
                 icon: Users,
                 description: "Manage admin users and permissions",
-                roles: ['superadmin']
+                roles: ['SUPERADMIN']
             },
             {
                 title: "Database",
                 href: "/admin/database",
                 icon: Database,
                 description: "System database administration",
-                roles: ['superadmin']
+                roles: ['SUPERADMIN']
             },
             {
                 title: "Security",
                 href: "/admin/security",
                 icon: Shield,
                 description: "Security and access controls",
-                roles: ['superadmin']
+                roles: ['SUPERADMIN']
             },
             {
                 title: "Settings",
                 href: "/admin/settings",
                 icon: Settings,
                 description: "System configuration",
-                roles: ['superadmin']
+                roles: ['SUPERADMIN']
             }
         ]
     }
@@ -216,18 +235,18 @@ function SidebarContent({
 }) {
     const pathname = usePathname()
     return (
-        <div className="flex h-full flex-col ">
+        <div className="flex h-full flex-col bg-gray-950">
             {/* Header */}
-            <div className="flex h-16 items-center border-b px-4">
+            <div className="flex h-16 items-center border-b border-gray-800 px-4 bg-gray-900/50">
                 <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-900">
                         <GraduationCap className="h-4 w-4" />
                     </div>
                     {!collapsed && (
                         <div className="flex flex-col">
-                            <span className="text-sm font-semibold">University Admin</span>
-                            <span className="text-xs text-muted-foreground">
-                                {user.role === 'superadmin' ? 'System Administrator' : 'Department Admin'}
+                            <span className="text-sm font-semibold text-white">University Admin</span>
+                            <span className="text-xs text-gray-400">
+                                {user?.userType === 'SUPERADMIN' ? 'System Administrator' : 'Department Admin'}
                             </span>
                         </div>
                     )}
@@ -235,12 +254,12 @@ function SidebarContent({
             </div>
 
             {/* Navigation */}
-            <div className="flex-1 overflow-y-auto py-4">
+            <div className="flex-1 overflow-y-auto py-4 bg-gray-950">
                 <nav className="space-y-6 px-3">
                     {navigationSections.map((section) => {
                         // Filter items based on user role
                         const filteredItems = section.items.filter(item =>
-                            !item.roles || item.roles.includes(user.role as 'admin' | 'superadmin')
+                            !item.roles || item.roles.includes(user?.userType as 'ADMIN' | 'SUPERADMIN')
                         )
 
                         if (filteredItems.length === 0) return null
@@ -248,7 +267,7 @@ function SidebarContent({
                         return (
                             <div key={section.title}>
                                 {!collapsed && (
-                                    <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
                                         {section.title}
                                     </h3>
                                 )}
@@ -257,9 +276,6 @@ function SidebarContent({
                                         const isActive = pathname === `/${locale}${item.href}`
                                         const Icon = item.icon
                                         const isDisabled = item.badge === "Soon"
-                                        // console.log(locale, item.href)
-                                        // console.log("is active:", isActive)
-                                        console.log("item:", `/${locale}${item.href}`, pathname, isActive)
 
                                         // Get the badge value - either static or dynamic
                                         let badgeValue = item.badge
@@ -279,8 +295,8 @@ function SidebarContent({
                                                             href={isDisabled ? "#" : `/${locale}${item.href}`}
                                                             onClick={onNavigate}
                                                             className={cn(
-                                                                "flex items-center justify-center rounded-lg p-2 text-sm transition-all hover:bg-blue-500/40",
-                                                                isActive && "bg-blue-500/40 text-accent-foreground",
+                                                                "flex items-center justify-center rounded-lg p-2 text-sm transition-all hover:bg-gray-900/50 text-gray-300 hover:text-white",
+                                                                isActive && "bg-gray-900/50 text-white",
                                                                 isDisabled && "cursor-not-allowed opacity-50 hover:bg-transparent",
                                                             )}
                                                         >
@@ -290,7 +306,7 @@ function SidebarContent({
                                                     <TooltipContent side="right">
                                                         {item.title}
                                                         {item.description && (
-                                                            <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                                                            <p className="text-xs text-gray-400 mt-1">{item.description}</p>
                                                         )}
                                                     </TooltipContent>
                                                 </Tooltip>
@@ -303,8 +319,8 @@ function SidebarContent({
                                                 href={isDisabled ? "#" : `/${locale}${item.href}`}
                                                 onClick={onNavigate}
                                                 className={cn(
-                                                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-blue-500/40",
-                                                    isActive && "bg-blue-500/40 text-accent-foreground",
+                                                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-gray-900/50 text-gray-300 hover:text-white",
+                                                    isActive && "bg-gray-900/50 text-white",
                                                     isDisabled && "cursor-not-allowed opacity-50 hover:bg-transparent",
                                                 )}
                                             >
@@ -315,19 +331,19 @@ function SidebarContent({
                                                         {badgeValue && (
                                                             <Badge
                                                                 variant={badgeValue === "Soon" ? "secondary" : "default"}
-                                                                className="h-5 text-xs"
+                                                                className="h-5 text-xs bg-gray-800 text-gray-300 border-gray-700"
                                                             >
                                                                 {badgeValue}
                                                             </Badge>
                                                         )}
                                                     </div>
-                                                    {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+                                                    {item.description && <p className="text-xs text-gray-400">{item.description}</p>}
                                                 </div>
                                             </Link>
                                         )
                                     })}
                                 </div>
-                                {!collapsed && <Separator className="mt-4" />}
+                                {!collapsed && <Separator className="mt-4 bg-gray-800" />}
                             </div>
                         )
                     })}
@@ -335,14 +351,16 @@ function SidebarContent({
             </div>
 
             {/* Footer */}
-            <div className="border-t p-4">
+            <div className="border-t border-gray-800 p-4 bg-gray-900/50">
                 <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "justify-between")}>
                     <Button
                         variant="ghost"
                         size={collapsed ? "icon" : "default"}
-                        className={cn("text-red-500 hover:text-red-600", collapsed ? "h-8 w-8" : "h-8")}
+                        className={cn("text-red-400 hover:text-red-300 hover:bg-gray-800", collapsed ? "h-8 w-8" : "h-8")}
                     >
-                        <LogOut className="h-4 w-4" />
+                        <SignOutButton>
+                            <LogOut className="h-4 w-4" />
+                        </SignOutButton>
                         {!collapsed && <span className="ml-2">Logout</span>}
                     </Button>
                 </div>
@@ -365,7 +383,7 @@ function DesktopSidebar({
     return (
         <div
             className={cn(
-                "relative hidden border-r bg-background transition-all duration-300 lg:block",
+                "relative hidden border-r border-gray-800 bg-gray-950 transition-all duration-300 lg:block",
                 collapsed ? "w-16" : "w-64",
             )}
         >
@@ -375,7 +393,7 @@ function DesktopSidebar({
             <Button
                 variant="ghost"
                 size="sm"
-                className="absolute -right-3 top-6 z-10 h-6 w-6 rounded-full border bg-background p-0 shadow-md"
+                className="absolute -right-3 top-6 z-10 h-6 w-6 rounded-full border border-gray-700 bg-gray-950 p-0 shadow-md text-gray-300 hover:text-white hover:bg-gray-900"
                 onClick={() => setCollapsed(!collapsed)}
             >
                 {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
@@ -391,12 +409,12 @@ function MobileSidebar({ user, locale }: { user: typeof mockUsers.admin | typeof
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="lg:hidden">
+                <Button variant="ghost" size="sm" className="lg:hidden text-gray-300 hover:text-white hover:bg-gray-900">
                     <Menu className="h-5 w-5" />
                     <span className="sr-only">Toggle navigation menu</span>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0">
+            <SheetContent side="left" className="w-64 p-0 bg-gray-950 border-gray-800">
                 <SidebarContent collapsed={false} onNavigate={() => setOpen(false)} user={user} locale={locale} />
             </SheetContent>
         </Sheet>
@@ -406,55 +424,44 @@ function MobileSidebar({ user, locale }: { user: typeof mockUsers.admin | typeof
 export function AdminLayout({ children }: AdminLayoutProps) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
     const locale = useLocale()
-    // const t = useTranslations('AdminLayout')
-
-    // In a real app, you would use the UserContext like this:
-    // const { user } = useContext(UserContext)
-    // For this example, we'll use mock data
-    const user = mockUsers.superadmin // Change to mockUsers.admin to see admin view
-
+    const currentUser = useCurrentUser();
     return (
-        <div className="flex h-screen bg-background">
+        <div className="flex h-screen bg-gray-950">
             {/* Desktop Sidebar */}
             <DesktopSidebar
                 collapsed={sidebarCollapsed}
                 setCollapsed={setSidebarCollapsed}
-                user={user}
+                user={currentUser as unknown as typeof mockUsers.admin | typeof mockUsers.superadmin}
                 locale={locale} // Pass locale to sidebar if needed
             />
 
             {/* Main Content */}
-            <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-hidden bg-gray-950">
                 {/* header */}
-                <Header user={{
-                    name: "Admin User",
-                    email: "admin@example.com",
-                    avatar: "https://via.placeholder.com/150",
-                    role: "admin",
-                }} onLogout={() => { }} />
+                <Header   />
                 {/* Mobile Header */}
-                <header className="flex h-16 items-center gap-4 border-b bg-background px-4 lg:hidden">
-                    <MobileSidebar user={user} locale={locale} />
+                <header className="flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950 px-4 lg:hidden">
+                    <MobileSidebar user={currentUser as unknown as typeof mockUsers.admin | typeof mockUsers.superadmin} locale={locale} />
                     <div className="flex-1">
-                        <h1 className="text-lg font-semibold">University Admin</h1>
+                        <h1 className="text-lg font-semibold text-white">University Admin</h1>
                     </div>
                     <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar} />
-                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                            <AvatarImage src={currentUser?.image} />
+                            <AvatarFallback className="bg-gray-800 text-white">{currentUser?.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                     </div>
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-950">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold tracking-tight">
-                            Welcome back, {user.name.split(' ')[0]}!
+                        <h2 className="text-2xl font-bold tracking-tight text-white">
+                            Welcome back, {currentUser?.name?.split(' ')[0]}!
                         </h2>
                         <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className="capitalize">
-                                {user.role}
+                            <Badge variant="outline" className="capitalize bg-gray-900/50 text-gray-300 border-gray-700">
+                                {currentUser?.userType}
                             </Badge>
                         </div>
                     </div>

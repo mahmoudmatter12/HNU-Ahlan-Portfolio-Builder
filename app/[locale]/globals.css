@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import '@uiw/react-md-editor/markdown-editor.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -116,7 +117,126 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Markdown Editor Customization */
+.w-md-editor {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background-color: hsl(var(--background));
+}
+
+.w-md-editor-toolbar {
+  border-bottom: 1px solid hsl(var(--border));
+  background-color: hsl(var(--muted));
+}
+
+.w-md-editor-toolbar-divider {
+  background-color: hsl(var(--border));
+}
+
+.w-md-editor-toolbar button {
+  color: hsl(var(--muted-foreground));
+}
+
+.w-md-editor-toolbar button:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.w-md-editor-text {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.w-md-editor-text-input {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.w-md-editor-preview {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.w-md-editor-preview h1,
+.w-md-editor-preview h2,
+.w-md-editor-preview h3,
+.w-md-editor-preview h4,
+.w-md-editor-preview h5,
+.w-md-editor-preview h6 {
+  color: hsl(var(--foreground));
+}
+
+.w-md-editor-preview a {
+  color: hsl(var(--primary));
+}
+
+.w-md-editor-preview code {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+/* Custom prose styles for markdown content */
+.prose {
+  @apply text-foreground;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  @apply text-foreground font-semibold;
+}
+
+.prose p {
+  @apply text-foreground/80;
+}
+
+.prose a {
+  @apply text-primary hover:text-primary/80 underline;
+}
+
+.prose code {
+  @apply bg-muted text-foreground px-1 py-0.5 rounded text-sm;
+}
+
+.prose pre {
+  @apply bg-muted text-foreground p-4 rounded-lg overflow-x-auto;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-primary/20 pl-4 italic text-foreground/70;
+}
+
+.prose ul,
+.prose ol {
+  @apply text-foreground/80;
+}
+
+.prose li {
+  @apply text-foreground/80;
+}
+
+.prose strong {
+  @apply text-foreground font-semibold;
+}
+
+.prose em {
+  @apply text-foreground/90 italic;
 }

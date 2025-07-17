@@ -1,0 +1,8 @@
+      <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
+        <h1>Sortable List with @dnd-kit</h1>
+        <SortableList />
+      </div>
+      <div className='text-center'>
+        <h1 className='text-2xl font-bold'>{t('title')}</h1>
+        <p className='text-gray-600'>{t('description')}</p>
+      </div>
