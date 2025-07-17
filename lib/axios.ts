@@ -3,7 +3,7 @@ import axios from "axios";
 // Client-side axios instance (for use in client components)
 export const api = axios.create({
   baseURL:
-    `${process.env.NEXT_PUBLIC_API_URL}/en/api` ||
+    `${process.env.NEXT_PUBLIC_API_URL}/api` ||
     "http://localhost:3000/en/api",
   timeout: 3000,
   headers: {
@@ -15,7 +15,7 @@ export const api = axios.create({
 // Server-side axios instance (for use in server components/API routes)
 export const serverApi = axios.create({
   baseURL:
-    `${process.env.NEXT_PUBLIC_API_URL}/en/api` ||
+    `${process.env.NEXT_PUBLIC_API_URL}/api` ||
     "http://localhost:3000/en/api",
   timeout: 3000,
   headers: {
