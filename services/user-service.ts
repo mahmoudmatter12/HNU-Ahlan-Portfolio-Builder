@@ -11,6 +11,11 @@ export class UserService {
     return res.data;
   }
 
+  static async findOrCreateUser(clerkId: string) {
+    const res = await api.post("/users/find-or-create", { clerkId });
+    return res.data;
+  }
+
   static async updateUser(userId: string, updates: any) {
     const res = await api.put(`/users/${userId}`, updates);
     return res.data;

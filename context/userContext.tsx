@@ -50,7 +50,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             setLoading(true);
             setError(null);
 
-            const userData = await UserService.getCurrentUser(clerkUser.id);
+            // Use find-or-create instead of just get current user
+            const userData = await UserService.findOrCreateUser(clerkUser.id);
             // Convert date strings to Date objects
             const user: User = {
                 ...userData,

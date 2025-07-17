@@ -34,6 +34,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Header } from "./header"
 import { useLocale } from "next-intl";
 import { useCurrentUser } from "@/context/userContext"
+import { SignOutButton } from "@clerk/nextjs"
 
 interface AdminLayoutProps {
     children: React.ReactNode
@@ -234,12 +235,7 @@ function SidebarContent({
 }) {
     const pathname = usePathname()
 
-    const handleSignOut = () => {
-        // Clear any local storage or cookies if needed
-        localStorage.removeItem('clerk-db');
-        // Redirect to sign-in page
-        window.location.href = '/sign-in';
-    };
+
     return (
         <div className="flex h-full flex-col bg-gray-950">
             {/* Header */}
@@ -359,15 +355,16 @@ function SidebarContent({
             {/* Footer */}
             <div className="border-t border-gray-800 p-4 bg-gray-900/50">
                 <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "justify-between")}>
-                    <Button
-                        variant="ghost"
-                        size={collapsed ? "icon" : "default"}
-                        className={cn("text-red-400 hover:text-red-300 hover:bg-gray-800", collapsed ? "h-8 w-8" : "h-8")}
-                        onClick={handleSignOut}
-                    >
-                        <LogOut className="h-4 w-4" />
-                        {!collapsed && <span className="ml-2">Logout</span>}
-                    </Button>
+                    <SignOutButton redirectUrl="/">
+                        <Button
+                            variant="ghost"
+                            size={collapsed ? "icon" : "default"}
+                            className={cn("text-red-400 hover:text-red-300 hover:bg-gray-800", collapsed ? "h-8 w-8" : "h-8")}
+                        >
+                            <LogOut className="h-4 w-4" />
+                            {!collapsed && <span className="ml-2">Logout</span>}
+                        </Button>
+                    </SignOutButton>
                 </div>
             </div>
         </div>

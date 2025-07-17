@@ -37,9 +37,10 @@ function CollegeDemoPage() {
     })
     const user = useCurrentUser()
 
-    if (!user || user.userType !== 'ADMIN') {
+    if (!user || user.userType !== 'SUPERADMIN') {
         return <div>You are not authorized to access this page</div>
     }
+    
     if (!college) {
         return <div>Loading...</div>
     }

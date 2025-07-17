@@ -37,6 +37,7 @@ const collegeSchema = z.object({
     galleryImages: z.string().optional(),
     projects: z.string().optional(),
     createdById: z.string().min(1, "Created by ID is required"),
+    faq: z.string().optional(),
 })
 
 type CollegeFormData = z.infer<typeof collegeSchema>
@@ -64,6 +65,7 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
             galleryImages: "[]",
             projects: "[]",
             createdById: user?.id || "",
+            faq: "[]",
         },
     })
 
@@ -80,6 +82,7 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                     galleryImages: JSON.stringify(college.galleryImages, null, 2),
                     projects: JSON.stringify(college.projects, null, 2),
                     createdById: college.createdById,
+                    faq: JSON.stringify(college.faq, null, 2),
                 })
             } else {
                 form.reset({
@@ -90,6 +93,7 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                     galleryImages: "[]",
                     projects: "[]",
                     createdById: user?.id || "",
+                    faq: "[]",
                 })
             }
         }
@@ -158,6 +162,7 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                 galleryImages,
                 projects,
                 createdById: data.createdById || user?.id,
+                faq: data.faq ? JSON.parse(data.faq) : [],
             }
 
             if (isEditing && college) {

@@ -14,6 +14,7 @@ export interface College {
   forms: CollegeFormSection[];
   formSubmissions: CollegeFormSubmission[];
   createdBy?: CollegeUser;
+  faq?: Record<string, any>;
   _count?: {
     users: number;
     sections: number;

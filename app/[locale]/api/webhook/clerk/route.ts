@@ -21,24 +21,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No user ID found" }, { status: 400 });
     }
     try {
-      const user = await clerk.users.getUser(userId);
-
-      // Check if the user exists in your DB
-      const existingUser = await db.user.findUnique({
+      // Use the same find-or-create logic as the API endpoint
+      let user = await db.user.findUnique({
         where: { clerkId: userId },
       });
 
-      if (!existingUser) {
-        await db.user.create({
+      if (!user) {
+        const clerkUser = await clerk.users.getUser(userId);
+        user = await db.user.create({
           data: {
-            clerkId: user.id,
-            email: user.emailAddresses[0]?.emailAddress ?? "",
-            name: user.fullName,
-            image: user.imageUrl,
+            clerkId: clerkUser.id,
+            email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
+            name: clerkUser.fullName,
+            image: clerkUser.imageUrl,
+            userType: "GUEST", // Default to GUEST
             onboarded: false,
-            userType: "ADMIN",
           },
         });
+        console.log(
+          `Webhook: Created new user: ${user.id} for Clerk ID: ${userId}`
+        );
       }
 
       return NextResponse.json({ status: "user synced" });
