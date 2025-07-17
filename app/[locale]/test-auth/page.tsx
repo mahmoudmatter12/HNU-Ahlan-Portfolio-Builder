@@ -2,7 +2,7 @@
 
 import { useAuthStatus } from "@/hooks/use-auth";
 import { useUser } from "@/context/userContext";
-import { useAuth } from "@clerk/nextjs";
+import { SignOutButton, useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -10,6 +10,10 @@ export default function TestAuthPage() {
     const { isAuthenticated, isAdmin, isSuperAdmin, isGuest, isLoading } = useAuthStatus();
     const { user } = useUser();
     const { isSignedIn } = useAuth();
+
+    const handleRefresh = () => {
+        window.location.reload();
+    }
 
     if (isLoading) {
         return (
@@ -94,6 +98,15 @@ export default function TestAuthPage() {
                                         Sign In
                                     </Button>
                                 )}
+                                <SignOutButton redirectUrl="/">
+                                    <Button variant="outline">
+                                        Sign Out
+                                    </Button>
+                                </SignOutButton>
+
+                                <Button variant="outline" onClick={() => handleRefresh()}>
+                                    Refresh
+                                </Button>
                             </div>
                         </div>
                     </CardContent>

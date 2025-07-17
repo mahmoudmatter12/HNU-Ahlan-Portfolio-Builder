@@ -123,7 +123,7 @@ const navigationSections: NavSection[] = [
                         icon: FolderOpen,
                         roles: ['SUPERADMIN']
                     }
-                ]
+                ],
             }
         ]
     },
@@ -135,7 +135,9 @@ const navigationSections: NavSection[] = [
                 href: "/admin/students",
                 icon: GraduationCap,
                 description: "Manage student profiles",
-                roles: ['ADMIN', 'SUPERADMIN']
+                roles: ['ADMIN', 'SUPERADMIN'],
+                badge: "Soon"
+
             },
             {
                 title: "Portfolios",
@@ -143,21 +145,26 @@ const navigationSections: NavSection[] = [
                 icon: BookOpen,
                 description: "View and manage student portfolios",
                 roles: ['ADMIN', 'SUPERADMIN'],
-                dynamicBadge: true
+                // dynamicBadge: true,
+                badge: "Soon"
             },
             {
                 title: "Projects",
                 href: "/admin/projects",
                 icon: FolderOpen,
                 description: "Student projects and research",
-                roles: ['ADMIN', 'SUPERADMIN']
+                roles: ['ADMIN', 'SUPERADMIN'],
+                badge: "Soon"
+
             },
             {
                 title: "Achievements",
                 href: "/admin/achievements",
                 icon: Award,
                 description: "Student awards and certifications",
-                roles: ['ADMIN', 'SUPERADMIN']
+                roles: ['ADMIN', 'SUPERADMIN'],
+                badge: "Soon"
+
             }
         ]
     },
@@ -169,21 +176,27 @@ const navigationSections: NavSection[] = [
                 href: "/admin/courses",
                 icon: ClipboardList,
                 description: "Manage university courses",
-                roles: ['ADMIN', 'SUPERADMIN']
+                roles: ['ADMIN', 'SUPERADMIN'],
+                badge: "Soon"
+
             },
             {
                 title: "Templates",
                 href: "/admin/templates",
                 icon: Layers,
                 description: "Portfolio templates for students",
-                roles: ['SUPERADMIN']
+                roles: ['SUPERADMIN'],
+                badge: "Soon"
+
             },
             {
                 title: "Departments",
                 href: "/admin/departments",
                 icon: Briefcase,
                 description: "Manage academic departments",
-                roles: ['SUPERADMIN']
+                roles: ['SUPERADMIN'],
+                badge: "Soon"
+
             }
         ]
     },
@@ -195,28 +208,36 @@ const navigationSections: NavSection[] = [
                 href: "/admin/users",
                 icon: Users,
                 description: "Manage admin users and permissions",
-                roles: ['SUPERADMIN']
+                roles: ['SUPERADMIN'],
+                badge: "Soon"
+
             },
             {
                 title: "Database",
                 href: "/admin/database",
                 icon: Database,
                 description: "System database administration",
-                roles: ['SUPERADMIN']
+                roles: ['SUPERADMIN'],
+                badge: "Soon"
+
             },
             {
                 title: "Security",
                 href: "/admin/security",
                 icon: Shield,
                 description: "Security and access controls",
-                roles: ['SUPERADMIN']
+                roles: ['SUPERADMIN'],
+                badge: "Soon"
+
             },
             {
                 title: "Settings",
                 href: "/admin/settings",
                 icon: Settings,
                 description: "System configuration",
-                roles: ['SUPERADMIN']
+                roles: ['SUPERADMIN'],
+                badge: "Soon"
+
             }
         ]
     }

@@ -240,3 +240,21 @@
 .prose em {
   @apply text-foreground/90 italic;
 }
+
+/* scrollbar */
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-700;
+}
