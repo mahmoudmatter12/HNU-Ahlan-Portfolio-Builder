@@ -12,7 +12,7 @@ export interface User {
     name?: string;
     image?: string;
     onboarded: boolean;
-    userType: "ADMIN" | "SUPERADMIN";
+    userType: "ADMIN" | "SUPERADMIN" | "GUEST";
     collegeId?: string;
     createdAt: Date;
     updatedAt: Date;
