@@ -78,7 +78,7 @@ model College {
   FormSubmission FormSubmission[]
   theme          Json
   galleryImages  Json
-  faq            Json
+  faq            Json?
   createdBy      User?            @relation("CollegeCreatedBy", fields: [createdById], references: [id])
   createdById    String?
   createdAt      DateTime         @default(now())

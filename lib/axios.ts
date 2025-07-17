@@ -1,10 +1,12 @@
 import axios from "axios";
 
-// Client-side axios instance (for use in client components)
+const baseURL = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api`
+  : "http://localhost:3000/en/api";
+
+// Client-side instance
 export const api = axios.create({
-  baseURL:
-    `${process.env.NEXT_PUBLIC_API_URL}/api` ||
-    "http://localhost:3000/en/api",
+  baseURL,
   timeout: 3000,
   headers: {
     "Content-Type": "application/json",
@@ -12,18 +14,16 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// Server-side axios instance (for use in server components/API routes)
+// Server-side instance (if needed)
 export const serverApi = axios.create({
-  baseURL:
-    `${process.env.NEXT_PUBLIC_API_URL}/api` ||
-    "http://localhost:3000/en/api",
+  baseURL,
   timeout: 3000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Function to set user ID header for client-side requests
+// Set custom header
 export const setUserIdHeader = (userId: string | null) => {
   if (userId) {
     api.defaults.headers.common["x-user-id"] = userId;

@@ -32,11 +32,9 @@ async function getCollegesController(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    console.log("user id from collage route from headers", req.headers.get("x-user-id") || undefined);
-
     return NextResponse.json(colleges);
   } catch (error) {
-    console.error("Error fetching colleges:", error);
+    console.log("error from collage route", error);
     return NextResponse.json(
       { error: "Failed to fetch colleges" },
       { status: 500 }
