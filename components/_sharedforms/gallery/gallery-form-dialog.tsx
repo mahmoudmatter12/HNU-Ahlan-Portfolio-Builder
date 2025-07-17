@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Upload, X, Plus, Image as ImageIcon, Calendar, Trash2, Eye } from "lucide-react"
 import { toast } from "sonner"
-import { UploadService } from "@/services/upload-service"
+
 import type { GalleryEvent, GalleryImage, GalleryData, College } from "@/types/Collage"
 import { CollegeService } from "@/services/collage-service"
 import { useQueryClient } from "@tanstack/react-query"
@@ -126,7 +126,7 @@ function EventDetailsDialog({ open, onOpenChange, event, eventIndex, college, on
     const [currentEvent, setCurrentEvent] = useState<GalleryEvent | null>(null)
     const [uploadingImages, setUploadingImages] = useState<string[]>([])
     const [previewImages, setPreviewImages] = useState<{ file: File; url: string; description: string }[]>([])
-    const uploadService = new UploadService()
+
 
     useEffect(() => {
         if (event) {
@@ -157,12 +157,26 @@ function EventDetailsDialog({ open, onOpenChange, event, eventIndex, college, on
                 setUploadingImages(prev => [...prev, previewImage.file.name])
 
                 try {
-                    const response = await uploadService.uploadImage(previewImage.file, `colleges/${college.slug}/gallery`)
+                    // Upload image via API
+                    const formData = new FormData()
+                    formData.append("file", previewImage.file)
+                    formData.append("folder", `colleges/${college.slug}/gallery`)
 
-                    if (response.url) {
+                    const response = await fetch("/api/upload/gallery", {
+                        method: "POST",
+                        body: formData,
+                    })
+
+                    if (!response.ok) {
+                        throw new Error("Upload failed")
+                    }
+
+                    const result = await response.json()
+
+                    if (result.url) {
                         uploadedImages.push({
                             id: crypto.randomUUID(),
-                            url: response.url,
+                            url: result.url,
                             description: previewImage.description
                         })
                     }

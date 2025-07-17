@@ -164,6 +164,12 @@ export class FormService {
     return res.data;
   }
 
+  // Toggle form active status
+  static async toggleFormActive(id: string) {
+    const res = await api.get(`/forms/${id}/active`);
+    return res.data;
+  }
+
   // Get form submissions
   static async getFormSubmissions(
     formSectionId: string,

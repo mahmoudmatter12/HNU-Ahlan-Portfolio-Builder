@@ -82,6 +82,26 @@ export default function FormPage() {
         )
     }
 
+    if (!form.active) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="max-w-2xl mx-auto">
+                    <Card>
+                        <CardContent className="flex items-center justify-center py-12">
+                            <div className="text-center">
+                                <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                                <h2 className="text-xl font-semibold mb-2">Form Not Active</h2>
+                                <p className="text-muted-foreground">
+                                    This form is not active. Please contact the administrator to activate it.
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
+
     if (isSubmitted) {
         return (
             <div className="container mx-auto px-4 py-8">

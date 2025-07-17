@@ -99,6 +99,8 @@ model Section {
 model FormSection {
   id          String           @id @default(cuid())
   title       String
+  description String?
+  active      Boolean          @default(true)
   college     College          @relation(fields: [collegeId], references: [id], onDelete: Cascade)
   collegeId   String
   fields      FormField[]
@@ -113,6 +115,7 @@ model FormField {
   type          FormFieldType
   isRequired    Boolean       @default(false)
   options       String[] // for select, checkbox, radio
+  validation    Json? // Enhanced validation configuration
   formSection   FormSection   @relation(fields: [formSectionId], references: [id], onDelete: Cascade)
   formSectionId String
   order         Int

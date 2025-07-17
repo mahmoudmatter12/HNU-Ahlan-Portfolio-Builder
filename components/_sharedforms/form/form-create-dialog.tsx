@@ -34,6 +34,7 @@ const formSchema = z.object({
     title: z.string().min(1, "Form title is required").max(100, "Title must be less than 100 characters"),
     description: z.string().optional(),
     collegeId: z.string().min(1, "College ID is required"),
+    active: z.boolean(),
 })
 
 type FormFormData = z.infer<typeof formSchema>
@@ -57,6 +58,7 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
             title: "",
             description: "",
             collegeId: collegeId,
+            active: true,
         },
     })
 
@@ -93,6 +95,7 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
             type,
             isRequired: false,
             options: FIELD_TYPE_CONFIGS[type].options || [],
+            validation: FIELD_TYPE_CONFIGS[type].hasValidation ? {} : undefined,
             order: fields.length,
         }
         setFields([...fields, newField])
@@ -141,6 +144,8 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
         createFormMutation.mutate({
             formSection: {
                 title: data.title,
+                description: data.description,
+                active: data.active,
                 collegeId: data.collegeId,
             },
             fields,
@@ -242,6 +247,27 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                                                 Provide additional context about the form&apos;s purpose.
                                             </FormDescription>
                                             <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="active"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <div className="space-y-0.5">
+                                                <FormLabel className="text-base">Active Form</FormLabel>
+                                                <FormDescription>
+                                                    Users can submit responses to active forms. Inactive forms are hidden from users.
+                                                </FormDescription>
+                                            </div>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
                                         </FormItem>
                                     )}
                                 />
@@ -432,6 +458,17 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                                             <p className="text-muted-foreground">{form.watch("description")}</p>
                                         </div>
                                     )}
+                                    <div>
+                                        <h4 className="font-medium">Status</h4>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant={form.watch("active") ? "default" : "secondary"}>
+                                                {form.watch("active") ? "Active" : "Inactive"}
+                                            </Badge>
+                                            <span className="text-sm text-muted-foreground">
+                                                {form.watch("active") ? "Users can submit responses" : "Form is hidden from users"}
+                                            </span>
+                                        </div>
+                                    </div>
                                     <div>
                                         <h4 className="font-medium">Fields</h4>
                                         <div className="space-y-2">

@@ -24,6 +24,7 @@ import {
     Download,
     Filter,
     Search,
+    ToggleLeft,
 } from "lucide-react"
 import { toast } from "sonner"
 import { FormCreateDialog } from "./form-create-dialog"
@@ -66,8 +67,8 @@ export function FormManagementDemo({ collegeId }: FormManagementDemoProps) {
     const filteredForms = forms.filter((form) => {
         const matchesSearch = form.title.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesStatus = statusFilter === "all" ||
-            (statusFilter === "active" && (form._count?.submissions || 0) > 0) ||
-            (statusFilter === "inactive" && (form._count?.submissions || 0) === 0)
+            (statusFilter === "active" && form.active) ||
+            (statusFilter === "inactive" && !form.active)
 
         return matchesSearch && matchesStatus
     })
@@ -77,7 +78,7 @@ export function FormManagementDemo({ collegeId }: FormManagementDemoProps) {
         totalForms: forms.length,
         totalSubmissions: forms.reduce((sum, form) => sum + (form._count?.submissions || 0), 0),
         totalFields: forms.reduce((sum, form) => sum + (form._count?.fields || 0), 0),
-        activeForms: forms.filter(form => (form._count?.submissions || 0) > 0).length,
+        activeForms: forms.filter(form => form.active).length,
     }
 
     const copyFormLink = (form: FormSection) => {
@@ -94,6 +95,14 @@ export function FormManagementDemo({ collegeId }: FormManagementDemoProps) {
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.error || "Failed to delete form")
+        },
+    })
+
+    const toggleFormActiveMutation = useMutation({
+        mutationFn: (formId: string) => FormService.toggleFormActive(formId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["forms", collegeId] })
+            toast.success("Form active status updated")
         },
     })
 
@@ -201,7 +210,7 @@ export function FormManagementDemo({ collegeId }: FormManagementDemoProps) {
                     <CardContent>
                         <div className="text-2xl font-bold">{stats.activeForms}</div>
                         <p className="text-xs text-muted-foreground">
-                            With submissions
+                            Available to users
                         </p>
                     </CardContent>
                 </Card>
@@ -297,8 +306,8 @@ export function FormManagementDemo({ collegeId }: FormManagementDemoProps) {
                                     </div>
 
                                     <div className="flex items-center space-x-2">
-                                        <Badge variant={(form._count?.submissions || 0) > 0 ? "default" : "secondary"}>
-                                            {(form._count?.submissions || 0) > 0 ? "Active" : "Inactive"}
+                                        <Badge variant={form.active ? "default" : "secondary"}>
+                                            {form.active ? "Active" : "Inactive"}
                                         </Badge>
 
                                         <DropdownMenu>
@@ -311,6 +320,12 @@ export function FormManagementDemo({ collegeId }: FormManagementDemoProps) {
                                                 <DropdownMenuItem onClick={() => setPreviewingForm(form)}>
                                                     <Eye className="h-4 w-4 mr-2" />
                                                     Preview Form
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => {
+                                                    toggleFormActiveMutation.mutate(form.id)
+                                                }}>
+                                                    <ToggleLeft className="h-4 w-4 mr-2" />
+                                                    {form.active ? "Deactivate Form" : "Activate Form"} 
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => setEditingForm(form)}>
                                                     <Edit className="h-4 w-4 mr-2" />

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, collegeId } = body;
+    const { title, description, active = true, collegeId } = body;
 
     if (!title || !collegeId) {
       return NextResponse.json(
@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
     const formSection = await db.formSection.create({
       data: {
         title,
+        description,
+        active,
         collegeId,
       },
       include: {

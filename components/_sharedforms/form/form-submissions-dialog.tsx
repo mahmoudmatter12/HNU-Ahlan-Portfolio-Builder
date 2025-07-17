@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { FormService } from "@/services/form-service"
 import {
@@ -11,15 +11,13 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { FileText, Download, Search, Calendar, Users, Filter, Eye, Trash2 } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Users, Calendar, Download, Search, Eye, FileText, File, Image } from "lucide-react"
 import type { FormSection } from "@/types/form"
 
 interface FormSubmissionsDialogProps {
@@ -61,6 +59,10 @@ export function FormSubmissionsDialog({ open, onOpenChange, form }: FormSubmissi
             ...submissions.map((submission: any) => {
                 const values = headers.map(header => {
                     const value = submission.data[header]
+                    // Handle file URLs - just include the filename or URL
+                    if (typeof value === 'string' && value.startsWith('http')) {
+                        return `"${value}"` // File URL
+                    }
                     return typeof value === 'string' ? `"${value}"` : value || ""
                 })
                 return [submission.id, submission.submittedAt, ...values].join(",")
@@ -85,6 +87,59 @@ export function FormSubmissionsDialog({ open, onOpenChange, form }: FormSubmissi
         setSelectedSubmission(submission)
     }
 
+    const renderFieldValue = (field: any, value: any) => {
+        if (!value) return <span className="text-muted-foreground">Not provided</span>
+
+        // Handle file uploads
+        if (field.type === "FILE" && typeof value === 'string' && value.startsWith('http')) {
+            const isImage = value.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+            return (
+                <div className="flex items-center gap-2">
+                    {isImage ? (
+                        <Image className="h-4 w-4 text-blue-600"  />
+                    ) : (
+                        <File className="h-4 w-4 text-gray-600" />
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(value, '_blank')}
+                        className="h-auto p-1"
+                    >
+                        <Eye className="h-3 w-3 mr-1" />
+                        {isImage ? 'View Image' : 'View File'}
+                    </Button>
+                </div>
+            )
+        }
+
+        // Handle arrays (checkbox selections)
+        if (Array.isArray(value)) {
+            return (
+                <div className="space-y-1">
+                    {value.map((item, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                            {item}
+                        </Badge>
+                    ))}
+                </div>
+            )
+        }
+
+        // Handle long text
+        if (typeof value === 'string' && value.length > 100) {
+            return (
+                <div className="max-w-xs">
+                    <p className="text-sm truncate" title={value}>
+                        {value.substring(0, 100)}...
+                    </p>
+                </div>
+            )
+        }
+
+        return <span className="text-sm">{String(value)}</span>
+    }
+
     if (!form) return null
 
     return (
@@ -102,98 +157,93 @@ export function FormSubmissionsDialog({ open, onOpenChange, form }: FormSubmissi
 
                 <div className="space-y-6">
                     {/* Statistics */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <FileText className="h-4 w-4" />
-                                Submission Statistics
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">{submissions?.length || 0}</div>
-                                    <div className="text-sm text-muted-foreground">Total Submissions</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">{form._count?.fields || 0}</div>
-                                    <div className="text-sm text-muted-foreground">Form Fields</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">
-                                        {submissions && submissions.length > 0
-                                            ? new Date(submissions[0].submittedAt).toLocaleDateString()
-                                            : "No submissions"
-                                        }
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">Latest Submission</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">
-                                        {submissions && submissions.length > 0
-                                            ? new Date(submissions[submissions.length - 1].submittedAt).toLocaleDateString()
-                                            : "No submissions"
-                                        }
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">First Submission</div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
+                                <Users className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{submissions?.length || 0}</div>
+                                <p className="text-xs text-muted-foreground">
+                                    Form responses collected
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    {/* Search and Actions */}
-                    <Card>
-                        <CardHeader>
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div className="flex-1 max-w-md">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Search submissions..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-10"
-                                        />
-                                    </div>
-                                </div>
-                                <Button onClick={exportSubmissions} disabled={!submissions || submissions.length === 0}>
-                                    <Download className="h-4 w-4 mr-2" />
-                                    Export CSV
-                                </Button>
-                            </div>
-                        </CardHeader>
-                    </Card>
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Form Fields</CardTitle>
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{form.fields?.length || 0}</div>
+                                <p className="text-xs text-muted-foreground">
+                                    Fields in this form
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    {/* Submissions Table */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Submissions</CardTitle>
-                            <CardDescription>
-                                {filteredSubmissions.length} of {submissions?.length || 0} submissions
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {isLoading ? (
-                                <div className="space-y-4">
-                                    {[...Array(5)].map((_, i) => (
-                                        <div key={i} className="flex items-center space-x-4">
-                                            <Skeleton className="h-12 w-12 rounded-full" />
-                                            <div className="space-y-2 flex-1">
-                                                <Skeleton className="h-4 w-48" />
-                                                <Skeleton className="h-3 w-32" />
-                                            </div>
-                                            <Skeleton className="h-8 w-20" />
-                                        </div>
-                                    ))}
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">Latest Submission</CardTitle>
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">
+                                    {submissions && submissions.length > 0
+                                        ? new Date(submissions[0].submittedAt).toLocaleDateString()
+                                        : "None"
+                                    }
                                 </div>
-                            ) : isError ? (
-                                <div className="text-center py-8">
-                                    <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                <p className="text-xs text-muted-foreground">
+                                    Most recent response
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Search and Export */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search submissions..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                        <Button onClick={exportSubmissions} disabled={!submissions || submissions.length === 0}>
+                            <Download className="h-4 w-4 mr-2" />
+                            Export CSV
+                        </Button>
+                    </div>
+
+                    {/* Submissions List */}
+                    {isLoading ? (
+                        <Card>
+                            <CardContent className="flex items-center justify-center py-8">
+                                <div className="text-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                                    <p className="text-muted-foreground">Loading submissions...</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ) : isError ? (
+                        <Card>
+                            <CardContent className="flex items-center justify-center py-8">
+                                <div className="text-center">
+                                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                     <h3 className="text-lg font-semibold mb-2">Failed to load submissions</h3>
                                     <p className="text-muted-foreground">There was an error loading the submissions.</p>
                                 </div>
-                            ) : filteredSubmissions.length === 0 ? (
-                                <div className="text-center py-8">
+                            </CardContent>
+                        </Card>
+                    ) : filteredSubmissions.length === 0 ? (
+                        <Card>
+                            <CardContent className="flex items-center justify-center py-8">
+                                <div className="text-center">
                                     <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                     <h3 className="text-lg font-semibold mb-2">
                                         {submissions?.length === 0 ? "No submissions yet" : "No submissions match your search"}
@@ -205,80 +255,93 @@ export function FormSubmissionsDialog({ open, onOpenChange, form }: FormSubmissi
                                         }
                                     </p>
                                 </div>
-                            ) : (
-                                <div className="overflow-x-auto">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Submission ID</TableHead>
-                                                <TableHead>Submitted At</TableHead>
-                                                <TableHead>Fields Filled</TableHead>
-                                                <TableHead>Actions</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {filteredSubmissions.map((submission: any) => (
-                                                <TableRow key={submission.id}>
-                                                    <TableCell className="font-mono text-sm">
-                                                        {submission.id.slice(0, 8)}...
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                                                            {new Date(submission.submittedAt).toLocaleString()}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge variant="secondary">
-                                                            {Object.keys(submission.data).length} fields
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => viewSubmissionDetails(submission)}
-                                                            >
-                                                                <Eye className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Submission ID</TableHead>
+                                        <TableHead>Submitted At</TableHead>
+                                        <TableHead>Fields Filled</TableHead>
+                                        <TableHead>Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredSubmissions.map((submission: any) => (
+                                        <TableRow key={submission.id}>
+                                            <TableCell className="font-mono text-sm">
+                                                {submission.id.slice(0, 8)}...
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                    {new Date(submission.submittedAt).toLocaleString()}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="secondary">
+                                                    {Object.keys(submission.data).length} fields
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => viewSubmissionDetails(submission)}
+                                                >
+                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    View Details
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
                 </div>
 
                 {/* Submission Details Dialog */}
-                {selectedSubmission && (
-                    <Dialog open={!!selectedSubmission} onOpenChange={() => setSelectedSubmission(null)}>
-                        <DialogContent className="sm:max-w-2xl">
-                            <DialogHeader>
-                                <DialogTitle>Submission Details</DialogTitle>
-                                <DialogDescription>
-                                    Submitted on {new Date(selectedSubmission.submittedAt).toLocaleString()}
-                                </DialogDescription>
-                            </DialogHeader>
+                <Dialog open={!!selectedSubmission} onOpenChange={() => setSelectedSubmission(null)}>
+                    <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                            <DialogTitle>Submission Details</DialogTitle>
+                            <DialogDescription>
+                                Detailed view of the form submission
+                            </DialogDescription>
+                        </DialogHeader>
+                        {selectedSubmission && (
                             <div className="space-y-4">
-                                <div className="grid grid-cols-1 gap-4">
-                                    {Object.entries(selectedSubmission.data).map(([field, value]: [string, any]) => (
-                                        <div key={field} className="border rounded-lg p-4">
-                                            <h4 className="font-medium text-sm text-muted-foreground mb-2">{field}</h4>
-                                            <p className="text-sm">
-                                                {Array.isArray(value) ? value.join(", ") : String(value || "Not provided")}
-                                            </p>
-                                        </div>
-                                    ))}
+                                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                                    <span>ID: {selectedSubmission.id}</span>
+                                    <span>Submitted: {new Date(selectedSubmission.submittedAt).toLocaleString()}</span>
+                                </div>
+                                <Separator />
+                                <div className="space-y-4">
+                                    {form.fields?.map((field) => {
+                                        const value = selectedSubmission.data[field.label]
+                                        return (
+                                            <div key={field.id} className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="font-medium text-sm">{field.label}</h4>
+                                                    {field.isRequired && (
+                                                        <Badge variant="destructive" className="text-xs">Required</Badge>
+                                                    )}
+                                                    <Badge variant="outline" className="text-xs">{field.type}</Badge>
+                                                </div>
+                                                <div className="pl-4">
+                                                    {renderFieldValue(field, value)}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
-                        </DialogContent>
-                    </Dialog>
-                )}
+                        )}
+                    </DialogContent>
+                </Dialog>
             </DialogContent>
         </Dialog>
     )

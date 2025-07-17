@@ -5,7 +5,15 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { label, type, isRequired, options, formSectionId, order } = body;
+    const {
+      label,
+      type,
+      isRequired,
+      options,
+      validation,
+      formSectionId,
+      order,
+    } = body;
 
     if (!label || !type || !formSectionId) {
       return NextResponse.json(
@@ -20,6 +28,7 @@ export async function POST(request: NextRequest) {
         type,
         isRequired: isRequired || false,
         options: options || [],
+        validation: validation || null,
         formSectionId,
         order: order || 0,
       },
