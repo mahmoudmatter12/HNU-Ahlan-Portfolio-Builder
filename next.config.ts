@@ -26,8 +26,8 @@ const nextConfig: NextConfig = {
   },
   // Add this section:
   allowedDevOrigins: [
-    "https://175f4ab858f0.ngrok-free.app",
-    "http://localhost:3000/admin/profile",
+    "http://localhost:3000/",
+    "https://hnu-ahlan.vercel.app",
   ],
   images: {
     remotePatterns: [
