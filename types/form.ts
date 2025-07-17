@@ -75,6 +75,14 @@ export interface CreateFormField {
   order?: number;
 }
 
+export interface CreateFormFieldData {
+  label: string;
+  type: FormFieldType;
+  isRequired?: boolean;
+  options?: string[];
+  order?: number;
+}
+
 export interface UpdateFormField {
   label?: string;
   type?: FormFieldType;
@@ -86,7 +94,7 @@ export interface UpdateFormField {
 // Form creation flow interfaces
 export interface FormCreationData {
   formSection: CreateFormSection;
-  fields: CreateFormField[];
+  fields: CreateFormFieldData[];
 }
 
 export interface FormFieldConfig {

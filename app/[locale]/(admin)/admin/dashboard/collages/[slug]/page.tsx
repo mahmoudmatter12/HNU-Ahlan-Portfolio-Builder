@@ -42,6 +42,8 @@ import { DraggableSectionList } from "../../../../../../../components/_sharedfor
 import { ThemeFormDialog } from "../../../../../../../components/_sharedforms/theme/theme-form-dialog"
 import { GalleryFormDialog } from "../../../../../../../components/_sharedforms/gallery/gallery-form-dialog"
 import { GalleryPreview } from "../../../../../../../components/_sharedforms/gallery/gallery-preview"
+import { FormManagementDemo } from "../../../../../../../components/_sharedforms/form/form-management-demo"
+import { FormCreateDialog } from "../../../../../../../components/_sharedforms/form/form-create-dialog"
 
 const collegeTypeColors = {
   TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -368,12 +370,7 @@ function CollegeDetails() {
             </TabsContent>
 
             <TabsContent value="forms" className="space-y-6">
-              {/* <FormManagementDemo collegeId={college.id} /> */}
-              <div className="text-center py-8 text-gray-500">
-                <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Form management coming soon</p>
-                <p className="text-xs">This section will allow you to create and manage forms</p>
-              </div>
+              <FormManagementDemo collegeId={college.id} />
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-6">
@@ -661,7 +658,17 @@ function CollegeDetails() {
           setEditingGallery(false)
         }}
       />
-     
+
+      <FormCreateDialog
+        open={isCreateFormOpen}
+        onOpenChange={setIsCreateFormOpen}
+        collegeId={college?.id || ""}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["forms", college?.id] })
+          setIsCreateFormOpen(false)
+        }}
+      />
+
     </div>
   )
 }

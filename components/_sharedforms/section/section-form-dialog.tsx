@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -45,7 +45,7 @@ export function SectionFormDialog({ open, onOpenChange, section, collegeId, onSu
     const [error, setError] = useState<string | null>(null)
     const isEditing = !!section
 
-    const highestOrder = () => {
+    const highestOrder = useCallback(() => {
         let maxOrder = 0;
         for (const section of college.sections) {
             if (section.order > maxOrder) {
@@ -53,7 +53,7 @@ export function SectionFormDialog({ open, onOpenChange, section, collegeId, onSu
             }
         }
         return maxOrder + 1;
-    }
+    }, [college.sections])
 
     const form = useForm<SectionFormData>({
         resolver: zodResolver(sectionSchema),
@@ -84,7 +84,7 @@ export function SectionFormDialog({ open, onOpenChange, section, collegeId, onSu
                 })
             }
         }
-    }, [open, section, form, collegeId, college])
+    }, [open, section, form, collegeId, college, highestOrder])
 
     const sectionService = new SectionService()
 

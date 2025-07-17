@@ -46,6 +46,11 @@ export async function logAction({
   entityId?: string;
   metadata?: any;
 }) {
+  if (action.startsWith("GET_")) {
+    console.log("GET_ action detected, skipping audit log");
+    return;
+  }
+
   await db.auditLog.create({
     data: {
       action,
