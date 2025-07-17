@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
   // Add this section:
   allowedDevOrigins: [
     "http://localhost:3000",
-    "https://hnu-ahlan.vercel.app",
+    `${process.env.NEXT_PUBLIC_API_URL}`,
   ],
   images: {
     remotePatterns: [
