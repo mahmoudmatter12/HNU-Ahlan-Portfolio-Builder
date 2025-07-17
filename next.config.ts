@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
   },
   // Add this section:
   allowedDevOrigins: [
-    "http://localhost:3000/",
+    "http://localhost:3000",
     "https://hnu-ahlan.vercel.app",
   ],
   images: {
