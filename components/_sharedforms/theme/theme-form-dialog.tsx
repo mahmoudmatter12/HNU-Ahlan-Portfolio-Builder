@@ -136,21 +136,51 @@ function ColorPicker({ value, onChange, label }: { value: string; onChange: (col
 
 // Live preview component
 function ThemePreview({ theme, isOldTheme = false }: { theme: ThemeFormData | Record<string, any>, isOldTheme?: boolean }) {
+    // Provide fallback values for empty/null theme
+    const safeTheme = {
+        colors: {
+            heading: theme?.colors?.heading || "#133d85",
+            subHeading: theme?.colors?.subHeading || "#ce7940",
+            text: theme?.colors?.text || "#333333",
+            primary: theme?.colors?.primary || "#3b82f6",
+            secondary: theme?.colors?.secondary || "#64748b",
+            accent: theme?.colors?.accent || "#f59e0b",
+            background: theme?.colors?.background || "#ffffff",
+            surface: theme?.colors?.surface || "#f8fafc",
+            border: theme?.colors?.border || "#e2e8f0",
+        },
+        fonts: {
+            heading: theme?.fonts?.heading || "Poppins, sans-serif",
+            body: theme?.fonts?.body || "Roboto, sans-serif",
+        },
+        typography: {
+            headingSize: theme?.typography?.headingSize || "2xl",
+            subHeadingSize: theme?.typography?.subHeadingSize || "xl",
+            bodySize: theme?.typography?.bodySize || "base",
+            smallSize: theme?.typography?.smallSize || "sm",
+        },
+        effects: {
+            borderRadius: theme?.effects?.borderRadius || "0.5rem",
+            shadow: theme?.effects?.shadow || "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+            transition: theme?.effects?.transition || "all 0.2s ease-in-out",
+        },
+    }
+
     const previewStyle = {
-        '--heading-color': theme.colors.heading,
-        '--subheading-color': theme.colors.subHeading,
-        '--text-color': theme.colors.text,
-        '--primary-color': theme.colors.primary,
-        '--secondary-color': theme.colors.secondary,
-        '--accent-color': theme.colors.accent,
-        '--background-color': theme.colors.background,
-        '--surface-color': theme.colors.surface,
-        '--border-color': theme.colors.border,
-        '--heading-font': theme.fonts.heading,
-        '--body-font': theme.fonts.body,
-        '--border-radius': theme.effects.borderRadius,
-        '--shadow': theme.effects.shadow,
-        '--transition': theme.effects.transition,
+        '--heading-color': safeTheme.colors.heading,
+        '--subheading-color': safeTheme.colors.subHeading,
+        '--text-color': safeTheme.colors.text,
+        '--primary-color': safeTheme.colors.primary,
+        '--secondary-color': safeTheme.colors.secondary,
+        '--accent-color': safeTheme.colors.accent,
+        '--background-color': safeTheme.colors.background,
+        '--surface-color': safeTheme.colors.surface,
+        '--border-color': safeTheme.colors.border,
+        '--heading-font': safeTheme.fonts.heading,
+        '--body-font': safeTheme.fonts.body,
+        '--border-radius': safeTheme.effects.borderRadius,
+        '--shadow': safeTheme.effects.shadow,
+        '--transition': safeTheme.effects.transition,
     } as React.CSSProperties
 
     return (
@@ -165,17 +195,17 @@ function ThemePreview({ theme, isOldTheme = false }: { theme: ThemeFormData | Re
                         <h1
                             className="font-bold mb-2"
                             style={{
-                                color: theme.colors.heading,
-                                fontFamily: theme.fonts.heading,
-                                fontSize: theme.typography.headingSize === 'xs' ? '12px' :
-                                    theme.typography.headingSize === 'sm' ? '14px' :
-                                        theme.typography.headingSize === 'base' ? '16px' :
-                                            theme.typography.headingSize === 'lg' ? '18px' :
-                                                theme.typography.headingSize === 'xl' ? '20px' :
-                                                    theme.typography.headingSize === '2xl' ? '24px' :
-                                                        theme.typography.headingSize === '3xl' ? '30px' :
-                                                            theme.typography.headingSize === '4xl' ? '36px' :
-                                                                theme.typography.headingSize === '5xl' ? '48px' : '24px'
+                                color: safeTheme.colors.heading,
+                                fontFamily: safeTheme.fonts.heading,
+                                fontSize: safeTheme.typography.headingSize === 'xs' ? '12px' :
+                                    safeTheme.typography.headingSize === 'sm' ? '14px' :
+                                        safeTheme.typography.headingSize === 'base' ? '16px' :
+                                            safeTheme.typography.headingSize === 'lg' ? '18px' :
+                                                safeTheme.typography.headingSize === 'xl' ? '20px' :
+                                                    safeTheme.typography.headingSize === '2xl' ? '24px' :
+                                                        safeTheme.typography.headingSize === '3xl' ? '30px' :
+                                                            safeTheme.typography.headingSize === '4xl' ? '36px' :
+                                                                safeTheme.typography.headingSize === '5xl' ? '48px' : '24px'
                             }}
                         >
                             Sample Heading
@@ -183,34 +213,34 @@ function ThemePreview({ theme, isOldTheme = false }: { theme: ThemeFormData | Re
                         <h2
                             className="font-semibold mb-2"
                             style={{
-                                color: theme.colors.subHeading,
-                                fontFamily: theme.fonts.heading,
-                                fontSize: theme.typography.subHeadingSize === 'xs' ? '12px' :
-                                    theme.typography.subHeadingSize === 'sm' ? '14px' :
-                                        theme.typography.subHeadingSize === 'base' ? '16px' :
-                                            theme.typography.subHeadingSize === 'lg' ? '18px' :
-                                                theme.typography.subHeadingSize === 'xl' ? '20px' :
-                                                    theme.typography.subHeadingSize === '2xl' ? '24px' :
-                                                        theme.typography.subHeadingSize === '3xl' ? '30px' :
-                                                            theme.typography.subHeadingSize === '4xl' ? '36px' :
-                                                                theme.typography.subHeadingSize === '5xl' ? '48px' : '18px'
+                                color: safeTheme.colors.subHeading,
+                                fontFamily: safeTheme.fonts.heading,
+                                fontSize: safeTheme.typography.subHeadingSize === 'xs' ? '12px' :
+                                    safeTheme.typography.subHeadingSize === 'sm' ? '14px' :
+                                        safeTheme.typography.subHeadingSize === 'base' ? '16px' :
+                                            safeTheme.typography.subHeadingSize === 'lg' ? '18px' :
+                                                safeTheme.typography.subHeadingSize === 'xl' ? '20px' :
+                                                    safeTheme.typography.subHeadingSize === '2xl' ? '24px' :
+                                                        safeTheme.typography.subHeadingSize === '3xl' ? '30px' :
+                                                            safeTheme.typography.subHeadingSize === '4xl' ? '36px' :
+                                                                safeTheme.typography.subHeadingSize === '5xl' ? '48px' : '18px'
                             }}
                         >
                             Sample Subheading
                         </h2>
                         <p
                             style={{
-                                color: theme.colors.text,
-                                fontFamily: theme.fonts.body,
-                                fontSize: theme.typography.bodySize === 'xs' ? '12px' :
-                                    theme.typography.bodySize === 'sm' ? '14px' :
-                                        theme.typography.bodySize === 'base' ? '16px' :
-                                            theme.typography.bodySize === 'lg' ? '18px' :
-                                                theme.typography.bodySize === 'xl' ? '20px' :
-                                                    theme.typography.bodySize === '2xl' ? '24px' :
-                                                        theme.typography.bodySize === '3xl' ? '30px' :
-                                                            theme.typography.bodySize === '4xl' ? '36px' :
-                                                                theme.typography.bodySize === '5xl' ? '48px' : '16px'
+                                color: safeTheme.colors.text,
+                                fontFamily: safeTheme.fonts.body,
+                                fontSize: safeTheme.typography.bodySize === 'xs' ? '12px' :
+                                    safeTheme.typography.bodySize === 'sm' ? '14px' :
+                                        safeTheme.typography.bodySize === 'base' ? '16px' :
+                                            safeTheme.typography.bodySize === 'lg' ? '18px' :
+                                                safeTheme.typography.bodySize === 'xl' ? '20px' :
+                                                    safeTheme.typography.bodySize === '2xl' ? '24px' :
+                                                        safeTheme.typography.bodySize === '3xl' ? '30px' :
+                                                            safeTheme.typography.bodySize === '4xl' ? '36px' :
+                                                                safeTheme.typography.bodySize === '5xl' ? '48px' : '16px'
                             }}
                         >
                             This is a sample paragraph to demonstrate how your text will look with the selected theme settings.
@@ -221,11 +251,11 @@ function ThemePreview({ theme, isOldTheme = false }: { theme: ThemeFormData | Re
                         <button
                             className="px-4 py-2 rounded font-medium"
                             style={{
-                                backgroundColor: theme.colors.primary,
+                                backgroundColor: safeTheme.colors.primary,
                                 color: '#ffffff',
-                                borderRadius: theme.effects.borderRadius,
-                                boxShadow: theme.effects.shadow,
-                                transition: theme.effects.transition
+                                borderRadius: safeTheme.effects.borderRadius,
+                                boxShadow: safeTheme.effects.shadow,
+                                transition: safeTheme.effects.transition
                             }}
                         >
                             Primary Button
@@ -233,11 +263,11 @@ function ThemePreview({ theme, isOldTheme = false }: { theme: ThemeFormData | Re
                         <button
                             className="px-4 py-2 rounded font-medium"
                             style={{
-                                backgroundColor: theme.colors.secondary,
+                                backgroundColor: safeTheme.colors.secondary,
                                 color: '#ffffff',
-                                borderRadius: theme.effects.borderRadius,
-                                boxShadow: theme.effects.shadow,
-                                transition: theme.effects.transition
+                                borderRadius: safeTheme.effects.borderRadius,
+                                boxShadow: safeTheme.effects.shadow,
+                                transition: safeTheme.effects.transition
                             }}
                         >
                             Secondary Button
@@ -247,12 +277,12 @@ function ThemePreview({ theme, isOldTheme = false }: { theme: ThemeFormData | Re
                     <div
                         className="p-4 rounded"
                         style={{
-                            backgroundColor: theme.colors.surface,
-                            border: `1px solid ${theme.colors.border}`,
-                            borderRadius: theme.effects.borderRadius
+                            backgroundColor: safeTheme.colors.surface,
+                            border: `1px solid ${safeTheme.colors.border}`,
+                            borderRadius: safeTheme.effects.borderRadius
                         }}
                     >
-                        <p style={{ color: theme.colors.text, fontFamily: theme.fonts.body }}>
+                        <p style={{ color: safeTheme.colors.text, fontFamily: safeTheme.fonts.body }}>
                             This is a sample card with surface background and border.
                         </p>
                     </div>
@@ -399,8 +429,9 @@ export function ThemeFormDialog({ open, onOpenChange, college, onSuccess }: Them
 
     // Reset form when dialog opens/closes or college changes
     useEffect(() => {
-        if (open && college) {
-            const currentTheme = college.theme || {}
+        if (open) {
+            // Handle both cases: when college exists and when it's null (new collage)
+            const currentTheme = college?.theme || {}
             form.reset({
                 colors: {
                     heading: currentTheme.colors?.heading || "#133d85",
@@ -481,7 +512,10 @@ export function ThemeFormDialog({ open, onOpenChange, college, onSuccess }: Them
     })
 
     const onSubmit = async (data: ThemeFormData) => {
-        if (!college) return
+        if (!college) {
+            setError("No college data available")
+            return
+        }
 
         setIsSubmitting(true)
         setError(null)
@@ -534,9 +568,14 @@ export function ThemeFormDialog({ open, onOpenChange, college, onSuccess }: Them
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[1200px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-4xl font-semibold">Theme Configuration</DialogTitle>
+                    <DialogTitle className="text-4xl font-semibold">
+                        {college ? "Theme Configuration" : "New Collage Theme"}
+                    </DialogTitle>
                     <DialogDescription>
-                        Customize the appearance of your college page with colors, fonts, and styling options.
+                        {college
+                            ? "Customize the appearance of your college page with colors, fonts, and styling options."
+                            : "Set up the initial theme for your new collage with colors, fonts, and styling options."
+                        }
                     </DialogDescription>
                 </DialogHeader>
 
@@ -1240,7 +1279,18 @@ export function ThemeFormDialog({ open, onOpenChange, college, onSuccess }: Them
                             </div>
                             <div className="w-1/2">
                                 {/* old selected theme preview */}
-                                <ThemePreview theme={oldTheme} isOldTheme={true} />
+                                {college ? (
+                                    <ThemePreview theme={oldTheme} isOldTheme={true} />
+                                ) : (
+                                    <div className="space-y-4">
+                                        <h3 className="text-4xl font-semibold">New Collage</h3>
+                                        <div className="p-6 rounded-lg border bg-muted/50">
+                                            <p className="text-muted-foreground">
+                                                This is a new collage. The theme will be applied when you save.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
