@@ -67,33 +67,63 @@ model User {
   updatedAt       DateTime   @updatedAt
 }
 
+model University {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  logoUrl     String?
+  socialMedia Json?
+  description String?
+  newsItems   Json?
+  colleges    College[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
 model College {
   id             String           @id @default(cuid())
   slug           String           @unique
   name           String
+  logoUrl        String?
   type           CollegeType
   User           User[]
   sections       Section[]
   forms          FormSection[]
   FormSubmission FormSubmission[]
-  theme          Json
-  galleryImages  Json
+  programs       Program[]
+  theme          Json?
+  galleryImages  Json?
+  socialMedia    Json?
   faq            Json?
+  collageLeaders Json?
   createdBy      User?            @relation("CollegeCreatedBy", fields: [createdById], references: [id])
   createdById    String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  University     University?      @relation(fields: [universityId], references: [id])
+  universityId   String?
+}
+
+model Program {
+  id          String  @id @default(cuid())
+  name        String
+  description Json?
+  slug        String  @unique
+  college     College @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  collegeId   String
 }
 
 model Section {
-  id        String   @id @default(cuid())
-  title     String
-  order     Int
-  content   String // for md.
-  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
-  collegeId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  sectionType String? // e.g., "HERO", "ABOUT", etc.
+  content     String?
+  order       Int
+  settings    Json? // for layout-specific customization (e.g., background, call-to-action, buttons)
+  college     College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  collegeId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model FormSection {

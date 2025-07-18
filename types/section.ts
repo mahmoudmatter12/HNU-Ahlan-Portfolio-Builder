@@ -3,8 +3,9 @@ import { College } from "./Collage";
 export interface Section {
   id: string;
   title: string;
-  order: number;
+  sectionType: string;
   content: string;
+  order: number;
   collegeId: College;
   createdAt: Date;
   updatedAt: Date;
@@ -12,6 +13,7 @@ export interface Section {
 
 export interface CreateSection {
   title: string;
+  sectionType: string;
   order: number;
   content: string;
   collegeId: string;
@@ -19,6 +21,7 @@ export interface CreateSection {
 
 export interface UpdateSection {
   title?: string;
+  sectionType?: string;
   order?: number;
   content?: string;
 }
