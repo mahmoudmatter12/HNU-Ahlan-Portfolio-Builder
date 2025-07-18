@@ -54,8 +54,17 @@ export default function TestAuthPage() {
                                 <h3 className="font-semibold mb-2">User Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <p><strong>ID:</strong> {user.id}</p>
-                                        <p><strong>Clerk ID:</strong> {user.clerkId}</p>
+                                        {user.userType === "ADMIN" || user.userType === "SUPERADMIN" ? (
+                                            <>
+                                                <p><strong>ID:</strong> {user.id}</p>
+                                                <p><strong>Clerk ID:</strong> {user.clerkId}</p>
+                                            </>
+                                        ) :
+                                            <>
+                                                <p><strong>ID:</strong> {user.id.slice(0, 5)}********</p>
+                                                <p><strong>Clerk ID:</strong> {user.clerkId?.slice(0, 5)}********</p>
+                                            </>
+                                        }
                                         <p><strong>Email:</strong> {user.email}</p>
                                         <p><strong>Name:</strong> {user.name || "Not set"}</p>
                                     </div>

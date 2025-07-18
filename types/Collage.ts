@@ -1,20 +1,24 @@
+import { CollegeType } from "@prisma/client";
+import { University } from "./uni";
+
 export interface College {
   id: string;
   name: string;
   slug: string;
-  type: "TECHNICAL" | "MEDICAL" | "ARTS" | "OTHER";
-  theme: Record<string, any>;
+  type: CollegeType;
+  theme: Record<string, any> | null;
   createdById?: string;
   createdAt: Date;
   updatedAt: Date;
-  galleryImages: Record<string, any>;
+  galleryImages: Record<string, any> | null;
   projects: ProjectData;
   users: CollegeUser[];
   sections: CollegeSection[];
   forms: CollegeFormSection[];
   formSubmissions: CollegeFormSubmission[];
   createdBy?: CollegeUser;
-  faq?: Record<string, any>;
+  university: University;
+  faq?: Record<string, any> | null;
   _count?: {
     users: number;
     sections: number;
@@ -26,9 +30,9 @@ export interface College {
 export interface CreateCollageRequest {
   name: string;
   slug: string;
-  type: "TECHNICAL" | "MEDICAL" | "ARTS" | "OTHER";
-  theme: Record<string, any>;
-  galleryImages: Record<string, any>;
+  type: CollegeType;
+  theme: Record<string, any> | null;
+  galleryImages: Record<string, any> | null;
   projects: ProjectData;
   createdById?: string;
 }
@@ -36,8 +40,10 @@ export interface CreateCollageRequest {
 export interface CollegeSection {
   id: string;
   title: string;
-  order: number;
+  sectionType: string;
   content: string;
+  order: number;
+  settings: Record<string, any> | null;
   collegeId: string;
   createdAt: Date;
   updatedAt: Date;
