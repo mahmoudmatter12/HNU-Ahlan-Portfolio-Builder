@@ -4,19 +4,9 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { useUser as useClerkUser } from '@clerk/nextjs';
 import { UserService } from '@/services/user-service';
 import { setUserIdHeader } from '@/lib/axios';
+import { User } from '@/types/user';
 
-export interface User {
-    id: string;
-    clerkId: string;
-    email: string;
-    name?: string;
-    image?: string;
-    onboarded: boolean;
-    userType: "ADMIN" | "SUPERADMIN" | "GUEST";
-    collegeId?: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
+
 
 interface UserContextType {
     user: User | null;

@@ -15,6 +15,7 @@ import type { College } from "@/types/Collage"
 import { useLocale } from "next-intl"
 import { CollegeFormDialog } from "../../../../../../components/_sharedforms/collage/college-form-dialog"
 import { DeleteCollegeDialog } from "../../../../../../components/_sharedforms/collage/delete-college-dialog"
+import { useCurrentUser, useIsSuperAdmin } from "@/context/userContext"
 
 const collegeTypeColors = {
     TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
@@ -26,6 +27,8 @@ const collegeTypeColors = {
 function Collages() {
     const locale = useLocale()
     const queryClient = useQueryClient()
+    const currentUser = useCurrentUser()
+    const isSuperAdmin = useIsSuperAdmin()
     const [searchQuery, setSearchQuery] = useState("")
     const [typeFilter, setTypeFilter] = useState<string>("all")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -38,8 +41,16 @@ function Collages() {
         isError,
         error,
     } = useQuery({
-        queryKey: ["colleges"],
-        queryFn: () => CollegeService.getColleges(),
+        queryKey: ["colleges", currentUser?.id, isSuperAdmin],
+        queryFn: () => {
+            // If superadmin, get all colleges, otherwise get only user's colleges
+            if (isSuperAdmin) {
+                return CollegeService.getColleges()
+            } else {
+                return CollegeService.getColleges({ createdById: currentUser?.id })
+            }
+        },
+        enabled: !!currentUser, // Only run query when user is loaded
         staleTime: 1000 * 60 * 5,
         gcTime: 1000 * 60 * 10,
     })
@@ -47,7 +58,7 @@ function Collages() {
     const deleteMutation = useMutation({
         mutationFn: (id: string) => CollegeService.deleteCollege(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["colleges"] })
+            queryClient.invalidateQueries({ queryKey: ["colleges", currentUser?.id, isSuperAdmin] })
             toast.success("College deleted successfully")
             setDeletingCollege(null)
         },
@@ -76,7 +87,7 @@ function Collages() {
         }
     }
 
-    if (isLoading) {
+    if (isLoading || !currentUser) {
         return (
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
@@ -115,8 +126,20 @@ function Collages() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Colleges</h1>
-                    <p className="text-gray-400 mt-1">Manage university colleges and their settings</p>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-white">Colleges</h1>
+                        {isSuperAdmin && (
+                            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                                Super Admin
+                            </Badge>
+                        )}
+                    </div>
+                    <p className="text-gray-400 mt-1">
+                        {isSuperAdmin
+                            ? "Manage all university colleges and their settings"
+                            : "Manage your created colleges and their settings"
+                        }
+                    </p>
                 </div>
                 <Button onClick={() => setIsAddDialogOpen(true)} className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white">
                     <Plus className="h-4 w-4" />
@@ -154,7 +177,9 @@ function Collages() {
                 <Card className="bg-gray-900/50 border-gray-800">
                     <CardContent className="p-4">
                         <div className="text-2xl font-bold text-white">{colleges?.length || 0}</div>
-                        <div className="text-sm text-gray-400">Total Colleges</div>
+                        <div className="text-sm text-gray-400">
+                            {isSuperAdmin ? "Total Colleges" : "My Colleges"}
+                        </div>
                     </CardContent>
                 </Card>
                 <Card className="bg-gray-900/50 border-gray-800">
@@ -184,7 +209,10 @@ function Collages() {
                     <div className="text-gray-500 mb-4">
                         {searchQuery || typeFilter !== "all"
                             ? "Try adjusting your search or filters"
-                            : "Get started by adding your first college"}
+                            : isSuperAdmin
+                                ? "Get started by adding your first college"
+                                : "You haven't created any colleges yet. Get started by adding your first college"
+                        }
                     </div>
                     {!searchQuery && typeFilter === "all" && (
                         <Button onClick={() => setIsAddDialogOpen(true)} className="bg-gray-800 hover:bg-gray-700 text-white">
@@ -251,7 +279,7 @@ function Collages() {
                                     </div>
                                 </div>
 
-                                {college.createdBy && (
+                                {college.createdBy && isSuperAdmin && (
                                     <div className="mt-3 text-xs text-gray-500">
                                         Created by {college.createdBy.name || college.createdBy.email}
                                     </div>
@@ -281,7 +309,7 @@ function Collages() {
                 open={isAddDialogOpen}
                 onOpenChange={setIsAddDialogOpen}
                 onSuccess={() => {
-                    queryClient.invalidateQueries({ queryKey: ["colleges"] })
+                    queryClient.invalidateQueries({ queryKey: ["colleges", currentUser?.id, isSuperAdmin] })
                     setIsAddDialogOpen(false)
                 }}
             />
@@ -291,7 +319,7 @@ function Collages() {
                 onOpenChange={(open) => !open && setEditingCollege(null)}
                 college={editingCollege}
                 onSuccess={() => {
-                    queryClient.invalidateQueries({ queryKey: ["colleges"] })
+                    queryClient.invalidateQueries({ queryKey: ["colleges", currentUser?.id, isSuperAdmin] })
                     setEditingCollege(null)
                 }}
             />

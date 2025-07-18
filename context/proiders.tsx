@@ -4,6 +4,7 @@ import { ThemeProvider } from './theme-provider';
 import { ClerkProvider } from '@clerk/nextjs';
 import { QueryClientProviderWrapper } from './QueryClientProvider';
 import { UserProvider } from './userContext';
+import { Toaster } from '@/components/ui/sonner';
 
 // Import your providers here
 // import { AuthProvider } from './AuthProvider';
@@ -26,6 +27,7 @@ export const GlobalProviders: React.FC<GlobalProvidersProps> = ({ children }) =>
                     <QueryClientProviderWrapper>
                         <UserProvider>
                             {children}
+                            <Toaster />
                         </UserProvider>
                     </QueryClientProviderWrapper>
                 </ThemeProvider>

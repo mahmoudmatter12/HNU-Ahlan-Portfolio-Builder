@@ -11,30 +11,29 @@ import {
     Home,
     Menu,
     Users,
-    Award,
-    Briefcase,
     BarChart3,
     LogOut,
     Settings,
-    Shield,
     Database,
-    BookOpen,
     GraduationCap,
-    ClipboardList,
-    Layers
+    User,
+    FileText,
+    ChevronDown
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-// import { UserContext } from "@/context/user-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Header } from "./header"
 import { useLocale } from "next-intl";
 import { useCurrentUser } from "@/context/userContext"
 import { SignOutButton } from "@clerk/nextjs"
+import { CollegeService } from "@/services/collage-service"
+import { useQuery } from "@tanstack/react-query"
 
 interface AdminLayoutProps {
     children: React.ReactNode
@@ -48,7 +47,15 @@ interface NavItem {
     description?: string
     dynamicBadge?: boolean
     roles?: ('ADMIN' | 'SUPERADMIN')[]
-    subItems?: NavItem[]
+    subItems?: SubItem[]
+    hasSubItems?: boolean
+}
+
+interface SubItem {
+    title: string
+    href: string
+    icon: React.ComponentType<{ className?: string }>
+    roles?: ('ADMIN' | 'SUPERADMIN')[]
 }
 
 interface NavSection {
@@ -115,88 +122,7 @@ const navigationSections: NavSection[] = [
                 href: "/admin/dashboard/collages",
                 icon: FolderOpen,
                 description: "Manage university collages",
-                roles: ['SUPERADMIN'],
-                subItems: [
-                    {
-                        title: "Specific Collage",
-                        href: "/admin/dashboard/collages/slug",
-                        icon: FolderOpen,
-                        roles: ['SUPERADMIN']
-                    }
-                ],
-            }
-        ]
-    },
-    {
-        title: "Student Management",
-        items: [
-            {
-                title: "Students",
-                href: "/admin/students",
-                icon: GraduationCap,
-                description: "Manage student profiles",
                 roles: ['ADMIN', 'SUPERADMIN'],
-                badge: "Soon"
-
-            },
-            {
-                title: "Portfolios",
-                href: "/admin/portfolios",
-                icon: BookOpen,
-                description: "View and manage student portfolios",
-                roles: ['ADMIN', 'SUPERADMIN'],
-                // dynamicBadge: true,
-                badge: "Soon"
-            },
-            {
-                title: "Projects",
-                href: "/admin/projects",
-                icon: FolderOpen,
-                description: "Student projects and research",
-                roles: ['ADMIN', 'SUPERADMIN'],
-                badge: "Soon"
-
-            },
-            {
-                title: "Achievements",
-                href: "/admin/achievements",
-                icon: Award,
-                description: "Student awards and certifications",
-                roles: ['ADMIN', 'SUPERADMIN'],
-                badge: "Soon"
-
-            }
-        ]
-    },
-    {
-        title: "Academic Content",
-        items: [
-            {
-                title: "Courses",
-                href: "/admin/courses",
-                icon: ClipboardList,
-                description: "Manage university courses",
-                roles: ['ADMIN', 'SUPERADMIN'],
-                badge: "Soon"
-
-            },
-            {
-                title: "Templates",
-                href: "/admin/templates",
-                icon: Layers,
-                description: "Portfolio templates for students",
-                roles: ['SUPERADMIN'],
-                badge: "Soon"
-
-            },
-            {
-                title: "Departments",
-                href: "/admin/departments",
-                icon: Briefcase,
-                description: "Manage academic departments",
-                roles: ['SUPERADMIN'],
-                badge: "Soon"
-
             }
         ]
     },
@@ -205,27 +131,16 @@ const navigationSections: NavSection[] = [
         items: [
             {
                 title: "User Management",
-                href: "/admin/users",
+                href: "/admin/dashboard/users",
                 icon: Users,
                 description: "Manage admin users and permissions",
                 roles: ['SUPERADMIN'],
-                badge: "Soon"
-
             },
             {
                 title: "Database",
                 href: "/admin/database",
                 icon: Database,
-                description: "System database administration",
-                roles: ['SUPERADMIN'],
-                badge: "Soon"
-
-            },
-            {
-                title: "Security",
-                href: "/admin/security",
-                icon: Shield,
-                description: "Security and access controls",
+                description: "System database administration and logs",
                 roles: ['SUPERADMIN'],
                 badge: "Soon"
 
@@ -238,6 +153,24 @@ const navigationSections: NavSection[] = [
                 roles: ['SUPERADMIN'],
                 badge: "Soon"
 
+            },
+            {
+                title: "Forms",
+                href: "/admin/dashboard/forms",
+                icon: FileText,
+                description: "Manage forms",
+                roles: ['SUPERADMIN'],
+                badge: "Soon"
+            }
+        ],
+    },
+    {
+        title: "Personal",
+        items: [
+            {
+                title: "Profile",
+                href: "/admin/profile",
+                icon: User,
             }
         ]
     }
@@ -246,16 +179,57 @@ const navigationSections: NavSection[] = [
 function SidebarContent({
     collapsed,
     onNavigate,
-    user,
     locale
 }: {
     collapsed: boolean;
     onNavigate?: () => void;
-    user: typeof mockUsers.admin | typeof mockUsers.superadmin;
     locale: string;
 }) {
     const pathname = usePathname()
+    const user = useCurrentUser()
+    const [openCollages, setOpenCollages] = useState(false)
 
+    // Fetch collages based on user type
+    const collages = useQuery({
+        queryKey: ['collages'],
+        queryFn: () => {
+            if (user?.userType === 'SUPERADMIN') {
+                // Superadmin gets all collages
+                return CollegeService.getColleges({})
+            } else {
+                // Admin gets only their created collages
+                return CollegeService.getColleges({ createdById: user?.id })
+            }
+        }
+    })
+
+    // Create collages navigation item with subitems
+    const collagesSubItems: SubItem[] = collages.data?.map((collage) => ({
+        title: collage.name,
+        href: `/admin/dashboard/collages/${collage.slug}`,
+        icon: FolderOpen,
+        roles: ['ADMIN', 'SUPERADMIN'] as ('ADMIN' | 'SUPERADMIN')[]
+    })) || []
+
+    // Update the navigation sections to include collages as a dropdown
+    const navigationSectionsWithCollages = navigationSections.map((section) => {
+        if (section.title === "Dashboard") {
+            return {
+                ...section,
+                items: section.items.map((item) => {
+                    if (item.title === "Collages") {
+                        return {
+                            ...item,
+                            subItems: collagesSubItems,
+                            hasSubItems: true
+                        }
+                    }
+                    return item
+                })
+            }
+        }
+        return section
+    })
 
     return (
         <div className="flex h-full flex-col bg-gray-950">
@@ -269,7 +243,7 @@ function SidebarContent({
                         <div className="flex flex-col">
                             <span className="text-sm font-semibold text-white">University Admin</span>
                             <span className="text-xs text-gray-400">
-                                {user?.userType === 'SUPERADMIN' ? 'System Administrator' : 'Department Admin'}
+                                {user?.userType === 'SUPERADMIN' ? 'System Administrator' : 'Collage Admin'}
                             </span>
                         </div>
                     )}
@@ -279,9 +253,9 @@ function SidebarContent({
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto py-4 bg-gray-950">
                 <nav className="space-y-6 px-3">
-                    {navigationSections.map((section) => {
+                    {navigationSectionsWithCollages.map((section: NavSection) => {
                         // Filter items based on user role
-                        const filteredItems = section.items.filter(item =>
+                        const filteredItems = section.items.filter((item: NavItem) =>
                             !item.roles || item.roles.includes(user?.userType as 'ADMIN' | 'SUPERADMIN')
                         )
 
@@ -295,19 +269,16 @@ function SidebarContent({
                                     </h3>
                                 )}
                                 <div className="space-y-1">
-                                    {filteredItems.map((item) => {
+                                    {filteredItems.map((item: NavItem) => {
                                         const isActive = pathname === `/${locale}${item.href}`
                                         const Icon = item.icon
                                         const isDisabled = item.badge === "Soon"
+                                        const hasSubItems = item.subItems && item.subItems.length > 0
 
                                         // Get the badge value - either static or dynamic
                                         let badgeValue = item.badge
                                         if (item.dynamicBadge) {
-                                            if (item.title === "Portfolios") {
-                                                badgeValue = "0" // Mock pending review count
-                                            } else if (item.title === "Messages") {
-                                                badgeValue = user.unreadMessages > 0 ? user.unreadMessages.toString() : undefined
-                                            }
+                                            badgeValue = "0"; // TODO: add unread messages count
                                         }
 
                                         if (collapsed) {
@@ -336,6 +307,79 @@ function SidebarContent({
                                             )
                                         }
 
+                                        // Render collapsible item with subitems
+                                        if (hasSubItems && !collapsed) {
+                                            return (
+                                                <div key={item.href}>
+                                                    <Collapsible open={openCollages} onOpenChange={setOpenCollages}>
+                                                        <div className="flex items-center">
+                                                            {/* Main item link */}
+                                                            <Link
+                                                                href={isDisabled ? "#" : `/${locale}${item.href}`}
+                                                                onClick={onNavigate}
+                                                                className={cn(
+                                                                    "flex-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-gray-900/50 text-gray-300 hover:text-white",
+                                                                    isActive && "bg-gray-900/50 text-white",
+                                                                    isDisabled && "cursor-not-allowed opacity-50 hover:bg-transparent",
+                                                                )}
+                                                            >
+                                                                <Icon className="h-4 w-4 flex-shrink-0" />
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-medium">{item.title}</span>
+                                                                        {badgeValue && (
+                                                                            <Badge
+                                                                                variant={badgeValue === "Soon" ? "secondary" : "default"}
+                                                                                className="h-5 text-xs bg-gray-800 text-gray-300 border-gray-700"
+                                                                            >
+                                                                                {badgeValue}
+                                                                            </Badge>
+                                                                        )}
+                                                                    </div>
+                                                                    {item.description && <p className="text-xs text-gray-400">{item.description}</p>}
+                                                                </div>
+                                                            </Link>
+                                                            {/* Dropdown toggle */}
+                                                            <CollapsibleTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="p-1 h-8 w-8 text-gray-300 hover:text-white hover:bg-gray-900/50"
+                                                                >
+                                                                    <ChevronDown className={cn(
+                                                                        "h-4 w-4 transition-transform",
+                                                                        openCollages && "rotate-180"
+                                                                    )} />
+                                                                </Button>
+                                                            </CollapsibleTrigger>
+                                                        </div>
+                                                        <CollapsibleContent className="space-y-1 mt-1">
+                                                            {item.subItems?.map((subItem: SubItem) => {
+                                                                const isSubActive = pathname === `/${locale}${subItem.href}`
+                                                                const SubIcon = subItem.icon
+
+                                                                return (
+                                                                    <Link
+                                                                        key={subItem.href}
+                                                                        href={`/${locale}${subItem.href}`}
+                                                                        onClick={onNavigate}
+                                                                        className={cn(
+                                                                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-gray-900/50 text-gray-300 hover:text-white ml-6",
+                                                                            isSubActive && "bg-gray-900/50 text-white",
+                                                                        )}
+                                                                    >
+                                                                        <SubIcon className="h-3 w-3 flex-shrink-0" />
+                                                                        <span className="font-medium">{subItem.title}</span>
+                                                                    </Link>
+                                                                )
+                                                            })}
+                                                        </CollapsibleContent>
+                                                    </Collapsible>
+                                                </div>
+                                            )
+                                        }
+
+                                        // Render regular item
                                         return (
                                             <Link
                                                 key={item.href}
@@ -410,7 +454,7 @@ function DesktopSidebar({
                 collapsed ? "w-16" : "w-64",
             )}
         >
-            <SidebarContent collapsed={collapsed} user={user} locale={locale} />
+            <SidebarContent collapsed={collapsed} locale={locale} />
 
             {/* Collapse Toggle */}
             <Button
@@ -426,7 +470,7 @@ function DesktopSidebar({
     )
 }
 
-function MobileSidebar({ user, locale }: { user: typeof mockUsers.admin | typeof mockUsers.superadmin; locale: string }) {
+function MobileSidebar({ locale }: { locale: string }) {
     const [open, setOpen] = useState(false)
 
     return (
@@ -438,7 +482,7 @@ function MobileSidebar({ user, locale }: { user: typeof mockUsers.admin | typeof
                 </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0 bg-gray-950 border-gray-800">
-                <SidebarContent collapsed={false} onNavigate={() => setOpen(false)} user={user} locale={locale} />
+                <SidebarContent collapsed={false} onNavigate={() => setOpen(false)} locale={locale} />
             </SheetContent>
         </Sheet>
     )
@@ -464,7 +508,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <Header />
                 {/* Mobile Header */}
                 <header className="flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950 px-4 lg:hidden">
-                    <MobileSidebar user={currentUser as unknown as typeof mockUsers.admin | typeof mockUsers.superadmin} locale={locale} />
+                    <MobileSidebar locale={locale} />
                     <div className="flex-1">
                         <h1 className="text-lg font-semibold text-white">University Admin</h1>
                     </div>

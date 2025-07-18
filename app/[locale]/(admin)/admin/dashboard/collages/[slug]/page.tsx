@@ -44,6 +44,7 @@ import { GalleryFormDialog } from "../../../../../../../components/_sharedforms/
 import { GalleryPreview } from "../../../../../../../components/_sharedforms/gallery/gallery-preview"
 import { FormManagementDemo } from "../../../../../../../components/_sharedforms/form/form-management-demo"
 import { FormCreateDialog } from "../../../../../../../components/_sharedforms/form/form-create-dialog"
+import { useAuthStatus } from "@/hooks/use-auth"
 
 const collegeTypeColors = {
   TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -58,7 +59,7 @@ function CollegeDetails() {
   const locale = useLocale()
   const queryClient = useQueryClient()
   const slug = params.slug as string
-
+  const { isCollageCreator } = useAuthStatus()
   const [editingCollege, setEditingCollege] = useState<College | null>(null)
   const [deletingCollege, setDeletingCollege] = useState<College | null>(null)
   const [copiedUrl, setCopiedUrl] = useState(false)
@@ -69,6 +70,10 @@ function CollegeDetails() {
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false)
   const [editingTheme, setEditingTheme] = useState(false)
   const [editingGallery, setEditingGallery] = useState(false)
+
+  console.log(isCollageCreator(slug))
+
+
 
   const {
     data: college,
@@ -139,6 +144,8 @@ function CollegeDetails() {
     }
   }
 
+
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -192,6 +199,15 @@ function CollegeDetails() {
           </Button>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
+      </div>
+    )
+  }
+
+  if (!isCollageCreator(slug)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="text-red-500 text-lg font-semibold">You are not authorized to access this page</div>
+        <div className="text-gray-600">You are not the creator of this collage</div>
       </div>
     )
   }

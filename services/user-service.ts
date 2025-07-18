@@ -1,8 +1,12 @@
 import { api } from "@/lib/axios";
 
 export class UserService {
-  static async getUsers() {
-    const res = await api.get("/user");
+  static async getUsers(params?: {
+    includeCollege?: boolean;
+    page?: number;
+    limit?: number;
+  }) {
+    const res = await api.get("/users/all", { params });
     return res.data;
   }
 
@@ -17,7 +21,22 @@ export class UserService {
   }
 
   static async updateUser(userId: string, updates: any) {
-    const res = await api.put(`/users/${userId}`, updates);
+    const res = await api.patch(`/users/${userId}/update`, updates);
+    return res.data;
+  }
+
+  static async getUserById(userId: string) {
+    const res = await api.get(`/users/${userId}`);
+    return res.data;
+  }
+
+  static async deleteUser(userId: string) {
+    const res = await api.delete(`/users/${userId}/delete`);
+    return res.data;
+  }
+
+  static async getSuperAdmins() {
+    const res = await api.get("/users/superadmins");
     return res.data;
   }
 }

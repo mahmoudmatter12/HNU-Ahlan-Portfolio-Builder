@@ -27,6 +27,7 @@ import {
     Layout,
     Layers
 } from "lucide-react"
+import { useAuthStatus } from '@/hooks/use-auth'
 
 function CollegeDemoPage() {
     const { slug } = useParams()
@@ -36,11 +37,17 @@ function CollegeDemoPage() {
         queryFn: () => CollegeService.getCollegeBySlug(slug as string)
     })
     const user = useCurrentUser()
+    const { isCollageCreator } = useAuthStatus()
 
-    if (!user || user.userType !== 'SUPERADMIN') {
-        return <div>You are not authorized to access this page</div>
+    if (!isCollageCreator(slug as string)) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+                <div className="text-red-500 text-lg font-semibold">You are not authorized to access this page</div>
+                <div className="text-gray-600">You are not the creator of this collage</div>
+            </div>
+        )
     }
-    
+
     if (!college) {
         return <div>Loading...</div>
     }
