@@ -8,7 +8,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, Tab } from "@heroui/tabs"
 import { Separator } from "@/components/ui/separator"
 import {
   ArrowLeft,
@@ -196,6 +196,54 @@ function CollegeDetails() {
     )
   }
 
+  const tabs = [
+    {
+      label: "Overview",
+      value: "overview",
+      content: <CollageOverView college={college} formsData={formsData} />
+    },
+    {
+      label: "Sections",
+      value: "sections",
+      content: <CollageSectionManagment college={college} setCreatingSection={setCreatingSection} setViewingSection={setViewingSection} setEditingSection={setEditingSection} setDeletingSection={setDeletingSection} slug={slug} />
+    },
+    {
+      label: "Forms",
+      value: "forms",
+      content: <CollageForms college={college} />
+    },
+    {
+      label: "Theme Config",
+      value: "theme",
+      content: <CollageThemeConfig college={college} setEditingTheme={setEditingTheme} />
+    },
+    {
+      label: "Gallery",
+      value: "gallery",
+      content: <CollageGallery college={college} setEditingGallery={setEditingGallery} />
+    },
+    {
+      label: "FAQ",
+      value: "faq",
+      content: <CollageFAQ />
+    },
+    {
+      label: "Social Media",
+      value: "social",
+      content: <CollageSocialMedia />
+    },
+    {
+      label: "Collage Leaders",
+      value: "collageLeaders",
+      content: <CollageCollageLeaders />
+    },
+    {
+      label: "Programs",
+      value: "programs",
+      content: <CollagePrograms />
+    },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -257,324 +305,11 @@ function CollegeDetails() {
 
         {/* Main Content */}
         <div className="lg:col-span-2">
-
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full h-fit gap-4 text-white  grid-cols-5">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="sections">Sections</TabsTrigger>
-              <TabsTrigger value="forms">Forms</TabsTrigger>
-              <TabsTrigger value="theme">Theme Config</TabsTrigger>
-              <TabsTrigger value="gallery">Gallery</TabsTrigger>
-              <TabsTrigger value="faq">FAQ</TabsTrigger>
-              <TabsTrigger value="social">Social Media</TabsTrigger>
-              <TabsTrigger value="collageLeaders">Collage Leaders</TabsTrigger>
-              <TabsTrigger value="programs">Programs</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6">
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-blue-500" />
-                      <div>
-                        <div className="text-2xl font-bold">{college._count?.users || 0}</div>
-                        <div className="text-xs text-gray-600">Users</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-green-500" />
-                      <div>
-                        <div className="text-2xl font-bold">{college._count?.sections || 0}</div>
-                        <div className="text-xs text-gray-600">Sections</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-purple-500" />
-                      <div>
-                        <div className="text-2xl font-bold">{formsData?.forms?.length || college._count?.forms || 0}</div>
-                        <div className="text-xs text-gray-600">Forms</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Settings className="h-4 w-4 text-orange-500" />
-                      <div>
-                        <div className="text-2xl font-bold">
-                          {formsData?.forms?.reduce((total, form) => total + (form._count?.submissions || 0), 0) || college._count?.formSubmissions || 0}
-                        </div>
-                        <div className="text-xs text-gray-600">Submissions</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Recent Activity TODO: Add recent activity will be all logs that are related to _COLLAGE */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest updates and changes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">College created</div>
-                        <div className="text-xs text-gray-600">{new Date(college.createdAt).toLocaleDateString()}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">Last updated</div>
-                        <div className="text-xs text-gray-600">{new Date(college.updatedAt).toLocaleDateString()}</div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="sections" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Sections</CardTitle>
-                    <CardDescription>
-                      Manage college sections and content. Drag sections to reorder them.
-                    </CardDescription>
-                  </div>
-                  <Button size="sm" onClick={() => setCreatingSection(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Section
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <DraggableSectionList
-                    sections={college.sections || []}
-                    collegeId={college.id}
-                    onView={(section) => setViewingSection(section)}
-                    onEdit={(section) => setEditingSection(section)}
-                    onDelete={(section) => setDeletingSection(section)}
-                    queryKey={["college", slug]}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="forms" className="space-y-6">
-              <FormManagementDemo collegeId={college.id} />
-            </TabsContent>
-
-            <TabsContent value="theme" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Theme Settings</CardTitle>
-                    <CardDescription>
-                      Customize the appearance of your college page
-                    </CardDescription>
-                  </div>
-                  <Button size="sm" onClick={() => setEditingTheme(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Theme
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {college.theme && Object.keys(college.theme).length > 0 ? (
-                      <div className="space-y-4">
-                        {college.theme.colors && (
-                          <div>
-                            <label className="text-sm font-medium">Colors</label>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {Object.entries(college.theme.colors).map(([key, value]) => (
-                                <div key={key} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                                  <div
-                                    className="w-4 h-4 rounded border"
-                                    style={{ backgroundColor: value as string }}
-                                  />
-                                  <span className="text-xs font-mono">{key}: {String(value)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {college.theme.fonts && (
-                          <div>
-                            <label className="text-sm font-medium">Fonts</label>
-                            <div className="mt-2 space-y-1">
-                              {Object.entries(college.theme.fonts).map(([key, value]) => (
-                                <div key={key} className="text-xs">
-                                  <span className="font-medium">{key}:</span> {String(value)}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {college.theme.mode && (
-                          <div>
-                            <label className="text-sm font-medium">Mode</label>
-                            <div className="mt-2">
-                              <Badge variant="outline" className="text-xs">
-                                {college.theme.mode}
-                              </Badge>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <Palette className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No theme configuration set</p>
-                        <p className="text-xs">Click &quot;Edit Theme&quot; to customize the appearance</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="gallery" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Gallery Images</CardTitle>
-                    <CardDescription>Manage college gallery events and images</CardDescription>
-                  </div>
-                  <Button size="sm" onClick={() => setEditingGallery(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Gallery
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <GalleryPreview
-                    galleryData={college.galleryImages as any}
-                    onEdit={() => setEditingGallery(true)}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="faq" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>FAQ</CardTitle>
-                    <CardDescription>Manage college FAQ</CardDescription>
-                  </div>
-                  <Button size="sm">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit FAQ
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* SOON */}
-                    <div className="text-center py-8 text-gray-500">
-                      <p className="text-sm">FAQ will be available soon</p>
-                      <p className="text-xs">Click &quot;Edit FAQ&quot; to customize the FAQ</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="social" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Social Media</CardTitle>
-                    <CardDescription>Manage college social media</CardDescription>
-                  </div>
-                  <Button size="sm">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Social Media
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* SOON */}
-                    <div className="text-center py-8 text-gray-500">
-                      <p className="text-sm">Social Media will be available soon</p>
-                      <p className="text-xs">Click &quot;Edit Social Media&quot; to customize the Social Media</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="collageLeaders" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Collage Leaders</CardTitle>
-                    <CardDescription>Manage college collage leaders</CardDescription>
-                  </div>
-                  <Button size="sm">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Collage Leaders
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* SOON */}
-                    <div className="text-center py-8 text-gray-500">
-                      <p className="text-sm">Collage Leaders will be available soon</p>
-                      <p className="text-xs">Click &quot;Edit Collage Leaders&quot; to customize the Collage Leaders</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="programs" className="space-y-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Programs</CardTitle>
-                    <CardDescription>Manage college programs</CardDescription>
-                  </div>
-                  <Button size="sm">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Programs
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* SOON */}
-                    <div className="text-center py-8 text-gray-500">
-                      <p className="text-sm">Programs will be available soon</p>
-                      <p className="text-xs">Click &quot;Edit Programs&quot; to customize the Programs</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-          </Tabs>
+          <CollageTabs tabs={tabs} />
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-
           {/* College Info */}
           <Card>
             <CardHeader>
@@ -779,6 +514,381 @@ function CollegeDetails() {
       />
 
     </div>
+  )
+}
+
+function CollageOverView({ college, formsData }: { college: College, formsData: any }) {
+  return (
+    <>
+      <div className="space-y-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-blue-500" />
+                <div>
+                  <div className="text-2xl font-bold">{college._count?.users || 0}</div>
+                  <div className="text-xs text-gray-600">Users</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-green-500" />
+                <div>
+                  <div className="text-2xl font-bold">{college._count?.sections || 0}</div>
+                  <div className="text-xs text-gray-600">Sections</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-purple-500" />
+                <div>
+                  <div className="text-2xl font-bold">{formsData?.forms?.length || college._count?.forms || 0}</div>
+                  <div className="text-xs text-gray-600">Forms</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4 text-orange-500" />
+                <div>
+                  <div className="text-2xl font-bold">
+                    {formsData?.forms?.reduce((total: number, form: any) => total + (form._count?.submissions || 0), 0) || college._count?.formSubmissions || 0}
+                  </div>
+                  <div className="text-xs text-gray-600">Submissions</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity TODO: Add recent activity will be all logs that are related to _COLLAGE */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest updates and changes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium">College created</div>
+                  <div className="text-xs text-gray-600">{new Date(college.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium">Last updated</div>
+                  <div className="text-xs text-gray-600">{new Date(college.updatedAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollageSectionManagment({ college, setCreatingSection, setViewingSection, setEditingSection, setDeletingSection, slug }: { college: College, setCreatingSection: (section: any) => void, setViewingSection: (section: any) => void, setEditingSection: (section: any) => void, setDeletingSection: (section: any) => void, slug: string }) {
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Sections</CardTitle>
+              <CardDescription>
+                Manage college sections and content. Drag sections to reorder them.
+              </CardDescription>
+            </div>
+            <Button size="sm" onClick={() => setCreatingSection(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Section
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <DraggableSectionList
+              sections={college.sections || []}
+              collegeId={college.id}
+              onView={(section) => setViewingSection(section)}
+              onEdit={(section) => setEditingSection(section)}
+              onDelete={(section) => setDeletingSection(section)}
+              queryKey={["college", slug]}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollageForms({ college }: { college: College }) {
+  return (
+    <>
+      <div className="space-y-6">
+        <FormManagementDemo collegeId={college.id} />
+      </div>
+    </>
+  )
+}
+
+function CollageThemeConfig({ college, setEditingTheme }: { college: College, setEditingTheme: (open: boolean) => void }) {
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Theme Settings</CardTitle>
+              <CardDescription>
+                Customize the appearance of your college page
+              </CardDescription>
+            </div>
+            <Button size="sm" onClick={() => setEditingTheme(true)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Theme
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {college.theme && Object.keys(college.theme).length > 0 ? (
+                <div className="space-y-4">
+                  {college.theme.colors && (
+                    <div>
+                      <label className="text-sm font-medium">Colors</label>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {Object.entries(college.theme.colors).map(([key, value]) => (
+                          <div key={key} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                            <div
+                              className="w-4 h-4 rounded border"
+                              style={{ backgroundColor: value as string }}
+                            />
+                            <span className="text-xs font-mono">{key}: {String(value)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {college.theme.fonts && (
+                    <div>
+                      <label className="text-sm font-medium">Fonts</label>
+                      <div className="mt-2 space-y-1">
+                        {Object.entries(college.theme.fonts).map(([key, value]) => (
+                          <div key={key} className="text-xs">
+                            <span className="font-medium">{key}:</span> {String(value)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {college.theme.mode && (
+                    <div>
+                      <label className="text-sm font-medium">Mode</label>
+                      <div className="mt-2">
+                        <Badge variant="outline" className="text-xs">
+                          {college.theme.mode}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Palette className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No theme configuration set</p>
+                  <p className="text-xs">Click &quot;Edit Theme&quot; to customize the appearance</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollageGallery({ college, setEditingGallery }: { college: College, setEditingGallery: (open: boolean) => void }) {
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Gallery Images</CardTitle>
+              <CardDescription>Manage college gallery events and images</CardDescription>
+            </div>
+            <Button size="sm" onClick={() => setEditingGallery(true)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Gallery
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <GalleryPreview
+              galleryData={college.galleryImages as any}
+              onEdit={() => setEditingGallery(true)}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollageFAQ() {
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>FAQ</CardTitle>
+              <CardDescription>Manage college FAQ</CardDescription>
+            </div>
+            <Button size="sm">
+              <Edit className="h-4 w-4 mr-2" />
+              Edit FAQ
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* SOON */}
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">FAQ will be available soon</p>
+                <p className="text-xs">Click &quot;Edit FAQ&quot; to customize the FAQ</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollageSocialMedia() {
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Social Media</CardTitle>
+              <CardDescription>Manage college social media</CardDescription>
+            </div>
+            <Button size="sm">
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Social Media
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* SOON */}
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">Social Media will be available soon</p>
+                <p className="text-xs">Click &quot;Edit Social Media&quot; to customize the Social Media</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollageCollageLeaders() {
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Collage Leaders</CardTitle>
+              <CardDescription>Manage college collage leaders</CardDescription>
+            </div>
+            <Button size="sm">
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Collage Leaders
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* SOON */}
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">Collage Leaders will be available soon</p>
+                <p className="text-xs">Click &quot;Edit Collage Leaders&quot; to customize the Collage Leaders</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollagePrograms() {
+  return (
+    <>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Programs</CardTitle>
+              <CardDescription>Manage college programs</CardDescription>
+            </div>
+            <Button size="sm">
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Programs
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* SOON */}
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">Programs will be available soon</p>
+                <p className="text-xs">Click &quot;Edit Programs&quot; to customize the Programs</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  )
+}
+
+function CollageTabs({ tabs }: { tabs: { label: string, value: string, content: React.ReactNode }[] }) {
+  return (
+    <>
+      <Tabs
+        aria-label="College management tabs"
+        className="space-y-6"
+        color="primary"
+        radius="full"
+        classNames={{
+          panel: "space-y-6",
+          tab: "text-white data-[selected=true]:text-black",
+        }}
+      >
+        {tabs.map((tab) => (
+          <Tab key={tab.value} title={tab.label}>
+            {tab.content}
+          </Tab>
+        ))}
+      </Tabs>
+    </>
   )
 }
 
