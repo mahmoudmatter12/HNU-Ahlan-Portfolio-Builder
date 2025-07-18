@@ -24,7 +24,7 @@ export const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({
     useEffect(() => {
         if (clerkLoaded && !isSignedIn) {
             // Redirect to sign-in if not authenticated with Clerk
-            router.push("/sign-in");
+            router.push("login");
             return;
         }
 
@@ -32,7 +32,7 @@ export const AdminAuthGuard: React.FC<AdminAuthGuardProps> = ({
             // User is signed in with Clerk but not found in our DB
             // This shouldn't happen with find-or-create, but just in case
             console.error("User signed in with Clerk but not found in database");
-            router.push("/sign-in");
+            router.push("login");
             return;
         }
 

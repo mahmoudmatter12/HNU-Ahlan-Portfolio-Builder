@@ -54,7 +54,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     // Redirect unauthenticated users
     if (!authResult.userId) {
-      const signInUrl = new URL("/sign-in", req.url);
+      const signInUrl = new URL("/login", req.url);
       signInUrl.searchParams.set("redirect_url", req.url);
       return NextResponse.redirect(signInUrl);
     }

@@ -25,4 +25,14 @@ export class SectionService {
     const res = await api.post("/section/reorder", sections);
     return res.data;
   }
+
+  async getSectionById(id: string) {
+    const res = await api.get(`/section/${id}`);
+    return res.data;
+  }
+
+  async getSectionsByCollegeId(collegeId: string) {
+    const res = await api.get(`/section/college/${collegeId}`);
+    return res.data;
+  }
 }

@@ -1,56 +1,69 @@
-import { NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
+import { NextRequest, NextResponse } from "next/server";
+import { cloudinary } from "@/lib/cloudinary";
 
-// Configure Cloudinary
-const cloudinaryConfig = {
-  cloud_name:
-    process.env.CLOUDINARY_CLOUD_NAME ||
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-};
-
-cloudinary.config(cloudinaryConfig);
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Verify configuration is loaded
-    if (
-      !cloudinaryConfig.cloud_name ||
-      !cloudinaryConfig.api_key ||
-      !cloudinaryConfig.api_secret
-    ) {
-      console.error("Cloudinary configuration error:", cloudinaryConfig);
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
+    const context = (formData.get("context") as string) || "general";
+    const subContext = (formData.get("subContext") as string) || "default";
+    const fieldName = (formData.get("fieldName") as string) || "file";
+    const fileName = formData.get("fileName") as string;
+
+    if (!file) {
+      return NextResponse.json({ error: "Missing file" }, { status: 400 });
+    }
+
+    const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+    const folderPath = `${context}/${subContext}_${timestamp}`;
+    const publicId = `${folderPath}/${fieldName}_${fileName || Date.now()}`;
+
+    // Convert file to base64
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const fileData = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+    const result = await cloudinary.uploader.upload(fileData, {
+      public_id: publicId,
+      folder: folderPath,
+      resource_type: "auto",
+      overwrite: false,
+      unique_filename: true,
+    });
+
+    return NextResponse.json({
+      url: result.secure_url,
+      publicId: result.public_id,
+      fileName: file.name,
+    });
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    return NextResponse.json(
+      { error: "Failed to upload file" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const publicId = searchParams.get("publicId");
+
+    if (!publicId) {
       return NextResponse.json(
-        { error: "Cloudinary configuration error" },
-        { status: 500 }
+        { error: "Missing publicId parameter" },
+        { status: 400 }
       );
     }
 
-    const formData = await request.formData();
-    const image = formData.get("image") as File;
-    const foldername = formData.get("foldername") as string;
+    await cloudinary.uploader.destroy(publicId);
 
-    if (!image) {
-      return NextResponse.json({ error: "Image is required" }, { status: 400 });
-    }
-
-    // Convert File to base64 string for Cloudinary
-    const bytes = await image.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64String = `data:${image.type};base64,${buffer.toString(
-      "base64"
-    )}`;
-
-    const result = await cloudinary.uploader.upload(base64String, {
-      folder: foldername,
-    });
-    return NextResponse.json(result);
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("Error deleting file:", error);
     return NextResponse.json(
-      { error: "Failed to process request" },
+      { error: "Failed to delete file" },
       { status: 500 }
     );
   }

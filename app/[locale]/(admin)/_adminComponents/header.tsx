@@ -67,7 +67,7 @@ export function Header({
     // Clear any local storage or cookies if needed
     localStorage.removeItem('clerk-db');
     // Redirect to sign-in page
-    window.location.href = '/sign-in';
+    window.location.href = '/login';
   };
 
   const currentUser = useCurrentUser();

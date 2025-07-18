@@ -1,5 +1,6 @@
 import { CollegeType } from "@prisma/client";
 import { University } from "./uni";
+import { SectionType, SectionSettings } from "./section";
 
 export interface College {
   id: string;
@@ -40,10 +41,10 @@ export interface CreateCollageRequest {
 export interface CollegeSection {
   id: string;
   title: string;
-  sectionType: string;
-  content: string;
+  sectionType: SectionType;
+  content?: string;
   order: number;
-  settings: Record<string, any> | null;
+  settings?: SectionSettings;
   collegeId: string;
   createdAt: Date;
   updatedAt: Date;

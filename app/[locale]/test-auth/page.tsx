@@ -103,7 +103,7 @@ export default function TestAuthPage() {
                                     Go to Home
                                 </Button>
                                 {!isSignedIn && (
-                                    <Button variant="outline" onClick={() => window.location.href = "/sign-in"}>
+                                    <Button variant="outline" onClick={() => window.location.href = "login"}>
                                         Sign In
                                     </Button>
                                 )}

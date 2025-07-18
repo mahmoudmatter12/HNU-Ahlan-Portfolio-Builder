@@ -1,9 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FileText, AlertCircle, CheckCircle, Upload, X, Eye, Download } from "lucide-react"
@@ -106,7 +102,7 @@ export function FormPreview({
             formData.append("fieldName", fieldId.replace(/\s+/g, '_').toLowerCase())
             formData.append("fileName", file.name)
 
-            const response = await fetch("/api/upload", {
+            const response = await fetch("/en/api/upload", {
                 method: "POST",
                 body: formData,
             })

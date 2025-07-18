@@ -162,7 +162,7 @@ function EventDetailsDialog({ open, onOpenChange, event, eventIndex, college, on
                     formData.append("file", previewImage.file)
                     formData.append("folder", `colleges/${college.slug}/gallery`)
 
-                    const response = await fetch("/api/upload/gallery", {
+                    const response = await fetch("/en/api/upload/gallery", {
                         method: "POST",
                         body: formData,
                     })

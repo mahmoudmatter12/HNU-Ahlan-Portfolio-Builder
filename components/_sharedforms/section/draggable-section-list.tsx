@@ -29,6 +29,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { CollegeSection } from '@/types/Collage'
 import type { ReorderSectionRequest } from '@/types/section'
+import { SECTION_TYPE_CONFIGS } from '@/types/section'
 
 interface DraggableSectionItemProps {
     section: CollegeSection
@@ -53,6 +54,9 @@ function DraggableSectionItem({ section, onView, onEdit, onDelete }: DraggableSe
         opacity: isDragging ? 0.5 : 1,
     }
 
+    const sectionType = section.sectionType as keyof typeof SECTION_TYPE_CONFIGS
+    const config = SECTION_TYPE_CONFIGS[sectionType]
+
     return (
         <Card
             ref={setNodeRef}
@@ -75,8 +79,12 @@ function DraggableSectionItem({ section, onView, onEdit, onDelete }: DraggableSe
 
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
+                                <span className="text-lg">{config?.icon}</span>
                                 <h3 className="font-medium truncate">{section.title}</h3>
                                 <Badge variant="secondary" className="text-xs">
+                                    {config?.label}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
                                     Order: {section.order}
                                 </Badge>
                             </div>
@@ -293,8 +301,14 @@ export function DraggableSectionList({
                                 <div className="flex items-center gap-3">
                                     <GripVertical className="h-4 w-4 text-blue-600" />
                                     <div className="flex-1">
-                                        <h3 className="font-medium">{activeSection.title}</h3>
-                                        <Badge variant="secondary" className="text-xs">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-lg">{SECTION_TYPE_CONFIGS[activeSection.sectionType as keyof typeof SECTION_TYPE_CONFIGS]?.icon}</span>
+                                            <h3 className="font-medium">{activeSection.title}</h3>
+                                            <Badge variant="secondary" className="text-xs">
+                                                {SECTION_TYPE_CONFIGS[activeSection.sectionType as keyof typeof SECTION_TYPE_CONFIGS]?.label}
+                                            </Badge>
+                                        </div>
+                                        <Badge variant="outline" className="text-xs">
                                             Order: {activeSection.order}
                                         </Badge>
                                     </div>

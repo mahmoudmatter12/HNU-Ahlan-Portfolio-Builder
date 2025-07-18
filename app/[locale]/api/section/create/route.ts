@@ -5,11 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, order, content, collegeId } = body;
+    const { title, order, content, collegeId, sectionType, settings } = body;
 
-    if (!title || !collegeId) {
+    if (!title || !collegeId || !sectionType) {
       return NextResponse.json(
-        { error: "Title and collegeId are required" },
+        { error: "Title, collegeId, and sectionType are required" },
         { status: 400 }
       );
     }
@@ -19,6 +19,8 @@ export async function POST(request: NextRequest) {
         title,
         order: order || 0,
         content: content || "",
+        sectionType,
+        settings: settings || {},
         collegeId,
       },
       include: {
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
     //     title: section.title,
     //     order: section.order,
     //     content: section.content,
+    //     sectionType: section.sectionType,
     //     collegeId: section.collegeId,
     //   },
     // });
