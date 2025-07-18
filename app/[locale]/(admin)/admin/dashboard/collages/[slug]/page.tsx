@@ -254,14 +254,21 @@ function CollegeDetails() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
         {/* Main Content */}
         <div className="lg:col-span-2">
+
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full h-fit gap-4 text-white  grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="sections">Sections</TabsTrigger>
               <TabsTrigger value="forms">Forms</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="theme">Theme Config</TabsTrigger>
+              <TabsTrigger value="gallery">Gallery</TabsTrigger>
+              <TabsTrigger value="faq">FAQ</TabsTrigger>
+              <TabsTrigger value="social">Social Media</TabsTrigger>
+              <TabsTrigger value="collageLeaders">Collage Leaders</TabsTrigger>
+              <TabsTrigger value="programs">Programs</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -278,6 +285,7 @@ function CollegeDetails() {
                     </div>
                   </CardContent>
                 </Card>
+
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2">
@@ -289,6 +297,7 @@ function CollegeDetails() {
                     </div>
                   </CardContent>
                 </Card>
+
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2">
@@ -300,6 +309,7 @@ function CollegeDetails() {
                     </div>
                   </CardContent>
                 </Card>
+
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2">
@@ -315,7 +325,7 @@ function CollegeDetails() {
                 </Card>
               </div>
 
-              {/* Recent Activity */}
+              {/* Recent Activity TODO: Add recent activity will be all logs that are related to _COLLAGE */}
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Activity</CardTitle>
@@ -373,7 +383,7 @@ function CollegeDetails() {
               <FormManagementDemo collegeId={college.id} />
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-6">
+            <TabsContent value="theme" className="space-y-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
@@ -440,7 +450,9 @@ function CollegeDetails() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
 
+            <TabsContent value="gallery" className="space-y-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
@@ -459,13 +471,110 @@ function CollegeDetails() {
                   />
                 </CardContent>
               </Card>
-
             </TabsContent>
+
+            <TabsContent value="faq" className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>FAQ</CardTitle>
+                    <CardDescription>Manage college FAQ</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit FAQ
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* SOON */}
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">FAQ will be available soon</p>
+                      <p className="text-xs">Click &quot;Edit FAQ&quot; to customize the FAQ</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="social" className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Social Media</CardTitle>
+                    <CardDescription>Manage college social media</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Social Media
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* SOON */}
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">Social Media will be available soon</p>
+                      <p className="text-xs">Click &quot;Edit Social Media&quot; to customize the Social Media</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="collageLeaders" className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Collage Leaders</CardTitle>
+                    <CardDescription>Manage college collage leaders</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Collage Leaders
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* SOON */}
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">Collage Leaders will be available soon</p>
+                      <p className="text-xs">Click &quot;Edit Collage Leaders&quot; to customize the Collage Leaders</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="programs" className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Programs</CardTitle>
+                    <CardDescription>Manage college programs</CardDescription>
+                  </div>
+                  <Button size="sm">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Programs
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* SOON */}
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">Programs will be available soon</p>
+                      <p className="text-xs">Click &quot;Edit Programs&quot; to customize the Programs</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
           </Tabs>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
+
           {/* College Info */}
           <Card>
             <CardHeader>
