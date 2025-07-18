@@ -18,7 +18,8 @@ import {
     GraduationCap,
     User,
     FileText,
-    ChevronDown
+    ChevronDown,
+    Building2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -117,12 +118,32 @@ const navigationSections: NavSection[] = [
                 roles: ['ADMIN', 'SUPERADMIN'],
                 badge: "Soon"
             },
+        ]
+    },
+    {
+        title: "Portfolios Management",
+        items: [
             {
-                title: "Collages",
+                title: "University Config",
+                href: "/admin/dashboard/uni",
+                icon: Building2,
+                description: "University configuration and settings",
+                roles: ['SUPERADMIN'],
+            },
+            {
+                title: "Collage",
                 href: "/admin/dashboard/collages",
                 icon: FolderOpen,
-                description: "Manage university collages",
+                description: "Collage portfolios",
                 roles: ['ADMIN', 'SUPERADMIN'],
+            },
+            {
+                title: "Department",
+                href: "/admin/dashboard/departments",
+                icon: FolderOpen,
+                description: "Department portfolios",
+                roles: ['ADMIN', 'SUPERADMIN'],
+                badge: "Soon"
             }
         ]
     },
@@ -213,11 +234,11 @@ function SidebarContent({
 
     // Update the navigation sections to include collages as a dropdown
     const navigationSectionsWithCollages = navigationSections.map((section) => {
-        if (section.title === "Dashboard") {
+        if (section.title === "Portfolios Management") {
             return {
                 ...section,
                 items: section.items.map((item) => {
-                    if (item.title === "Collages") {
+                    if (item.title === "Collage") {
                         return {
                             ...item,
                             subItems: collagesSubItems,

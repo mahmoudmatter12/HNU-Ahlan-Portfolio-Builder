@@ -74,6 +74,7 @@ model University {
   logoUrl     String?
   socialMedia Json?
   description String?
+  content     Json?
   newsItems   Json?
   colleges    College[]
   createdAt   DateTime  @default(now())
