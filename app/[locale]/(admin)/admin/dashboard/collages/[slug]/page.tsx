@@ -45,7 +45,12 @@ import { GalleryPreview } from "../../../../../../../components/_sharedforms/gal
 import { FormManagementDemo } from "../../../../../../../components/_sharedforms/form/form-management-demo"
 import { FormCreateDialog } from "../../../../../../../components/_sharedforms/form/form-create-dialog"
 import { ProgramManagement } from "../../../../../../../components/_sharedforms/program/program-management"
+import { CollageLeadersDialog } from "../../../../../../../components/_sharedforms/collageLeaders/collage-leaders-dialog"
+import { CollageLeadersDisplay } from "../../../../../../../components/_sharedforms/collageLeaders/collage-leaders-display"
+import { SocialMediaDialog } from "../../../../../../../components/_sharedforms/social-media/social-media-dialog"
+import { SocialMediaDisplay } from "../../../../../../../components/_sharedforms/social-media/social-media-display"
 import { useAuthStatus } from "@/hooks/use-auth"
+import type { CollageLeadersData } from "@/types/Collage"
 
 const collegeTypeColors = {
   TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -71,6 +76,8 @@ function CollegeDetails() {
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false)
   const [editingTheme, setEditingTheme] = useState(false)
   const [editingGallery, setEditingGallery] = useState(false)
+  const [editingLeaders, setEditingLeaders] = useState(false)
+  const [editingSocialMedia, setEditingSocialMedia] = useState(false)
 
   console.log(isCollageCreator(slug))
 
@@ -247,12 +254,12 @@ function CollegeDetails() {
     {
       label: "Social Media",
       value: "social",
-      content: <CollageSocialMedia />
+      content: <CollageSocialMedia college={college} setEditingSocialMedia={setEditingSocialMedia} />
     },
     {
       label: "Collage Leaders",
       value: "collageLeaders",
-      content: <CollageCollageLeaders />
+      content: <CollageCollageLeaders college={college} setEditingLeaders={setEditingLeaders} />
     },
     {
       label: "Programs",
@@ -530,6 +537,26 @@ function CollegeDetails() {
         }}
       />
 
+      <CollageLeadersDialog
+        open={editingLeaders}
+        onOpenChange={(open) => setEditingLeaders(open)}
+        college={college}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["college", slug] })
+          setEditingLeaders(false)
+        }}
+      />
+
+      <SocialMediaDialog
+        open={editingSocialMedia}
+        onOpenChange={(open) => setEditingSocialMedia(open)}
+        college={college}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["college", slug] })
+          setEditingSocialMedia(false)
+        }}
+      />
+
     </div>
   )
 }
@@ -796,7 +823,7 @@ function CollageFAQ() {
   )
 }
 
-function CollageSocialMedia() {
+function CollageSocialMedia({ college, setEditingSocialMedia }: { college: College, setEditingSocialMedia: (open: boolean) => void }) {
   return (
     <>
       <div className="space-y-6">
@@ -804,21 +831,18 @@ function CollageSocialMedia() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Social Media</CardTitle>
-              <CardDescription>Manage college social media</CardDescription>
+              <CardDescription>Manage college social media links</CardDescription>
             </div>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setEditingSocialMedia(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Social Media
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {/* SOON */}
-              <div className="text-center py-8 text-gray-500">
-                <p className="text-sm">Social Media will be available soon</p>
-                <p className="text-xs">Click &quot;Edit Social Media&quot; to customize the Social Media</p>
-              </div>
-            </div>
+            <SocialMediaDisplay
+              socialMedia={college.socialMedia}
+              onEdit={() => setEditingSocialMedia(true)}
+            />
           </CardContent>
         </Card>
       </div>
@@ -826,7 +850,9 @@ function CollageSocialMedia() {
   )
 }
 
-function CollageCollageLeaders() {
+function CollageCollageLeaders({ college, setEditingLeaders }: { college: College, setEditingLeaders: (open: boolean) => void }) {
+  const leaders = college.collageLeaders as CollageLeadersData | null
+
   return (
     <>
       <div className="space-y-6">
@@ -836,19 +862,16 @@ function CollageCollageLeaders() {
               <CardTitle>Collage Leaders</CardTitle>
               <CardDescription>Manage college collage leaders</CardDescription>
             </div>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setEditingLeaders(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Collage Leaders
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {/* SOON */}
-              <div className="text-center py-8 text-gray-500">
-                <p className="text-sm">Collage Leaders will be available soon</p>
-                <p className="text-xs">Click &quot;Edit Collage Leaders&quot; to customize the Collage Leaders</p>
-              </div>
-            </div>
+            <CollageLeadersDisplay
+              leaders={leaders?.leaders || []}
+              onEdit={() => setEditingLeaders(true)}
+            />
           </CardContent>
         </Card>
       </div>

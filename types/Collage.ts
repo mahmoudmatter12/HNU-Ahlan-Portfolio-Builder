@@ -22,6 +22,7 @@ export interface College {
   programs: ProgramData;
   faq?: Record<string, any> | null;
   socialMedia: SocialMediaLinks | null;
+  collageLeaders?: CollageLeadersData | null;
   _count?: {
     users: number;
     sections: number;
@@ -120,6 +121,13 @@ export interface GalleryData {
   events: GalleryEvent[];
 }
 
+export interface CustomLink {
+  id: string;
+  name: string;
+  url: string;
+  icon: string;
+}
+
 export interface SocialMediaLinks {
   facebook?: string;
   twitter?: string;
@@ -130,5 +138,24 @@ export interface SocialMediaLinks {
   snapchat?: string;
   telegram?: string;
   whatsapp?: string;
-  [key: string]: string | undefined;
+  email?: string;
+  phone?: string;
+  website?: string;
+  customLinks?: CustomLink[];
+  [key: string]: string | CustomLink[] | undefined;
+}
+
+export interface CollageLeader {
+  id: string;
+  name: string;
+  image: string;
+  collage: string;
+  year: string;
+  program: string;
+  whatsapp: string;
+  facebook: string;
+}
+
+export interface CollageLeadersData {
+  leaders: CollageLeader[];
 }

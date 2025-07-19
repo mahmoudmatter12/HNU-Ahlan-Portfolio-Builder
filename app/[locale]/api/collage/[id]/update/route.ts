@@ -8,7 +8,15 @@ export async function PUT(
   const { id } = await params;
   try {
     const body = await request.json();
-    const { name, slug, type, theme, galleryImages } = body;
+    const {
+      name,
+      slug,
+      type,
+      theme,
+      galleryImages,
+      collageLeaders,
+      socialMedia,
+    } = body;
 
     const college = await db.college.update({
       where: { id },
@@ -18,6 +26,8 @@ export async function PUT(
         type,
         theme,
         galleryImages,
+        collageLeaders,
+        socialMedia,
       },
       include: {
         createdBy: true,
