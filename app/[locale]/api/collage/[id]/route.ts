@@ -1,12 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
+    if (!id) {
+      return NextResponse.json(
+        { error: "College ID is required" },
+        { status: 400 }
+      );
+    }
     const college = await db.college.findUnique({
       where: { id },
       include: {

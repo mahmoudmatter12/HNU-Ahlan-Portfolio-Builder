@@ -44,6 +44,7 @@ import { GalleryFormDialog } from "../../../../../../../components/_sharedforms/
 import { GalleryPreview } from "../../../../../../../components/_sharedforms/gallery/gallery-preview"
 import { FormManagementDemo } from "../../../../../../../components/_sharedforms/form/form-management-demo"
 import { FormCreateDialog } from "../../../../../../../components/_sharedforms/form/form-create-dialog"
+import { ProgramManagement } from "../../../../../../../components/_sharedforms/program/program-management"
 import { useAuthStatus } from "@/hooks/use-auth"
 
 const collegeTypeColors = {
@@ -256,7 +257,7 @@ function CollegeDetails() {
     {
       label: "Programs",
       value: "programs",
-      content: <CollagePrograms />
+      content: <CollagePrograms college={college} />
     },
   ]
 
@@ -855,31 +856,11 @@ function CollageCollageLeaders() {
   )
 }
 
-function CollagePrograms() {
+function CollagePrograms({ college }: { college: College }) {
   return (
     <>
       <div className="space-y-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Programs</CardTitle>
-              <CardDescription>Manage college programs</CardDescription>
-            </div>
-            <Button size="sm">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Programs
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* SOON */}
-              <div className="text-center py-8 text-gray-500">
-                <p className="text-sm">Programs will be available soon</p>
-                <p className="text-xs">Click &quot;Edit Programs&quot; to customize the Programs</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProgramManagement collegeId={college.id} />
       </div>
     </>
   )

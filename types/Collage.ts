@@ -1,6 +1,7 @@
 import { CollegeType } from "@prisma/client";
 import { University } from "./uni";
 import { SectionType, SectionSettings } from "./section";
+import { ProgramData } from "./program";
 
 export interface College {
   id: string;
@@ -12,14 +13,15 @@ export interface College {
   createdAt: Date;
   updatedAt: Date;
   galleryImages: Record<string, any> | null;
-  projects: ProjectData;
   users: CollegeUser[];
   sections: CollegeSection[];
   forms: CollegeFormSection[];
   formSubmissions: CollegeFormSubmission[];
   createdBy?: CollegeUser;
   university: University;
+  programs: ProgramData;
   faq?: Record<string, any> | null;
+  socialMedia: SocialMediaLinks | null;
   _count?: {
     users: number;
     sections: number;
@@ -34,7 +36,6 @@ export interface CreateCollageRequest {
   type: CollegeType;
   theme: Record<string, any> | null;
   galleryImages: Record<string, any> | null;
-  projects: ProjectData;
   createdById?: string;
 }
 
@@ -119,19 +120,15 @@ export interface GalleryData {
   events: GalleryEvent[];
 }
 
-export interface ProjectImage {
-  id: string;
-  url: string;
-  description: string;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  images: ProjectImage[];
-}
-
-export interface ProjectData {
-  projects: Project[];
+export interface SocialMediaLinks {
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
+  tiktok?: string;
+  snapchat?: string;
+  telegram?: string;
+  whatsapp?: string;
+  [key: string]: string | undefined;
 }

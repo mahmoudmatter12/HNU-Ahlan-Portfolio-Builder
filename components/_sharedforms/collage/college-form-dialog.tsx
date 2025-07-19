@@ -17,7 +17,6 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import type { College, CreateCollageRequest } from "@/types/Collage"
@@ -35,7 +34,6 @@ const collegeSchema = z.object({
     }),
     theme: z.string().optional(),
     galleryImages: z.string().optional(),
-    projects: z.string().optional(),
     createdById: z.string().min(1, "Created by ID is required"),
     faq: z.string().optional(),
 })
@@ -63,7 +61,6 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
             type: "TECHNICAL",
             theme: "{}",
             galleryImages: "[]",
-            projects: "[]",
             createdById: user?.id || "",
             faq: "[]",
         },
@@ -80,7 +77,6 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                     type: college.type,
                     theme: JSON.stringify(college.theme, null, 2),
                     galleryImages: JSON.stringify(college.galleryImages, null, 2),
-                    projects: JSON.stringify(college.projects, null, 2),
                     createdById: college.createdById,
                     faq: JSON.stringify(college.faq, null, 2),
                 })
@@ -91,7 +87,6 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                     type: "TECHNICAL",
                     theme: "{}",
                     galleryImages: "[]",
-                    projects: "[]",
                     createdById: user?.id || "",
                     faq: "[]",
                 })
@@ -128,7 +123,6 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
             // Parse JSON fields
             let theme = {}
             let galleryImages = []
-            let projects = []
 
             try {
                 theme = data.theme ? JSON.parse(data.theme) : {}
@@ -146,13 +140,7 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                 return
             }
 
-            try {
-                projects = data.projects ? JSON.parse(data.projects) : []
-            } catch (e) {
-                setError("Invalid JSON in projects field")
-                setIsSubmitting(false)
-                return
-            }
+
 
             const submitData = {
                 name: data.name,
@@ -160,7 +148,6 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                 type: data.type,
                 theme,
                 galleryImages,
-                projects,
                 createdById: data.createdById || user?.id,
                 faq: data.faq ? JSON.parse(data.faq) : [],
             }
@@ -263,67 +250,7 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                                 </FormItem>
                             )}
                         />
-
-                        <FormField
-                            control={form.control}
-                            name="theme"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Theme Configuration</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder='{"primaryColor": "#3b82f6", "secondaryColor": "#64748b"}'
-                                            className="font-mono text-sm"
-                                            rows={4}
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>JSON configuration for theme settings (colors, fonts, etc.)</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="galleryImages"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Gallery Images</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder='[{"url": "image1.jpg", "alt": "Description"}, {"url": "image2.jpg", "alt": "Description"}]'
-                                            className="font-mono text-sm"
-                                            rows={3}
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>JSON array of gallery images with URLs and descriptions</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="projects"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Projects</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder='[{"title": "Project 1", "description": "Description", "url": "project1.com"}]'
-                                            className="font-mono text-sm"
-                                            rows={3}
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>JSON array of featured projects and showcases</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
+                       
                         {/* Hidden field for createdById */}
                         <FormField
                             control={form.control}

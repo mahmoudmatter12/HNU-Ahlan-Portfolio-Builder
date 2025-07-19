@@ -15,6 +15,7 @@ const GetCollegeBySlugController = async (
         sections: {
           orderBy: { order: "asc" },
         },
+        programs: true,
         forms: {
           include: {
             fields: {

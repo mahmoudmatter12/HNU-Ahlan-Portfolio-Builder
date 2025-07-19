@@ -2,9 +2,8 @@ import { api } from "@/lib/axios";
 import type {
   College,
   CollegeSection,
-  Project,
-  ProjectData,
 } from "@/types/Collage";
+import { Program, ProgramData } from "@/types/program";
 
 export class CollegeService {
   // Get all colleges
@@ -115,67 +114,32 @@ export class CollegeService {
     return res.data;
   }
 
-  // PROJECT MANAGEMENT
-  // Get projects for a college
-  static async getProjects(collegeId: string) {
-    const college = await this.getCollege(collegeId);
-    return college.projects || { projects: [] };
-  }
-
-  // Add a project to a college
-  static async addProject(collegeId: string, project: Project) {
-    const college = await this.getCollege(collegeId);
-    const currentProjects = college.projects || { projects: [] };
-    
-    const updatedProjects: ProjectData = {
-      projects: [...currentProjects.projects, project]
-    };
-
-    const res = await api.put<College>(`/collage/${collegeId}/update`, {
-      projects: updatedProjects
-    });
+  static async getPrograms(collegeId: string) {
+    const res = await api.get<Program[]>(`/collage/${collegeId}/programs`);
     return res.data;
   }
 
-  // Update a project in a college
-  static async updateProject(collegeId: string, projectId: string, updatedProject: Project) {
-    const college = await this.getCollege(collegeId);
-    const currentProjects = college.projects || { projects: [] };
-    
-    const updatedProjects: ProjectData = {
-      projects: currentProjects.projects.map(project => 
-        project.id === projectId ? updatedProject : project
-      )
-    };
-
-    const res = await api.put<College>(`/collage/${collegeId}/update`, {
-      projects: updatedProjects
-    });
+  static async createProgram(collegeId: string, data: ProgramData) {
+    const res = await api.post<Program>(`/collage/${collegeId}/programs`, data);
     return res.data;
   }
 
-  // Delete a project from a college
-  static async deleteProject(collegeId: string, projectId: string) {
-    const college = await this.getCollege(collegeId);
-    const currentProjects = college.projects || { projects: [] };
-    
-    const updatedProjects: ProjectData = {
-      projects: currentProjects.projects.filter(project => project.id !== projectId)
-    };
-
-    const res = await api.put<College>(`/collage/${collegeId}/update`, {
-      projects: updatedProjects
-    });
+  static async updateProgram(
+    collegeId: string,
+    programId: string,
+    data: ProgramData
+  ) {
+    const res = await api.put<Program>(
+      `/collage/${collegeId}/programs/${programId}`,
+      data
+    );
     return res.data;
   }
 
-  // Update all projects for a college
-  static async updateProjects(collegeId: string, projectData: ProjectData) {
-    const res = await api.put<College>(`/collage/${collegeId}/update`, {
-      projects: projectData
-    });
+  static async deleteProgram(collegeId: string, programId: string) {
+    const res = await api.delete<{ message: string }>(
+      `/collage/${collegeId}/programs/${programId}`
+    );
     return res.data;
   }
-
-  // Additional methods for forms, users, etc. can be added similarly
 }
