@@ -48,6 +48,7 @@ import { CollegeService } from '@/services/collage-service'
 import { User } from '@/types/user'
 import { College } from '@/types/Collage'
 import { toast } from 'sonner'
+import { useAuthStatus } from '@/hooks/use-auth'
 
 interface UserWithCollages extends User {
     collegesCreated?: College[]
@@ -59,7 +60,7 @@ interface UserWithCollages extends User {
 interface EditUserData {
     name: string
     email: string
-    userType: 'ADMIN' | 'SUPERADMIN' | "GUEST"
+    userType: 'ADMIN' | 'SUPERADMIN' | "GUEST" | "OWNER"
 }
 
 function UsersPage() {
@@ -74,6 +75,7 @@ function UsersPage() {
         userType: 'GUEST'
     })
     const [viewingUserCollages, setViewingUserCollages] = useState<UserWithCollages | null>(null)
+    const { isOwner } = useAuthStatus()
 
     // Fetch users with React Query
     const {
@@ -152,19 +154,33 @@ function UsersPage() {
 
     const getRoleIcon = (userType: string) => {
         switch (userType) {
+            case 'OWNER':
+                return (
+                    <Shield className="w-5 h-5 text-white bg-gradient-to-br from-blue-600 to-blue-800 p-1 rounded-lg shadow-md" />
+                );
             case 'SUPERADMIN':
-                return <Crown className="w-4 h-4 text-yellow-500" />
+                return (
+                    <Crown className="w-5 h-5 text-white bg-gradient-to-br from-yellow-500 to-yellow-700 p-1 rounded-lg shadow-md" />
+                );
             case 'ADMIN':
-                return <Shield className="w-4 h-4 text-blue-500" />
+                return (
+                    <Shield className="w-4.5 h-4.5 text-white bg-gradient-to-br from-purple-600 to-purple-800 p-1 rounded-md shadow-sm" />
+                );
             case 'GUEST':
-                return <UserIcon className="w-4 h-4 text-gray-500" />
+                return (
+                    <UserIcon className="w-4 h-4 text-gray-600 bg-gray-100 p-1 rounded-full" />
+                );
             default:
-                return <UserIcon className="w-4 h-4 text-gray-500" />
+                return (
+                    <UserIcon className="w-4 h-4 text-gray-400 bg-gray-50 p-1 rounded-full" />
+                );
         }
-    }
+    };
 
     const getRoleBadge = (userType: string) => {
         switch (userType) {
+            case 'OWNER':
+                return <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">Owner</Badge>
             case 'SUPERADMIN':
                 return <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">Super Admin</Badge>
             case 'ADMIN':
@@ -175,6 +191,9 @@ function UsersPage() {
                 return <Badge variant="outline">User</Badge>
         }
     }
+
+
+
 
     if (isLoading) {
         return (
@@ -196,6 +215,10 @@ function UsersPage() {
                 </div>
             </div>
         )
+    }
+
+    if (!isOwner) {
+        return <div>You are not authorized to access this page</div>
     }
 
     return (
@@ -420,7 +443,7 @@ function UsersPage() {
                             <Label htmlFor="role">Role</Label>
                             <Select
                                 value={editData.userType}
-                                onValueChange={(value: 'ADMIN' | 'SUPERADMIN' | "GUEST") =>
+                                onValueChange={(value: 'ADMIN' | 'SUPERADMIN' | "GUEST" | "OWNER") =>
                                     setEditData({ ...editData, userType: value })
                                 }
                             >
@@ -428,12 +451,20 @@ function UsersPage() {
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="OWNER">
+                                        <div className="flex items-center gap-2">
+                                            <Shield className="w-4 h-4" />
+                                            Owner
+                                        </div>
+                                    </SelectItem>
+
                                     <SelectItem value="ADMIN">
                                         <div className="flex items-center gap-2">
                                             <Shield className="w-4 h-4" />
                                             Admin
                                         </div>
                                     </SelectItem>
+
                                     <SelectItem value="SUPERADMIN">
                                         <div className="flex items-center gap-2">
                                             <Crown className="w-4 h-4" />

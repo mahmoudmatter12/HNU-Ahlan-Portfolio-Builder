@@ -47,7 +47,7 @@ interface NavItem {
     badge?: string
     description?: string
     dynamicBadge?: boolean
-    roles?: ('ADMIN' | 'SUPERADMIN')[]
+    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER')[]
     subItems?: SubItem[]
     hasSubItems?: boolean
 }
@@ -128,7 +128,7 @@ const navigationSections: NavSection[] = [
                 href: "/admin/dashboard/uni",
                 icon: Building2,
                 description: "University configuration and settings",
-                roles: ['SUPERADMIN'],
+                roles: ['OWNER'],
             },
             {
                 title: "Collage",
@@ -155,7 +155,7 @@ const navigationSections: NavSection[] = [
                 href: "/admin/dashboard/users",
                 icon: Users,
                 description: "Manage admin users and permissions",
-                roles: ['SUPERADMIN'],
+                roles: ['OWNER'],
             },
             {
                 title: "Database",
@@ -171,7 +171,7 @@ const navigationSections: NavSection[] = [
                 href: "/admin/settings",
                 icon: Settings,
                 description: "System configuration",
-                roles: ['SUPERADMIN'],
+                roles: ['OWNER'],
                 badge: "Soon"
 
             },
@@ -180,7 +180,7 @@ const navigationSections: NavSection[] = [
                 href: "/admin/dashboard/forms",
                 icon: FileText,
                 description: "Manage forms",
-                roles: ['SUPERADMIN'],
+                roles: ['OWNER'],
                 badge: "Soon"
             }
         ],

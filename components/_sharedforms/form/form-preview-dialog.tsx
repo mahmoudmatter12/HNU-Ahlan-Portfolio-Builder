@@ -26,13 +26,17 @@ export function FormPreviewDialog({ open, onOpenChange, form }: FormPreviewDialo
   if (!form) return null
 
   const copyFormLink = () => {
-    const link = `${window.location.origin}/${form.college?.slug}/form/${form.id}`
+    const link = form.college?.id
+      ? `${window.location.origin}/${form.college.slug}/form/${form.id}`
+      : `${window.location.origin}/form/${form.id}`
     navigator.clipboard.writeText(link)
     toast.success("Form link copied to clipboard!")
   }
 
   const openFormInNewTab = () => {
-    const link = `${window.location.origin}/${form.college?.slug}/form/${form.id}`
+    const link = form.college?.id
+      ? `${window.location.origin}/${form.college.slug}/form/${form.id}`
+      : `${window.location.origin}/form/${form.id}`
     window.open(link, '_blank')
   }
 

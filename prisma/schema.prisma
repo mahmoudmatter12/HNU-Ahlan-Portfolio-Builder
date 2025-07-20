@@ -18,6 +18,7 @@ enum UserType {
   ADMIN
   SUPERADMIN
   GUEST
+  OWNER
 }
 
 enum CollegeType {
@@ -132,8 +133,8 @@ model FormSection {
   title       String
   description String?
   active      Boolean          @default(true)
-  college     College          @relation(fields: [collegeId], references: [id], onDelete: Cascade)
-  collegeId   String
+  college     College?         @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  collegeId   String?
   fields      FormField[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
@@ -159,7 +160,7 @@ model FormSubmission {
   data          Json // Stores form field responses
   formSection   FormSection @relation(fields: [formSectionId], references: [id], onDelete: Cascade)
   formSectionId String
-  college       College     @relation(fields: [collegeId], references: [id])
-  collegeId     String
+  college       College?    @relation(fields: [collegeId], references: [id])
+  collegeId     String?
   submittedAt   DateTime    @default(now())
 }

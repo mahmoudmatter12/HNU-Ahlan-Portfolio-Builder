@@ -12,9 +12,9 @@ export async function POST(
     const body = await request.json();
     const { data, collegeId } = body;
 
-    if (!data || !id || !collegeId) {
+    if (!data || !id) {
       return NextResponse.json(
-        { error: "Data, formSectionId, and collegeId are required" },
+        { error: "Data and formSectionId are required" },
         { status: 400 }
       );
     }
@@ -23,7 +23,7 @@ export async function POST(
       data: {
         data,
         formSectionId: id,
-        collegeId,
+        collegeId: collegeId || null,
       },
       include: {
         formSection: {

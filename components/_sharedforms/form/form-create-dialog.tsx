@@ -23,17 +23,19 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Loader2, Plus, GripVertical, Trash2, Copy, Eye, Settings, Palette, FileText } from "lucide-react"
+import { Loader2, Plus, GripVertical, Trash2, Copy, Eye, Settings, Palette, FileText, Building2, Globe } from "lucide-react"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 import { FIELD_TYPE_CONFIGS, type FormFieldType, type CreateFormField, type CreateFormFieldData } from "@/types/form"
 import { FormFieldEditor } from "./form-field-editor"
 import { FormPreview } from "./form-preview"
+import type { College } from "@/types/Collage"
 
 const formSchema = z.object({
     title: z.string().min(1, "Form title is required").max(100, "Title must be less than 100 characters"),
     description: z.string().optional(),
-    collegeId: z.string().min(1, "College ID is required"),
+    collegeId: z.string().optional(),
     active: z.boolean(),
 })
 
@@ -44,23 +46,53 @@ interface FormCreateDialogProps {
     onOpenChange: (open: boolean) => void
     collegeId: string
     onSuccess: () => void
+    isGlobalForm?: boolean
+    colleges?: College[]
 }
 
-export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: FormCreateDialogProps) {
+export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess, isGlobalForm = false, colleges = [] }: FormCreateDialogProps) {
     const [currentStep, setCurrentStep] = useState(1)
     const [fields, setFields] = useState<CreateFormFieldData[]>([])
     const [editingFieldIndex, setEditingFieldIndex] = useState<number | null>(null)
     const [showPreview, setShowPreview] = useState(false)
+    const [allFieldsRequired, setAllFieldsRequired] = useState(false)
+
+    // Keep allFieldsRequired state in sync with actual field states
+    useEffect(() => {
+        if (fields.length > 0) {
+            const allRequired = fields.every(field => field.isRequired)
+            const allOptional = fields.every(field => !field.isRequired)
+
+            if (allRequired) {
+                setAllFieldsRequired(true)
+            } else if (allOptional) {
+                setAllFieldsRequired(false)
+            }
+            // If mixed states, don't change allFieldsRequired state
+        }
+    }, [fields])
+
+    // Check if fields have mixed required states
+    const hasMixedRequiredStates = fields.length > 0 &&
+        !fields.every(field => field.isRequired) &&
+        !fields.every(field => !field.isRequired)
 
     const form = useForm<FormFormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
             description: "",
-            collegeId: collegeId,
+            collegeId: collegeId || "",
             active: true,
         },
     })
+
+    // Update form when collegeId prop changes
+    useEffect(() => {
+        if (collegeId && !isGlobalForm) {
+            form.setValue("collegeId", collegeId)
+        }
+    }, [collegeId, isGlobalForm, form])
 
     const createFormMutation = useMutation({
         mutationFn: (data: { formSection: any; fields: CreateFormFieldData[] }) =>
@@ -76,12 +108,17 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
     })
 
     const resetForm = useCallback(() => {
-        form.reset()
+        form.reset({
+            title: "",
+            description: "",
+            collegeId: collegeId || "",
+            active: true,
+        })
         setFields([])
         setCurrentStep(1)
         setEditingFieldIndex(null)
         setShowPreview(false)
-    }, [form])
+    }, [form, collegeId])
 
     useEffect(() => {
         if (!open) {
@@ -141,19 +178,22 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
             return
         }
 
+        // Handle custom form case
+        const finalCollegeId = data.collegeId === "custom" ? null : data.collegeId
+
         createFormMutation.mutate({
             formSection: {
                 title: data.title,
                 description: data.description,
                 active: data.active,
-                collegeId: data.collegeId,
+                collegeId: finalCollegeId,
             },
             fields,
         })
     }
 
-    const canProceedToFields = form.watch("title").trim().length > 0
-    const canCreateForm = fields.length > 0 && form.watch("title").trim().length > 0
+    const canProceedToFields = form.watch("title").trim().length > 0 && (isGlobalForm ? true : (form.watch("collegeId") || "").trim().length > 0)
+    const canCreateForm = fields.length > 0 && form.watch("title").trim().length > 0 && (isGlobalForm ? true : (form.watch("collegeId") || "").trim().length > 0)
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -161,10 +201,13 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5" />
-                        Create New Form
+                        {isGlobalForm ? "Create Global Form" : "Create New Form"}
                     </DialogTitle>
                     <DialogDescription>
-                        Build a custom form with various field types. Add fields, configure them, and preview the final form.
+                        {isGlobalForm
+                            ? "Build a custom form that can be associated with any college or used as a standalone form."
+                            : "Build a custom form with various field types. Add fields, configure them, and preview the final form."
+                        }
                     </DialogDescription>
                 </DialogHeader>
 
@@ -201,9 +244,9 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                     </div>
                 </div>
 
-                <Tabs value={currentStep.toString()} onValueChange={(value) => setCurrentStep(parseInt(value))}>
+                <Tabs value={currentStep.toString()} onValueChange={(value) => setCurrentStep(parseInt(value))} className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="1" disabled={!canProceedToFields}>Form Details</TabsTrigger>
+                        <TabsTrigger value="1">Form Details</TabsTrigger>
                         <TabsTrigger value="2" disabled={!canProceedToFields}>Add Fields</TabsTrigger>
                         <TabsTrigger value="3" disabled={!canCreateForm}>Preview & Create</TabsTrigger>
                     </TabsList>
@@ -239,17 +282,57 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                                             <FormLabel>Description (Optional)</FormLabel>
                                             <FormControl>
                                                 <Textarea
-                                                    placeholder="Brief description of what this form is for..."
+                                                    placeholder="Provide additional context about this form..."
                                                     {...field}
                                                 />
                                             </FormControl>
                                             <FormDescription>
-                                                Provide additional context about the form&apos;s purpose.
+                                                Help users understand what this form is for and what information they need to provide.
                                             </FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+
+                                {isGlobalForm && (
+                                    <FormField
+                                        control={form.control}
+                                        name="collegeId"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Associated College</FormLabel>
+                                                <FormControl>
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a college or create a custom form" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="custom">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Globe className="h-4 w-4" />
+                                                                    Custom Form (No College)
+                                                                </div>
+                                                            </SelectItem>
+                                                            <Separator />
+                                                            {colleges.map((college) => (
+                                                                <SelectItem key={college.id} value={college.id}>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Building2 className="h-4 w-4" />
+                                                                        {college.name}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormDescription>
+                                                    Choose which college this form should be associated with, or create a custom form.
+                                                </FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
 
                                 <FormField
                                     control={form.control}
@@ -257,9 +340,9 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                                     render={({ field }) => (
                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                             <div className="space-y-0.5">
-                                                <FormLabel className="text-base">Active Form</FormLabel>
+                                                <FormLabel className="text-base">Active Status</FormLabel>
                                                 <FormDescription>
-                                                    Users can submit responses to active forms. Inactive forms are hidden from users.
+                                                    Enable this form to accept submissions from users.
                                                 </FormDescription>
                                             </div>
                                             <FormControl>
@@ -272,13 +355,14 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                                     )}
                                 />
 
-                                <div className="flex justify-end">
+                                <div className="flex justify-end space-x-2">
                                     <Button
                                         type="button"
                                         onClick={() => setCurrentStep(2)}
                                         disabled={!canProceedToFields}
                                     >
                                         Next: Add Fields
+                                        <Plus className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
                             </form>
@@ -332,6 +416,53 @@ export function FormCreateDialog({ open, onOpenChange, collegeId, onSuccess }: F
                                         <Eye className="h-4 w-4 mr-2" />
                                         {showPreview ? "Hide" : "Show"} Preview
                                     </Button>
+
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant={hasMixedRequiredStates ? "secondary" : (allFieldsRequired ? "default" : "outline")}
+                                            size="sm"
+                                            onClick={() => {
+                                                const newRequiredState = !allFieldsRequired
+                                                setAllFieldsRequired(newRequiredState)
+                                                // Update all fields to have the same required state
+                                                const updatedFields = fields.map(field => ({
+                                                    ...field,
+                                                    isRequired: newRequiredState
+                                                }))
+                                                setFields(updatedFields)
+
+                                                // Show feedback toast
+                                                toast.success(
+                                                    newRequiredState
+                                                        ? `All ${fields.length} fields are now required`
+                                                        : `All ${fields.length} fields are now optional`
+                                                )
+                                            }}
+                                            disabled={fields.length === 0}
+                                        >
+                                            <Settings className="h-4 w-4 mr-2" />
+                                            {fields.length === 0
+                                                ? "No Fields"
+                                                : hasMixedRequiredStates
+                                                    ? "Standardize Required"
+                                                    : allFieldsRequired
+                                                        ? "Make All Optional"
+                                                        : "Make All Required"
+                                            }
+                                        </Button>
+                                        {fields.length > 0 && (
+                                            <Badge variant={
+                                                hasMixedRequiredStates
+                                                    ? "outline"
+                                                    : (allFieldsRequired ? "destructive" : "secondary")
+                                            }>
+                                                {hasMixedRequiredStates
+                                                    ? "Mixed States"
+                                                    : (allFieldsRequired ? "All Required" : "All Optional")
+                                                }
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {fields.length === 0 ? (

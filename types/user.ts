@@ -7,7 +7,7 @@ export interface User {
   name?: string;
   image?: string;
   onboarded: boolean;
-  userType: "ADMIN" | "SUPERADMIN" | "GUEST";
+  userType: "ADMIN" | "SUPERADMIN" | "GUEST" | "OWNER";
   collegeId?: string;
   collegesCreated?: College[];
   createdAt: Date;

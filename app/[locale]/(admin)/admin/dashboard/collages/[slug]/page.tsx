@@ -26,6 +26,9 @@ import {
   Check,
   Palette,
   Image as ImageIcon,
+  TrendingUp,
+  CheckCircle,
+  BarChart3,
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -51,6 +54,8 @@ import { SocialMediaDialog } from "../../../../../../../components/_sharedforms/
 import { SocialMediaDisplay } from "../../../../../../../components/_sharedforms/social-media/social-media-display"
 import { useAuthStatus } from "@/hooks/use-auth"
 import type { CollageLeadersData } from "@/types/Collage"
+import { ThemePreview } from "../../../../../../../components/_sharedforms/theme/theme-preview"
+import { FormsOverview } from "../../../../../../../components/_sharedforms/form/forms-overview"
 
 const collegeTypeColors = {
   TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -562,61 +567,142 @@ function CollegeDetails() {
 }
 
 function CollageOverView({ college, formsData }: { college: College, formsData: any }) {
+  const [activeTab, setActiveTab] = useState("overview")
+  const stats = college.statistics || {
+    totalUsers: college._count?.users || 0,
+    totalSections: college._count?.sections || 0,
+    totalForms: college._count?.forms || 0,
+    totalFormFields: 0,
+    totalFormSubmissions: college._count?.formSubmissions || 0,
+    activeForms: 0,
+    totalPrograms: college._count?.programs || 0,
+    averageSubmissionsPerForm: 0,
+  }
+
+
   return (
     <>
       <div className="space-y-6">
-        {/* Stats Cards */}
+        {/* Enhanced Stats Cards - Clickable */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-blue-500" />
                 <div>
-                  <div className="text-2xl font-bold">{college._count?.users || 0}</div>
+                  <div className="text-2xl font-bold">{stats.totalUsers}</div>
                   <div className="text-xs text-gray-600">Users</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-green-500" />
                 <div>
-                  <div className="text-2xl font-bold">{college._count?.sections || 0}</div>
+                  <div className="text-2xl font-bold">{stats.totalSections}</div>
                   <div className="text-xs text-gray-600">Sections</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-purple-500" />
                 <div>
-                  <div className="text-2xl font-bold">{formsData?.forms?.length || college._count?.forms || 0}</div>
+                  <div className="text-2xl font-bold">{stats.totalForms}</div>
                   <div className="text-xs text-gray-600">Forms</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
                 <Settings className="h-4 w-4 text-orange-500" />
                 <div>
-                  <div className="text-2xl font-bold">
-                    {formsData?.forms?.reduce((total: number, form: any) => total + (form._count?.submissions || 0), 0) || college._count?.formSubmissions || 0}
-                  </div>
+                  <div className="text-2xl font-bold">{stats.totalFormSubmissions}</div>
                   <div className="text-xs text-gray-600">Submissions</div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Additional Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-indigo-500" />
+                <div>
+                  <div className="text-2xl font-bold">{stats.totalFormFields}</div>
+                  <div className="text-xs text-gray-600">Form Fields</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-emerald-500" />
+                <div>
+                  <div className="text-2xl font-bold">{stats.activeForms}</div>
+                  <div className="text-xs text-gray-600">Active Forms</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-cyan-500" />
+                <div>
+                  <div className="text-2xl font-bold">{stats.totalPrograms}</div>
+                  <div className="text-xs text-gray-600">Programs</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-rose-500" />
+                <div>
+                  <div className="text-2xl font-bold">{stats.averageSubmissionsPerForm}</div>
+                  <div className="text-xs text-gray-600">Avg/Form</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Theme Preview */}
+        <ThemePreview theme={college.theme} />
 
         {/* Recent Activity TODO: Add recent activity will be all logs that are related to _COLLAGE */}
         <Card>
@@ -709,56 +795,7 @@ function CollageThemeConfig({ college, setEditingTheme }: { college: College, se
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {college.theme && Object.keys(college.theme).length > 0 ? (
-                <div className="space-y-4">
-                  {college.theme.colors && (
-                    <div>
-                      <label className="text-sm font-medium">Colors</label>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {Object.entries(college.theme.colors).map(([key, value]) => (
-                          <div key={key} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                            <div
-                              className="w-4 h-4 rounded border"
-                              style={{ backgroundColor: value as string }}
-                            />
-                            <span className="text-xs font-mono">{key}: {String(value)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {college.theme.fonts && (
-                    <div>
-                      <label className="text-sm font-medium">Fonts</label>
-                      <div className="mt-2 space-y-1">
-                        {Object.entries(college.theme.fonts).map(([key, value]) => (
-                          <div key={key} className="text-xs">
-                            <span className="font-medium">{key}:</span> {String(value)}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {college.theme.mode && (
-                    <div>
-                      <label className="text-sm font-medium">Mode</label>
-                      <div className="mt-2">
-                        <Badge variant="outline" className="text-xs">
-                          {college.theme.mode}
-                        </Badge>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Palette className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No theme configuration set</p>
-                  <p className="text-xs">Click &quot;Edit Theme&quot; to customize the appearance</p>
-                </div>
-              )}
-            </div>
+            <ThemePreview theme={college.theme} />
           </CardContent>
         </Card>
       </div>
@@ -892,22 +929,24 @@ function CollagePrograms({ college }: { college: College }) {
 function CollageTabs({ tabs }: { tabs: { label: string, value: string, content: React.ReactNode }[] }) {
   return (
     <>
-      <Tabs
-        aria-label="College management tabs"
-        className="space-y-6"
-        color="primary"
-        radius="full"
-        classNames={{
-          panel: "space-y-6",
-          tab: "text-white data-[selected=true]:text-black",
-        }}
-      >
-        {tabs.map((tab) => (
-          <Tab key={tab.value} title={tab.label}>
-            {tab.content}
-          </Tab>
-        ))}
-      </Tabs>
+      <div data-tabs>
+        <Tabs
+          aria-label="College management tabs"
+          className="space-y-6"
+          color="primary"
+          radius="full"
+          classNames={{
+            panel: "space-y-6",
+            tab: "text-white data-[selected=true]:text-black",
+          }}
+        >
+          {tabs.map((tab) => (
+            <Tab key={tab.value} title={tab.label}>
+              {tab.content}
+            </Tab>
+          ))}
+        </Tabs>
+      </div>
     </>
   )
 }

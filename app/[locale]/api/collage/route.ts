@@ -18,6 +18,7 @@ async function getCollegesController(req: NextRequest) {
         sections: {
           orderBy: { order: "asc" },
         },
+        programs: true,
         forms: true,
         createdBy: true,
         _count: {

@@ -3,7 +3,7 @@ export interface FormSection {
   title: string;
   description?: string;
   active: boolean;
-  collegeId: string;
+  collegeId?: string;
   createdAt: Date;
   updatedAt: Date;
   fields?: FormField[];
@@ -55,7 +55,7 @@ export type FormFieldType =
 export interface CreateFormSection {
   title: string;
   active?: boolean;
-  collegeId: string;
+  collegeId?: string;
 }
 
 export interface UpdateFormSection {

@@ -157,7 +157,7 @@ export class FormService {
     formSectionId: string,
     data: {
       data: Record<string, any>;
-      collegeId: string;
+      collegeId?: string;
     }
   ) {
     const res = await api.post(`/forms/${formSectionId}/submit`, data);

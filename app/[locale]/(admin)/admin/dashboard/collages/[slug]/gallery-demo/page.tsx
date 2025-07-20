@@ -36,7 +36,6 @@ function GalleryDemoPage() {
         queryKey: ['college', slug],
         queryFn: () => CollegeService.getCollegeBySlug(slug as string)
     })
-    const user = useCurrentUser()
     const { isCollageCreator } = useAuthStatus()
 
     if (!isCollageCreator(slug as string)) {

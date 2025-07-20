@@ -163,7 +163,7 @@ $$\\nabla \\times \\mathbf{B} = \\mu_0\\mathbf{J} + \\mu_0\\epsilon_0\\frac{\\pa
 
 Visit [GitHub](https://github.com) for more information.
 
-![Sample Image](https://via.placeholder.com/400x200/3b82f6/ffffff?text=Sample+Image)
+![Sample Image]()
 
 ## Lists
 

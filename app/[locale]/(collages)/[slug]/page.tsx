@@ -6,13 +6,13 @@ import React from 'react'
 
 function CollegePage() {
   const { slug } = useParams()
-  const { data: college } = useQuery({
+  const { data: college , isLoading } = useQuery({
     queryKey: ['college', slug],
     queryFn: () => CollegeService.getCollegeBySlug(slug as string)
   })
   return (
     <div>
-      {college?.name} -- {college?.createdBy?.name}
+      {isLoading ? <div>Loading...</div> : <div>{college?.name} -- {college?.createdBy?.name}</div>}
     </div>
   )
 }

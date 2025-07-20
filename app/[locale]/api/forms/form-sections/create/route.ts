@@ -7,11 +7,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { title, description, active = true, collegeId } = body;
 
-    if (!title || !collegeId) {
-      return NextResponse.json(
-        { error: "Title and collegeId are required" },
-        { status: 400 }
-      );
+    if (!title) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
     const formSection = await db.formSection.create({
@@ -19,24 +16,13 @@ export async function POST(request: NextRequest) {
         title,
         description,
         active,
-        collegeId,
+        collegeId: collegeId || null,
       },
       include: {
         college: true,
         fields: true,
       },
     });
-
-    // logAction({
-    //   action: "CREATE_FORM_SECTION",
-    //   userId: request.headers.get("user-id") || undefined,
-    //   entity: "FormSection",
-    //   entityId: formSection.id,
-    //   metadata: {
-    //     title: formSection.title,
-    //     collegeId: formSection.collegeId,
-    //   },
-    // });
 
     return NextResponse.json(formSection, { status: 201 });
   } catch (error) {

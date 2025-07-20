@@ -3,6 +3,17 @@ import { University } from "./uni";
 import { SectionType, SectionSettings } from "./section";
 import { ProgramData } from "./program";
 
+export interface CollegeStatistics {
+  totalUsers: number;
+  totalSections: number;
+  totalForms: number;
+  totalFormFields: number;
+  totalFormSubmissions: number;
+  activeForms: number;
+  totalPrograms: number;
+  averageSubmissionsPerForm: number;
+}
+
 export interface College {
   id: string;
   name: string;
@@ -19,15 +30,17 @@ export interface College {
   formSubmissions: CollegeFormSubmission[];
   createdBy?: CollegeUser;
   university: University;
-  programs: ProgramData;
+  programs: ProgramData[];
   faq?: Record<string, any> | null;
   socialMedia: SocialMediaLinks | null;
   collageLeaders?: CollageLeadersData | null;
+  statistics?: CollegeStatistics;
   _count?: {
     users: number;
     sections: number;
     forms: number;
     formSubmissions: number;
+    programs: number;
   };
 }
 
@@ -60,6 +73,10 @@ export interface CollegeFormSection {
   updatedAt: Date;
   fields?: CollegeFormField[];
   submissions?: CollegeFormSubmission[];
+  _count?: {
+    submissions: number;
+    fields: number;
+  };
 }
 
 export interface CollegeFormField {

@@ -12,8 +12,13 @@ import {
     Zap,
     CheckCircle
 } from "lucide-react"
+import { useAuthStatus } from "@/hooks/use-auth"
 
 export default function MarkdownDemoPage() {
+    const { isSuperAdmin  } = useAuthStatus()
+    if (!isSuperAdmin ) {
+        return <div>You are not authorized to access this page</div>
+    }
     return (
         <div className="container mx-auto py-8 px-4">
             <div className="max-w-6xl mx-auto space-y-8">

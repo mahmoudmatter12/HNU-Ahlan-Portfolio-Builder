@@ -1,5 +1,5 @@
 "use client"
-// this for the forms that are created by the college
+// this for the custom forms
 import { useState } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { FormService } from "@/services/form-service"
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { FileText, Send, CheckCircle, AlertCircle } from "lucide-react"
+import { FileText, Send, CheckCircle, AlertCircle, Building2, Globe } from "lucide-react"
 import { toast } from "sonner"
 import { useParams } from "next/navigation"
 import { FormPreview } from "@/components/_sharedforms/form/form-preview"
@@ -30,7 +30,7 @@ export default function FormPage() {
         mutationFn: (data: Record<string, any>) =>
             FormService.submitForm(formId, {
                 data,
-                collegeId: form?.collegeId || "",
+                collegeId: form?.collegeId || undefined, // Use undefined for custom forms
             }),
         onSuccess: () => {
             toast.success("Form submitted successfully!")
@@ -135,17 +135,30 @@ export default function FormPage() {
                             <FileText className="h-6 w-6 text-primary" />
                             <div>
                                 <CardTitle className="text-2xl">{form.title}</CardTitle>
-                                {form.college && (
-                                    <CardDescription>
-                                        {form.college.name}
+                                {form.description && (
+                                    <CardDescription className="mt-2">
+                                        {form.description}
                                     </CardDescription>
                                 )}
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            {form.college ? (
+                                <div className="flex items-center gap-2">
+                                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">{form.college.name}</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Globe className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">Custom Form</span>
+                                </div>
+                            )}
+                            <Separator orientation="vertical" className="h-4" />
                             <Badge variant="secondary">
                                 {form.fields?.length || 0} fields
                             </Badge>
+                            <Separator orientation="vertical" className="h-4" />
                             <Badge variant="outline">
                                 Created {new Date(form.createdAt).toLocaleDateString()}
                             </Badge>

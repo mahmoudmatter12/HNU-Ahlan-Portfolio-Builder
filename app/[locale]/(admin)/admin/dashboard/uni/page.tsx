@@ -151,6 +151,7 @@ export default function UniversityConfigPage() {
     const { toast } = useToast();
     const { isSuperAdmin } = useAuthStatus();
     const queryClient = useQueryClient();
+    const { isOwner } = useAuthStatus();
 
     // State for edit form
     const [editForm, setEditForm] = useState<Partial<University>>({});
@@ -346,6 +347,16 @@ export default function UniversityConfigPage() {
             });
         }
     };
+
+    if (!isOwner) {
+
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+                <div className="text-red-500 text-lg font-semibold">You are not authorized to access this page</div>
+                <div className="text-gray-600">Only Available to Owners</div>
+            </div>
+        )
+    }
 
     if (isLoading) {
         return (

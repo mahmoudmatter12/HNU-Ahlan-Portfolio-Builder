@@ -21,11 +21,25 @@ const GetCollegeBySlugController = async (
             fields: {
               orderBy: { order: "asc" },
             },
+            _count: {
+              select: {
+                submissions: true,
+                fields: true,
+              },
+            },
           },
         },
         createdBy: true,
         FormSubmission: true,
-        _count: true,
+        _count: {
+          select: {
+            User: true,
+            sections: true,
+            forms: true,
+            FormSubmission: true,
+            programs: true,
+          },
+        },
       },
     });
 
@@ -33,7 +47,38 @@ const GetCollegeBySlugController = async (
       return NextResponse.json({ error: "College not found" }, { status: 404 });
     }
 
-    return NextResponse.json(college);
+    // Calculate additional statistics
+    const totalFormFields = college.forms.reduce(
+      (total: number, form: any) => total + (form._count?.fields || 0),
+      0
+    );
+    const totalFormSubmissions = college.forms.reduce(
+      (total: number, form: any) => total + (form._count?.submissions || 0),
+      0
+    );
+    const activeForms = college.forms.filter(
+      (form: any) => (form._count?.submissions || 0) > 0
+    ).length;
+
+    // Add calculated statistics to the response
+    const enhancedCollege = {
+      ...college,
+      statistics: {
+        totalUsers: college._count?.User || 0,
+        totalSections: college._count?.sections || 0,
+        totalForms: college._count?.forms || 0,
+        totalFormFields,
+        totalFormSubmissions,
+        activeForms,
+        totalPrograms: college._count?.programs || 0,
+        averageSubmissionsPerForm:
+          (college._count?.forms || 0) > 0
+            ? Math.round(totalFormSubmissions / (college._count?.forms || 1))
+            : 0,
+      },
+    };
+
+    return NextResponse.json(enhancedCollege);
   } catch (error) {
     console.error("Error fetching college by slug:", error);
     return NextResponse.json(

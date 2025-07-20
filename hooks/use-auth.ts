@@ -6,7 +6,8 @@ export const useAuthStatus = () => {
   const { user, loading: userLoading } = useUser();
 
   function isCollageCreator(slug: string) {
-    if (user?.userType === "SUPERADMIN") return true;
+    if (user?.userType === "SUPERADMIN" || user?.userType === "OWNER")
+      return true;
     if (
       user?.collegesCreated?.some(
         (collage) => collage.slug.toLowerCase() === slug.toLowerCase()
@@ -26,10 +27,11 @@ export const useAuthStatus = () => {
     user,
 
     // Permission checks
-    isAdmin: user?.userType === "ADMIN" || user?.userType === "SUPERADMIN",
-    isSuperAdmin: user?.userType === "SUPERADMIN",
-    isGuest: user?.userType !== "ADMIN" && user?.userType !== "SUPERADMIN",
-
+    isAdmin: user?.userType !== "GUEST" && user !== undefined,
+    isSuperAdmin: user?.userType === "SUPERADMIN" || user?.userType === "OWNER",
+    isGuest: user?.userType === "GUEST",
+    isOwner: user?.userType === "OWNER",
+    
     // Include the function itself, not its execution
     isCollageCreator,
 
