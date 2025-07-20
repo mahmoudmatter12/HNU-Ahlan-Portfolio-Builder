@@ -47,7 +47,7 @@ interface NavItem {
     badge?: string
     description?: string
     dynamicBadge?: boolean
-    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER')[]
+    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER' | 'ALL')[]
     subItems?: SubItem[]
     hasSubItems?: boolean
 }
@@ -56,7 +56,7 @@ interface SubItem {
     title: string
     href: string
     icon: React.ComponentType<{ className?: string }>
-    roles?: ('ADMIN' | 'SUPERADMIN')[]
+    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER' | 'ALL')[]
 }
 
 interface NavSection {
@@ -96,7 +96,7 @@ const navigationSections: NavSection[] = [
                 href: "/",
                 icon: Home,
                 description: "Return to the university website",
-                roles: ['ADMIN', 'SUPERADMIN']
+                roles: ['ALL']
             }
         ]
     },
@@ -108,14 +108,14 @@ const navigationSections: NavSection[] = [
                 href: "/admin",
                 icon: Home,
                 description: "University dashboard and analytics",
-                roles: ['ADMIN', 'SUPERADMIN']
+                roles: ['ALL']
             },
             {
                 title: "Analytics",
                 href: "/admin/analytics",
                 icon: BarChart3,
                 description: "University statistics and insights",
-                roles: ['ADMIN', 'SUPERADMIN'],
+                roles: ['ALL'],
                 badge: "Soon"
             },
         ]
@@ -135,14 +135,14 @@ const navigationSections: NavSection[] = [
                 href: "/admin/dashboard/collages",
                 icon: FolderOpen,
                 description: "Collage portfolios",
-                roles: ['ADMIN', 'SUPERADMIN'],
+                roles: ['ALL'],
             },
             {
                 title: "Department",
                 href: "/admin/dashboard/departments",
                 icon: FolderOpen,
                 description: "Department portfolios",
-                roles: ['ADMIN', 'SUPERADMIN'],
+                roles: ['ALL'],
                 badge: "Soon"
             }
         ]
@@ -162,7 +162,7 @@ const navigationSections: NavSection[] = [
                 href: "/admin/database",
                 icon: Database,
                 description: "System database administration and logs",
-                roles: ['SUPERADMIN'],
+                roles: ['OWNER'],
                 badge: "Soon"
 
             },
@@ -214,7 +214,7 @@ function SidebarContent({
     const collages = useQuery({
         queryKey: ['collages'],
         queryFn: () => {
-            if (user?.userType === 'SUPERADMIN') {
+            if (user?.userType === 'SUPERADMIN' || user?.userType === 'OWNER') {
                 // Superadmin gets all collages
                 return CollegeService.getColleges({})
             } else {
@@ -229,7 +229,7 @@ function SidebarContent({
         title: collage.name,
         href: `/admin/dashboard/collages/${collage.slug}`,
         icon: FolderOpen,
-        roles: ['ADMIN', 'SUPERADMIN'] as ('ADMIN' | 'SUPERADMIN')[]
+        roles: ['ALL']
     })) || []
 
     // Update the navigation sections to include collages as a dropdown
@@ -276,9 +276,17 @@ function SidebarContent({
                 <nav className="space-y-6 px-3">
                     {navigationSectionsWithCollages.map((section: NavSection) => {
                         // Filter items based on user role
-                        const filteredItems = section.items.filter((item: NavItem) =>
-                            !item.roles || item.roles.includes(user?.userType as 'ADMIN' | 'SUPERADMIN')
+                        let filteredItems = section.items.filter((item: NavItem) =>
+                            !item.roles || item.roles.includes(user?.userType as 'ADMIN' | 'SUPERADMIN' | 'OWNER' | 'ALL')
                         )
+
+                        // if "ALL" is in the roles, then show all items
+                        if (section.items.some((item: NavItem) => item.roles?.includes('ALL'))) {
+                            filteredItems = section.items.filter((item: NavItem) =>
+                                !item.roles || item.roles.includes('ALL')
+                            )
+                        }
+
 
                         if (filteredItems.length === 0) return null
 

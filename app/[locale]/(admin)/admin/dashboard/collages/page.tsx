@@ -16,6 +16,7 @@ import { useLocale } from "next-intl"
 import { CollegeFormDialog } from "../../../../../../components/_sharedforms/collage/college-form-dialog"
 import { DeleteCollegeDialog } from "../../../../../../components/_sharedforms/collage/delete-college-dialog"
 import { useCurrentUser, useIsSuperAdmin } from "@/context/userContext"
+import { useAuthStatus } from "@/hooks/use-auth"
 
 const collegeTypeColors = {
     TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
@@ -29,6 +30,7 @@ function Collages() {
     const queryClient = useQueryClient()
     const currentUser = useCurrentUser()
     const isSuperAdmin = useIsSuperAdmin()
+    const { isOwner } = useAuthStatus()
     const [searchQuery, setSearchQuery] = useState("")
     const [typeFilter, setTypeFilter] = useState<string>("all")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -44,7 +46,7 @@ function Collages() {
         queryKey: ["colleges", currentUser?.id, isSuperAdmin],
         queryFn: () => {
             // If superadmin, get all colleges, otherwise get only user's colleges
-            if (isSuperAdmin) {
+            if (isSuperAdmin || isOwner) {
                 return CollegeService.getColleges()
             } else {
                 return CollegeService.getColleges({ createdById: currentUser?.id })

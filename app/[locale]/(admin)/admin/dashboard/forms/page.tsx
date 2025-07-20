@@ -44,6 +44,7 @@ import { FormSubmissionsDialog } from "@/components/_sharedforms/form/form-submi
 import { FormStatisticsDialog } from "@/components/_sharedforms/form/form-statistics-dialog"
 import type { FormSection } from "@/types/form"
 import type { College } from "@/types/Collage"
+import { useAuthStatus } from '@/hooks/use-auth'
 
 function FormManagementPage() {
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false)
@@ -55,6 +56,7 @@ function FormManagementPage() {
     const [statusFilter, setStatusFilter] = useState("all")
     const [collegeFilter, setCollegeFilter] = useState("all")
     const queryClient = useQueryClient()
+    const { isOwner } = useAuthStatus()
 
     // Fetch all forms data
     const {
@@ -140,6 +142,10 @@ function FormManagementPage() {
         return college?.slug || ""
     }
 
+    if (!isOwner) {
+        return <div>You are not authorized to access this page</div>
+    }
+
     if (formsLoading) {
         return (
             <div className="space-y-6">
@@ -178,6 +184,8 @@ function FormManagementPage() {
             </div>
         )
     }
+
+
 
     return (
         <div className="space-y-6">
