@@ -260,11 +260,6 @@ export function MarkdownPreviewDemo() {
                         <Tab title="Preview">
                             <MarkdownPreview
                                 content={sampleMarkdown}
-                                showTableOfContents={showTableOfContents}
-                                showLineNumbers={showLineNumbers}
-                                allowCopy={allowCopy}
-                                allowExpand={allowExpand}
-                                metadata={demoMetadata}
                             />
                         </Tab>
                         <Tab title="Settings">

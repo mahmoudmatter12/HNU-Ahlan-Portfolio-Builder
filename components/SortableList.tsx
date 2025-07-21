@@ -18,15 +18,14 @@ import {
 } from '@dnd-kit/sortable';
 import { SortableItem } from './SortableItem';
 
-export function SortableList() {
-  const [items, setItems] = React.useState([
-    { id: '1', text: 'Item 1' },
-    { id: '2', text: 'Item 2' },
-    { id: '3', text: 'Item 3' },
-    { id: '4', text: 'Item 4' },
-    { id: '5', text: 'Item 5' },
-  ]);
+interface SortableListProps<T> {
+  items: T[];
+  onReorder: (items: T[]) => void;
+  renderItem: (item: T) => React.ReactNode;
+  getId: (item: T) => string;
+}
 
+export function SortableList<T>({ items, onReorder, renderItem, getId }: SortableListProps<T>) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -38,12 +37,13 @@ export function SortableList() {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over?.id);
-        
-        return arrayMove(items, oldIndex, newIndex);
-      });
+      const oldIndex = items.findIndex((item) => getId(item) === active.id);
+      const newIndex = items.findIndex((item) => getId(item) === over?.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        onReorder(newItems);
+      }
     }
   }
 
@@ -54,13 +54,13 @@ export function SortableList() {
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={items}
+        items={items.map(getId)}
         strategy={verticalListSortingStrategy}
       >
         <div className="space-y-2">
           {items.map((item) => (
-            <SortableItem key={item.id} id={item.id}>
-              {item.text}
+            <SortableItem key={getId(item)} id={getId(item)}>
+              {renderItem(item)}
             </SortableItem>
           ))}
         </div>

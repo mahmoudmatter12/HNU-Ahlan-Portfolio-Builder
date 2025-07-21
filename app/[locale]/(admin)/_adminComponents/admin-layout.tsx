@@ -181,7 +181,6 @@ const navigationSections: NavSection[] = [
                 icon: FileText,
                 description: "Manage forms",
                 roles: ['OWNER'],
-                badge: "Soon"
             }
         ],
     },

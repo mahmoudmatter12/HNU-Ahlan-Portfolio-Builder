@@ -215,13 +215,6 @@ export function ProgramManagement({ collegeId }: ProgramManagementProps) {
                                                             </div>
                                                             <MarkdownPreview
                                                                 content={desc.description}
-                                                                compact={true}
-                                                                onViewMore={() => setViewingDescription(desc)}
-                                                                metadata={{
-                                                                    readingTime: Math.ceil(desc.description.split(' ').length / 200),
-                                                                    wordCount: desc.description.split(' ').length,
-                                                                    tags: ['Program', 'Description']
-                                                                }}
                                                             />
                                                         </div>
                                                     ))}

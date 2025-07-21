@@ -35,6 +35,7 @@ import {
     Clock,
     CheckCircle,
     XCircle,
+    Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
 import { FormCreateDialog } from "@/components/_sharedforms/form/form-create-dialog"
@@ -45,6 +46,7 @@ import { FormStatisticsDialog } from "@/components/_sharedforms/form/form-statis
 import type { FormSection } from "@/types/form"
 import type { College } from "@/types/Collage"
 import { useAuthStatus } from '@/hooks/use-auth'
+import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 
 function FormManagementPage() {
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false)
@@ -55,6 +57,8 @@ function FormManagementPage() {
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
     const [collegeFilter, setCollegeFilter] = useState("all")
+    const [isDeleteFormOpen, setIsDeleteFormOpen] = useState(false)
+    const [formToDelete, setFormToDelete] = useState<FormSection | null>(null)
     const queryClient = useQueryClient()
     const { isOwner } = useAuthStatus()
 
@@ -114,6 +118,8 @@ function FormManagementPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["all-forms"] })
             toast.success("Form deleted successfully")
+            setIsDeleteFormOpen(false)
+            setFormToDelete(null)
         },
         onError: (error: any) => {
             toast.error(error.response?.data?.error || "Failed to delete form")
@@ -327,7 +333,7 @@ function FormManagementPage() {
 
                 {filteredForms.length === 0 ? (
                     <Card>
-                        <CardContent className="flex items-center justify-center h-32">
+                        <CardContent className="flex items-center justify-center h-32 m-10">
                             <div className="text-center">
                                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                 <h3 className="text-lg font-semibold mb-2">
@@ -433,9 +439,8 @@ function FormManagementPage() {
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => {
-                                                        if (confirm("Are you sure you want to delete this form? This action cannot be undone.")) {
-                                                            deleteFormMutation.mutate(form.id)
-                                                        }
+                                                        setFormToDelete(form)
+                                                        setIsDeleteFormOpen(true)
                                                     }}
                                                     className="text-red-600"
                                                     disabled={deleteFormMutation.isPending}
@@ -493,6 +498,26 @@ function FormManagementPage() {
                 onOpenChange={(open) => !open && setViewingStatistics(null)}
                 form={viewingStatistics}
             />
+
+
+            {/* delete form dialog */}
+            <Dialog open={isDeleteFormOpen} onOpenChange={setIsDeleteFormOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Form</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete <span className="font-extrabold">{formToDelete?.title}</span> ? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsDeleteFormOpen(false)}>Cancel</Button>
+                        <Button variant="destructive" onClick={() => deleteFormMutation.mutate(formToDelete?.id || "")} disabled={deleteFormMutation.isPending}>
+                            {deleteFormMutation.isPending ? <Loader2 className="h-4 w-4 mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

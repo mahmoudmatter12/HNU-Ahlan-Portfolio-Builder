@@ -56,6 +56,8 @@ import { useAuthStatus } from "@/hooks/use-auth"
 import type { CollageLeadersData } from "@/types/Collage"
 import { ThemePreview } from "../../../../../../../components/_sharedforms/theme/theme-preview"
 import { FormsOverview } from "../../../../../../../components/_sharedforms/form/forms-overview"
+import { FAQManagementDialog } from "../../../../../../../components/_sharedforms/faq/faq-management-dialog"
+import { MarkdownPreview } from "../../../../../../../components/markdown-preview"
 
 const collegeTypeColors = {
   TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -254,7 +256,7 @@ function CollegeDetails() {
     {
       label: "FAQ",
       value: "faq",
-      content: <CollageFAQ />
+      content: <CollageFAQ college={college} />
     },
     {
       label: "Social Media",
@@ -830,7 +832,9 @@ function CollageGallery({ college, setEditingGallery }: { college: College, setE
   )
 }
 
-function CollageFAQ() {
+function CollageFAQ({ college }: { college: College }) {
+  const [showFAQDialog, setShowFAQDialog] = useState(false)
+
   return (
     <>
       <div className="space-y-6">
@@ -840,22 +844,46 @@ function CollageFAQ() {
               <CardTitle>FAQ</CardTitle>
               <CardDescription>Manage college FAQ</CardDescription>
             </div>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setShowFAQDialog(true)}>
               <Edit className="h-4 w-4 mr-2" />
-              Edit FAQ
+              Manage FAQ
             </Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* SOON */}
-              <div className="text-center py-8 text-gray-500">
-                <p className="text-sm">FAQ will be available soon</p>
-                <p className="text-xs">Click &quot;Edit FAQ&quot; to customize the FAQ</p>
-              </div>
+              {college.faq && (college.faq as any)?.items?.length > 0 ? (
+                <div className="space-y-4">
+                  {(college.faq as any).items.slice(0, 3).map((item: any, index: number) => (
+                    <div key={item.id} className="border rounded-lg p-4">
+                      <h4 className="font-medium mb-2">{item.question}</h4>
+                      <div className="prose prose-sm max-w-none">
+                        <MarkdownPreview content={item.answer} />
+                      </div>
+                    </div>
+                  ))}
+                  {(college.faq as any).items.length > 3 && (
+                    <div className="text-center text-sm text-muted-foreground">
+                      ... and {(college.faq as any).items.length - 3} more questions
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="text-sm">No FAQ items yet</p>
+                  <p className="text-xs">Click &quot;Manage FAQ&quot; to add questions and answers</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <FAQManagementDialog
+        open={showFAQDialog}
+        onOpenChange={setShowFAQDialog}
+        collegeId={college.id}
+        collegeName={college.name}
+      />
     </>
   )
 }
