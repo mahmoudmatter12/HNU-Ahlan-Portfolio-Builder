@@ -58,6 +58,7 @@ import { ThemePreview } from "../../../../../../../components/_sharedforms/theme
 import { FormsOverview } from "../../../../../../../components/_sharedforms/form/forms-overview"
 import { FAQManagementDialog } from "../../../../../../../components/_sharedforms/faq/faq-management-dialog"
 import { MarkdownPreview } from "../../../../../../../components/markdown-preview"
+import Image from "next/image"
 
 const collegeTypeColors = {
   TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -86,7 +87,6 @@ function CollegeDetails() {
   const [editingLeaders, setEditingLeaders] = useState(false)
   const [editingSocialMedia, setEditingSocialMedia] = useState(false)
 
-  console.log(isCollageCreator(slug))
 
 
 
@@ -341,12 +341,22 @@ function CollegeDetails() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+
           {/* College Info */}
           <Card>
             <CardHeader>
               <CardTitle>College Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Logo */}
+              {college.logoUrl && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Logo</label>
+                  <div className="mt-1">
+                    <Image src={college.logoUrl} alt="Logo" width={100} height={100} />
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="text-sm font-medium text-gray-600">Name</label>
                 <div className="mt-1">{college.name}</div>

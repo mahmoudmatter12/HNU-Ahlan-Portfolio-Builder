@@ -16,6 +16,7 @@ export async function PUT(
       galleryImages,
       collageLeaders,
       socialMedia,
+      logoUrl,
     } = body;
 
     const college = await db.college.update({
@@ -28,6 +29,7 @@ export async function PUT(
         galleryImages,
         collageLeaders,
         socialMedia,
+        logoUrl,
       },
       include: {
         createdBy: true,

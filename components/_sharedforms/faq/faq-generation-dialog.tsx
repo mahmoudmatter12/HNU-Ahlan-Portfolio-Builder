@@ -61,7 +61,6 @@ export function FAQGenerationDialog({
         mutationFn: (data: FAQGenerationRequest) => FAQService.generateFAQForm(data),
         onSuccess: (data) => {
             setGeneratedForm(data.form)
-            console.log("Generated form:", data.form)
             toast.success(data.message)
             refetchForms()
             onSuccess()
@@ -82,7 +81,6 @@ export function FAQGenerationDialog({
                 questions: ["What questions do you need to know when you're here on orientation day?"]
             }
 
-            console.log("Sending request data:", JSON.stringify(requestData, null, 2))
 
             await generationMutation.mutateAsync(requestData)
         } catch (error) {

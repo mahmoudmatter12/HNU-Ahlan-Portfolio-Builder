@@ -97,7 +97,6 @@ export const UserProfile: React.FC = () => {
                                     alt={user.name || 'User avatar'}
                                     className="object-cover"
                                     onError={(e) => {
-                                        console.log('Avatar image failed to load:', user.image);
                                         e.currentTarget.style.display = 'none';
                                     }}
                                     onLoad={() => console.log('Avatar image loaded successfully:', user.image)}

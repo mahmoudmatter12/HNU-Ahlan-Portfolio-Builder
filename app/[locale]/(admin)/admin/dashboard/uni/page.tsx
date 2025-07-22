@@ -412,19 +412,15 @@ export default function UniversityConfigPage() {
     function gethowmanygriditemsAreIn(uni: University) {
         let count = 1;
         if (uni.content?.images?.length && uni.content?.images?.length > 0) {
-            console.log("images");
             count += 1;
         }
         if (uni.content?.videos?.length && uni.content?.videos?.length > 0) {
-            console.log("videos");
             count += 1;
         }
         if (uni.content?.admissionTerms) {
-            console.log("admissionTerms");
             count += 1;
         }
         if (uni.content?.objectives) {
-            console.log("objectives");
             count += 1;
         }
         console.log(count);

@@ -32,6 +32,7 @@ export class CollegeService {
 
   // Update a college
   static async updateCollege(id: string, data: Partial<College>) {
+    console.log("Data", data)
     const res = await api.put<College>(`/collage/${id}/update`, data);
     return res.data;
   }

@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useCurrentUser } from '@/context/userContext';
+import { useCurrentUser, useUser } from '@/context/userContext';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { SignOutButton } from '@clerk/nextjs';
@@ -63,23 +63,17 @@ export function Header({
     console.log('Searching for:', searchQuery);
   };
 
-  const handleSignOut = () => {
-    // Clear any local storage or cookies if needed
-    localStorage.removeItem('clerk-db');
-    // Redirect to sign-in page
-    window.location.href = '/login';
-  };
 
-  const currentUser = useCurrentUser();
-
+  const { user } = useUser();
 
   return (
     <header className={cn(
       "flex h-16 items-center justify-between border-b border-gray-800 bg-gray-950/95 backdrop-blur supports-[backdrop-filter]:bg-gray-950/60 px-4 sm:px-6",
       className
     )}>
+
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
+      {/* <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
         <div className={cn(
           "relative transition-all duration-200",
           isSearchFocused ? "w-full" : "w-full sm:w-80"
@@ -108,7 +102,16 @@ export function Header({
             </Button>
           )}
         </div>
-      </form>
+      </form> */}
+
+      {/* TODO: ADD LOGO */}
+
+      {/* project name and version */}
+      <div className="flex items-center space-x-2">
+        <h1 className="text-sm md:text-2xl  font-bold">HNU Collage Portfolio Builder</h1>
+        {/* badge for version */}
+        <Badge variant="outline" className="text-xs bg-yellow-500/70 text-white">v1.2.0</Badge>
+      </div>
 
       <div className="flex items-center space-x-2 sm:space-x-4">
         {/* Theme Toggle */}
@@ -144,6 +147,7 @@ export function Header({
         </DropdownMenu>
 
         {/* Help Center */}
+        {/* TODO: GO TO DOCUMENTATION */}
         <Button variant="ghost" size="sm" className="hidden sm:flex text-gray-300 hover:text-white hover:bg-gray-900">
           <HelpCircle className="h-4 w-4" />
           <span className="sr-only">Help</span>
@@ -215,15 +219,15 @@ export function Header({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-auto rounded-full pl-2 pr-3 space-x-2 text-gray-300 hover:text-white hover:bg-gray-900">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={currentUser?.image} alt={currentUser?.name} />
+                <AvatarImage src={user?.image} alt={user?.name} />
                 <AvatarFallback className="bg-gray-800 text-white">
-                  {currentUser?.name?.split(' ').map(n => n[0]).join('')}
+                  {user?.name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden sm:flex sm:items-center">
                 <div className="text-left">
-                  <p className="text-sm font-medium truncate max-w-[120px]">{currentUser?.name}</p>
-                  <p className="text-xs text-gray-400 capitalize">{currentUser?.userType}</p>
+                  <p className="text-sm font-medium truncate max-w-[120px]">{user?.name}</p>
+                  <p className="text-xs text-gray-400 capitalize">{user?.userType}</p>
                 </div>
                 <ChevronDown className="ml-1 h-4 w-4 text-gray-400" />
               </div>
@@ -232,9 +236,9 @@ export function Header({
           <DropdownMenuContent className="w-56 bg-gray-900 border-gray-700" align="end" forceMount>
             <DropdownMenuLabel className="font-normal text-white">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{currentUser?.name}</p>
+                <p className="text-sm font-medium leading-none">{user?.name}</p>
                 <p className="text-xs leading-none text-gray-400 truncate">
-                  {currentUser?.email}
+                  {user?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -243,10 +247,12 @@ export function Header({
               <User className="mr-2 h-4 w-4" />
               <Link href={`/${locale}/admin/profile`}>Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-gray-800">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-            </DropdownMenuItem>
+            {user?.userType === "OWNER" && (
+              <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-gray-800">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="text-gray-300 hover:text-white hover:bg-gray-800">
                 <Sun className="mr-2 h-4 w-4" />
@@ -260,6 +266,7 @@ export function Header({
                   <DropdownMenuItem onClick={() => setTheme("dark")} className="text-gray-300 hover:text-white hover:bg-gray-800">
                     Dark
                   </DropdownMenuItem>
+                  {/* TODO: ADD THEME TOGGLE */}
                   <DropdownMenuItem onClick={() => setTheme("system")} className="text-gray-300 hover:text-white hover:bg-gray-800">
                     System
                   </DropdownMenuItem>

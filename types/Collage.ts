@@ -18,6 +18,7 @@ export interface College {
   id: string;
   name: string;
   slug: string;
+  logoUrl?: string;
   type: CollegeType;
   theme: Record<string, any> | null;
   createdById?: string;
@@ -51,6 +52,7 @@ export interface CreateCollageRequest {
   theme: Record<string, any> | null;
   galleryImages: Record<string, any> | null;
   createdById?: string;
+  logoUrl?: string;
 }
 
 export interface CollegeSection {

@@ -17,6 +17,8 @@ import { CollegeFormDialog } from "../../../../../../components/_sharedforms/col
 import { DeleteCollegeDialog } from "../../../../../../components/_sharedforms/collage/delete-college-dialog"
 import { useCurrentUser, useIsSuperAdmin } from "@/context/userContext"
 import { useAuthStatus } from "@/hooks/use-auth"
+import Image from "next/image"
+import { CollageCard } from "../../../../../../components/_sharedforms/collage/CollageCard";
 
 const collegeTypeColors = {
     TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
@@ -226,82 +228,13 @@ function Collages() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredColleges.map((college) => (
-                        <Card key={college.id} className="hover:shadow-lg transition-shadow duration-200 bg-gray-900/50 border-gray-800 hover:border-gray-700">
-                            <CardHeader className="pb-3">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex-1">
-                                        <CardTitle className="text-lg line-clamp-1 text-white">{college.name}</CardTitle>
-                                        <CardDescription className="mt-1 text-gray-400">/{college.slug}</CardDescription>
-                                    </div>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-gray-800">
-                                                <MoreVertical className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="bg-gray-900 border-gray-700">
-                                            <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-gray-800">
-                                                <Link href={`/${locale}/admin/dashboard/collages/${college.slug}`}>
-                                                    <Eye className="h-4 w-4 mr-2" />
-                                                    View Details
-                                                </Link>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setEditingCollege(college)} className="text-gray-300 hover:text-white hover:bg-gray-800">
-                                                <Edit className="h-4 w-4 mr-2" />
-                                                Edit
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                onClick={() => handleDelete(college)}
-                                                className="text-red-400 hover:text-red-300 hover:bg-gray-800"
-                                            >
-                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                Delete
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
-                                <Badge className={collegeTypeColors[college.type]} variant="secondary">
-                                    {college.type}
-                                </Badge>
-                            </CardHeader>
-
-                            <CardContent className="pb-3">
-                                <div className="grid grid-cols-3 gap-4 text-sm">
-                                    <div className="flex items-center gap-1">
-                                        <Users className="h-4 w-4 text-gray-400" />
-                                        <span className="text-gray-300">{college._count?.users || 0}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <FileText className="h-4 w-4 text-gray-400" />
-                                        <span className="text-gray-300">{college._count?.sections || 0}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Calendar className="h-4 w-4 text-gray-400" />
-                                        <span className="text-gray-300">{college._count?.forms || 0}</span>
-                                    </div>
-                                </div>
-
-                                {college.createdBy && isSuperAdmin && (
-                                    <div className="mt-3 text-xs text-gray-500">
-                                        Created by {college.createdBy.name || college.createdBy.email}
-                                    </div>
-                                )}
-                            </CardContent>
-
-                            <CardFooter className="pt-3">
-                                <div className="flex gap-2 w-full">
-                                    <Button asChild variant="outline" size="sm" className="flex-1 bg-transparent border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800">
-                                        <Link href={`/${locale}/admin/dashboard/collages/${college.slug}`}>
-                                            <Eye className="h-4 w-4 mr-1" />
-                                            View
-                                        </Link>
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => setEditingCollege(college)} className="border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800">
-                                        <Edit className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
+                        <CollageCard
+                            key={college.id}
+                            college={college}
+                            isSuperAdmin={isSuperAdmin}
+                            onEdit={setEditingCollege}
+                            onDelete={handleDelete}
+                        />
                     ))}
                 </div>
             )}

@@ -7,7 +7,7 @@ const baseURL = process.env.NEXT_PUBLIC_API_URL
 // Client-side instance
 export const api = axios.create({
   baseURL,
-  timeout: 3000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,7 +17,7 @@ export const api = axios.create({
 // Server-side instance (if needed)
 export const serverApi = axios.create({
   baseURL,
-  timeout: 3000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },

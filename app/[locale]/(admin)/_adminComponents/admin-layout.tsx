@@ -47,7 +47,7 @@ interface NavItem {
     badge?: string
     description?: string
     dynamicBadge?: boolean
-    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER' | 'ALL')[]
+    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER')[]
     subItems?: SubItem[]
     hasSubItems?: boolean
 }
@@ -56,7 +56,7 @@ interface SubItem {
     title: string
     href: string
     icon: React.ComponentType<{ className?: string }>
-    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER' | 'ALL')[]
+    roles?: ('ADMIN' | 'SUPERADMIN' | 'OWNER')[]
 }
 
 interface NavSection {
@@ -96,7 +96,7 @@ const navigationSections: NavSection[] = [
                 href: "/",
                 icon: Home,
                 description: "Return to the university website",
-                roles: ['ALL']
+                roles: ['OWNER', 'SUPERADMIN', 'ADMIN']
             }
         ]
     },
@@ -108,14 +108,14 @@ const navigationSections: NavSection[] = [
                 href: "/admin",
                 icon: Home,
                 description: "University dashboard and analytics",
-                roles: ['ALL']
+                roles: ['OWNER', 'SUPERADMIN', 'ADMIN']
             },
             {
                 title: "Analytics",
                 href: "/admin/analytics",
                 icon: BarChart3,
                 description: "University statistics and insights",
-                roles: ['ALL'],
+                roles: ['OWNER', 'SUPERADMIN', 'ADMIN'],
                 badge: "Soon"
             },
         ]
@@ -135,14 +135,15 @@ const navigationSections: NavSection[] = [
                 href: "/admin/dashboard/collages",
                 icon: FolderOpen,
                 description: "Collage portfolios",
-                roles: ['ALL'],
+                roles: ['OWNER', 'SUPERADMIN', 'ADMIN'],
+                dynamicBadge: true,
             },
             {
                 title: "Department",
                 href: "/admin/dashboard/departments",
                 icon: FolderOpen,
                 description: "Department portfolios",
-                roles: ['ALL'],
+                roles: ['OWNER', 'SUPERADMIN', 'ADMIN'],
                 badge: "Soon"
             }
         ]
@@ -173,6 +174,7 @@ const navigationSections: NavSection[] = [
                 description: "System configuration",
                 roles: ['OWNER'],
                 badge: "Soon"
+                
 
             },
             {
@@ -224,11 +226,12 @@ function SidebarContent({
     })
 
     // Create collages navigation item with subitems
-    const collagesSubItems: SubItem[] = collages.data?.map((collage) => ({
+    const collagesSubItems: (SubItem & { logoUrl?: string })[] = collages.data?.map((collage) => ({
         title: collage.name,
         href: `/admin/dashboard/collages/${collage.slug}`,
         icon: FolderOpen,
-        roles: ['ALL']
+        logoUrl: collage.logoUrl, // <-- add this line
+        roles: ['OWNER', 'SUPERADMIN', 'ADMIN']
     })) || []
 
     // Update the navigation sections to include collages as a dropdown
@@ -261,10 +264,7 @@ function SidebarContent({
                     </div>
                     {!collapsed && (
                         <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-white">University Admin</span>
-                            <span className="text-xs text-gray-400">
-                                {user?.userType === 'SUPERADMIN' ? 'System Administrator' : 'Collage Admin'}
-                            </span>
+                            <span className="text-sm font-semibold text-white">HNU Collage Portfolio Builder</span>
                         </div>
                     )}
                 </div>
@@ -275,17 +275,9 @@ function SidebarContent({
                 <nav className="space-y-6 px-3">
                     {navigationSectionsWithCollages.map((section: NavSection) => {
                         // Filter items based on user role
-                        let filteredItems = section.items.filter((item: NavItem) =>
-                            !item.roles || item.roles.includes(user?.userType as 'ADMIN' | 'SUPERADMIN' | 'OWNER' | 'ALL')
+                        const filteredItems = section.items.filter((item: NavItem) =>
+                            !item.roles || item.roles.includes(user?.userType as 'ADMIN' | 'SUPERADMIN' | 'OWNER')
                         )
-
-                        // if "ALL" is in the roles, then show all items
-                        if (section.items.some((item: NavItem) => item.roles?.includes('ALL'))) {
-                            filteredItems = section.items.filter((item: NavItem) =>
-                                !item.roles || item.roles.includes('ALL')
-                            )
-                        }
-
 
                         if (filteredItems.length === 0) return null
 
@@ -305,8 +297,8 @@ function SidebarContent({
 
                                         // Get the badge value - either static or dynamic
                                         let badgeValue = item.badge
-                                        if (item.dynamicBadge) {
-                                            badgeValue = "0"; // TODO: add unread messages count
+                                        if (item.dynamicBadge && item.title === "Collage") {
+                                            badgeValue = collages.data?.length?.toString() || "0";
                                         }
 
                                         if (collapsed) {
@@ -367,6 +359,7 @@ function SidebarContent({
                                                                     {item.description && <p className="text-xs text-gray-400">{item.description}</p>}
                                                                 </div>
                                                             </Link>
+
                                                             {/* Dropdown toggle */}
                                                             <CollapsibleTrigger asChild>
                                                                 <Button
@@ -380,9 +373,10 @@ function SidebarContent({
                                                                     )} />
                                                                 </Button>
                                                             </CollapsibleTrigger>
+
                                                         </div>
                                                         <CollapsibleContent className="space-y-1 mt-1">
-                                                            {item.subItems?.map((subItem: SubItem) => {
+                                                            {item.subItems?.map((subItem: SubItem & { logoUrl?: string }) => {
                                                                 const isSubActive = pathname === `/${locale}${subItem.href}`
                                                                 const SubIcon = subItem.icon
 
@@ -396,7 +390,16 @@ function SidebarContent({
                                                                             isSubActive && "bg-gray-900/50 text-white",
                                                                         )}
                                                                     >
-                                                                        <SubIcon className="h-3 w-3 flex-shrink-0" />
+                                                                        {subItem.logoUrl ? (
+                                                                            <Avatar className="h-6 w-6">
+                                                                                <AvatarImage src={subItem.logoUrl} alt={subItem.title} />
+                                                                                <AvatarFallback>
+                                                                                    <SubIcon className="h-3 w-3" />
+                                                                                </AvatarFallback>
+                                                                            </Avatar>
+                                                                        ) : (
+                                                                            <SubIcon className="h-3 w-3 flex-shrink-0" />
+                                                                        )}
                                                                         <span className="font-medium">{subItem.title}</span>
                                                                     </Link>
                                                                 )
@@ -537,29 +540,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 {/* Mobile Header */}
                 <header className="flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950 px-4 lg:hidden">
                     <MobileSidebar locale={locale} />
-                    <div className="flex-1">
-                        <h1 className="text-lg font-semibold text-white">University Admin</h1>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={currentUser?.image} />
-                            <AvatarFallback className="bg-gray-800 text-white">{currentUser?.name?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                    </div>
                 </header>
 
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-950">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold tracking-tight text-white">
-                            Welcome back, {currentUser?.name?.split(' ')[0]}!
-                        </h2>
-                        <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className="capitalize bg-gray-900/50 text-gray-300 border-gray-700">
-                                {currentUser?.userType}
-                            </Badge>
-                        </div>
-                    </div>
                     {children}
                 </main>
             </div>

@@ -4,7 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, slug, type, theme, createdById, galleryImages } = body;
+    const {
+      name,
+      slug,
+      type,
+      theme,
+      createdById,
+      galleryImages,
+      universityId,
+      logoUrl,
+    } = body;
+
+    console.log("Body", body)
 
     if (!name || !slug || !type) {
       return NextResponse.json(
@@ -22,6 +33,8 @@ export async function POST(request: NextRequest) {
         createdById,
         galleryImages: galleryImages || [],
         faq: [],
+        universityId: universityId || "",
+        logoUrl: logoUrl || "",
       },
       include: {
         createdBy: true,
