@@ -2,6 +2,7 @@ import { CollegeType } from "@prisma/client";
 import { University } from "./uni";
 import { SectionType, SectionSettings } from "./section";
 import { ProgramData } from "./program";
+import { FAQData } from "./faq";
 
 export interface CollegeStatistics {
   totalUsers: number;
@@ -75,6 +76,8 @@ export interface CollegeFormSection {
   updatedAt: Date;
   fields?: CollegeFormField[];
   submissions?: CollegeFormSubmission[];
+  active: boolean;
+  description?: string;
   _count?: {
     submissions: number;
     fields: number;
@@ -167,12 +170,12 @@ export interface SocialMediaLinks {
 export interface CollageLeader {
   id: string;
   name: string;
-  image: string;
+  image?: string;
   collage: string;
   year: string;
   program: string;
-  whatsapp: string;
-  facebook: string;
+  whatsapp?: string;
+  facebook?: string;
 }
 
 export interface CollageLeadersData {

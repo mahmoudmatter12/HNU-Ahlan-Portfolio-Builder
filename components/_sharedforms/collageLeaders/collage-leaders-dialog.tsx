@@ -1,10 +1,11 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { CollegeService } from "@/services/collage-service"
+import { UploadService } from "@/services/upload-service"
 import {
     Dialog,
     DialogContent,
@@ -20,18 +21,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
-import { Loader2, Plus, Trash2, Edit, ArrowLeft, ArrowRight, Users } from "lucide-react"
+import { Loader2, Plus, Trash2, Edit, ArrowLeft, ArrowRight, Users, Upload, X } from "lucide-react"
 import type { College, CollageLeader, CollageLeadersData } from "@/types/Collage"
 import { useQuery } from "@tanstack/react-query"
 
 const leaderSchema = z.object({
     name: z.string().min(1, "Name is required"),
-    image: z.string().min(1, "Image URL is required"),
+    image: z.string().optional(),
     collage: z.string().min(1, "Collage is required"),
     year: z.string().min(1, "Year is required"),
     program: z.string().min(1, "Program is required"),
-    whatsapp: z.string().min(1, "WhatsApp number is required"),
-    facebook: z.string().min(1, "Facebook link is required"),
+    whatsapp: z.string().optional(),
+    facebook: z.string().optional(),
 })
 
 type LeaderFormData = z.infer<typeof leaderSchema>
@@ -48,33 +49,33 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
     const [leaderCount, setLeaderCount] = useState(1)
     const [leaders, setLeaders] = useState<CollageLeader[]>([])
     const [editingLeaderIndex, setEditingLeaderIndex] = useState<number | null>(null)
-    const queryClient = useQueryClient()
-
-    // Fetch all colleges for the collage dropdown
-    const { data: allColleges } = useQuery({
-        queryKey: ["colleges"],
-        queryFn: () => CollegeService.getColleges(),
-    })
+    const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Fetch programs for the current college
-    const { data: collegeData } = useQuery({
+    const { data: programs } = useQuery({
         queryKey: ["programs", college.id],
         queryFn: () => CollegeService.getPrograms(college.id),
         enabled: !!college.id,
     })
+
+    console.log(college.id)
 
     const form = useForm<LeaderFormData>({
         resolver: zodResolver(leaderSchema),
         defaultValues: {
             name: "",
             image: "",
-            collage: "",
+            collage: college.id,
             year: "",
             program: "",
             whatsapp: "",
             facebook: "",
         },
+        mode: "onBlur",
     })
+
+    const uploadService = new UploadService()
 
     const updateMutation = useMutation({
         mutationFn: (data: CollageLeadersData) =>
@@ -95,7 +96,19 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
         setLeaderCount(1)
         setLeaders([])
         setEditingLeaderIndex(null)
-        form.reset()
+        setIsUploading(false)
+        form.reset({
+            name: "",
+            image: "",
+            collage: college.id,
+            year: "",
+            program: "",
+            whatsapp: "",
+            facebook: "",
+        })
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""
+        }
     }
 
     useEffect(() => {
@@ -110,6 +123,41 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
             }
         }
     }, [open, college.collageLeaders])
+
+    const handleImageUpload = async (file: File) => {
+        if (!file) return
+
+        setIsUploading(true)
+        try {
+            const uploadResponse = await uploadService.uploadFile(file, {
+                context: "collage-leaders",
+                subContext: "profile-images",
+                fieldName: "leader-image",
+                fileName: `leader-${Date.now()}-${file.name}`,
+            })
+
+            form.setValue("image", uploadResponse.url)
+            toast.success("Image uploaded successfully")
+        } catch (error: any) {
+            toast.error(error.response?.data?.error || "Failed to upload image")
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            handleImageUpload(file)
+        }
+    }
+
+    const removeImage = () => {
+        form.setValue("image", "")
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""
+        }
+    }
 
     const handleNext = () => {
         if (step === 1) {
@@ -132,6 +180,7 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
         const newLeader: CollageLeader = {
             id: Date.now().toString(),
             ...formData,
+            collage: college.name, // Ensure collage is always set to current college
         }
 
         if (editingLeaderIndex !== null) {
@@ -145,12 +194,27 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
             setLeaders([...leaders, newLeader])
         }
 
-        form.reset()
+        form.reset({
+            name: "",
+            image: "",
+            collage: college.id,
+            year: "",
+            program: "",
+            whatsapp: "",
+            facebook: "",
+        })
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""
+        }
     }
+    console.log(form.getValues())
 
     const handleEditLeader = (index: number) => {
         const leader = leaders[index]
-        form.reset(leader)
+        form.reset({
+            ...leader,
+            collage: college.name, // Ensure collage is always set to current college
+        })
         setEditingLeaderIndex(index)
     }
 
@@ -159,7 +223,18 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
         setLeaders(updatedLeaders)
         if (editingLeaderIndex === index) {
             setEditingLeaderIndex(null)
-            form.reset()
+            form.reset({
+                name: "",
+                image: "",
+                collage: college.id,
+                year: "",
+                program: "",
+                whatsapp: "",
+                facebook: "",
+            })
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""
+            }
         }
     }
 
@@ -250,35 +325,50 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
                                     name="image"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Image URL</FormLabel>
+                                            <FormLabel>Profile Image (Optional)</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="https://example.com/image.jpg" {...field} />
+                                                <div className="space-y-2">
+                                                    {field.value ? (
+                                                        <div className="flex items-center space-x-2">
+                                                            <Avatar className="h-12 w-12">
+                                                                <AvatarImage src={field.value} alt="Preview" />
+                                                                <AvatarFallback>IMG</AvatarFallback>
+                                                            </Avatar>
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={removeImage}
+                                                            >
+                                                                <X className="h-3 w-3" />
+                                                            </Button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center space-x-2">
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                onClick={() => fileInputRef.current?.click()}
+                                                                disabled={isUploading}
+                                                            >
+                                                                {isUploading ? (
+                                                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                                ) : (
+                                                                    <Upload className="h-4 w-4 mr-2" />
+                                                                )}
+                                                                Upload Image
+                                                            </Button>
+                                                            <input
+                                                                ref={fileInputRef}
+                                                                type="file"
+                                                                accept="image/*"
+                                                                onChange={handleFileChange}
+                                                                className="hidden"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="collage"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Collage</FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select collage" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {allColleges?.map((col) => (
-                                                        <SelectItem key={col.id} value={col.name}>
-                                                            {col.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -311,7 +401,7 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {collegeData?.map((program: any) => (
+                                                    {programs?.map((program: any) => (
                                                         <SelectItem key={program.id} value={program.name}>
                                                             {program.name}
                                                         </SelectItem>
@@ -328,7 +418,7 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
                                     name="whatsapp"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>WhatsApp Number</FormLabel>
+                                            <FormLabel>WhatsApp Number (Optional)</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="+1234567890" {...field} />
                                             </FormControl>
@@ -342,7 +432,7 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
                                     name="facebook"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Facebook Link</FormLabel>
+                                            <FormLabel>Facebook Link (Optional)</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="https://facebook.com/username" {...field} />
                                             </FormControl>
@@ -359,7 +449,18 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
                                         variant="outline"
                                         onClick={() => {
                                             setEditingLeaderIndex(null)
-                                            form.reset()
+                                            form.reset({
+                                                name: "",
+                                                image: "",
+                                                collage: college.id,
+                                                year: "",
+                                                program: "",
+                                                whatsapp: "",
+                                                facebook: "",
+                                            })
+                                            if (fileInputRef.current) {
+                                                fileInputRef.current.value = ""
+                                            }
                                         }}
                                     >
                                         Cancel Edit
@@ -393,7 +494,7 @@ export function CollageLeadersDialog({ open, onOpenChange, college, onSuccess }:
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
                                             <h5 className="font-medium truncate">{leader.name}</h5>
-                                            <p className="text-sm text-gray-600 truncate">{leader.collage}</p>
+                                            <p className="text-sm text-gray-600 truncate">{college.name}</p>
                                             <p className="text-xs text-gray-500">{leader.year} • {leader.program}</p>
                                         </div>
                                         <div className="flex space-x-1">

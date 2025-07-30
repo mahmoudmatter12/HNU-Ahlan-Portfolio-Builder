@@ -29,8 +29,9 @@ import { FAQItemDialog } from "./faq-item-dialog"
 import { FAQImportDialog } from "./faq-import-dialog"
 import { FAQGenerationDialog } from "./faq-generation-dialog"
 import { FAQSubmissionsDialog } from "./faq-submissions-dialog"
-import type { FAQData, FAQItem } from "@/types/faq"
+import type { FAQItem } from "@/types/faq"
 import { MarkdownPreview } from "@/components/markdown-preview"
+import React from "react"
 
 interface FAQManagementDialogProps {
     open: boolean
@@ -39,18 +40,30 @@ interface FAQManagementDialogProps {
     collegeName: string
 }
 
+export interface FAQData {
+    items: FAQItem[];
+    title?: string;
+    description?: string;
+    lastUpdated: Date;
+}
+
 export function FAQManagementDialog({
     open,
     onOpenChange,
     collegeId,
     collegeName
 }: FAQManagementDialogProps) {
-    const [activeTab, setActiveTab] = useState("manage")
+    const [activeTab, setActiveTab] = useState("view")
     const [editingItem, setEditingItem] = useState<FAQItem | null>(null)
     const [showImportDialog, setShowImportDialog] = useState(false)
     const [showGenerationDialog, setShowGenerationDialog] = useState(false)
     const [showSubmissionsDialog, setShowSubmissionsDialog] = useState(false)
     const [deletingItem, setDeletingItem] = useState<FAQItem | null>(null)
+
+    // State for unsaved changes
+    const [unsavedTitle, setUnsavedTitle] = useState("")
+    const [unsavedDescription, setUnsavedDescription] = useState("")
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
     const queryClient = useQueryClient()
 
@@ -60,6 +73,8 @@ export function FAQManagementDialog({
         queryFn: () => FAQService.getFAQ(collegeId),
         enabled: open
     })
+
+    console.log("faqData", faqData)
 
     // Fetch FAQ submission count
     const { data: submissionCount } = useQuery({
@@ -96,6 +111,63 @@ export function FAQManagementDialog({
 
     const faqItems = faqData?.items || []
 
+    // Function to update FAQ data
+    const updateFAQData = async (updates: Partial<FAQData>) => {
+        try {
+            const updatedFAQ = {
+                ...faqData,
+                ...updates,
+                items: faqData?.items || [],
+                lastUpdated: new Date()
+            }
+            await FAQService.updateFAQ(collegeId, updatedFAQ)
+            queryClient.invalidateQueries({ queryKey: ["faq", collegeId] })
+            toast.success("FAQ updated successfully")
+            setHasUnsavedChanges(false)
+        } catch (error) {
+            toast.error("Failed to update FAQ")
+        }
+    }
+
+    // Function to save unsaved changes
+    const saveChanges = async () => {
+        try {
+            const updatedFAQ = {
+                ...faqData,
+                title: unsavedTitle,
+                description: unsavedDescription,
+                items: faqData?.items || [],
+                lastUpdated: new Date()
+            }
+            await FAQService.updateFAQ(collegeId, updatedFAQ)
+            queryClient.invalidateQueries({ queryKey: ["faq", collegeId] })
+            toast.success("FAQ saved successfully")
+            setHasUnsavedChanges(false)
+        } catch (error) {
+            toast.error("Failed to save FAQ")
+        }
+    }
+
+    // Function to handle title/description updates
+    const handleTitleUpdate = (newTitle: string) => {
+        setUnsavedTitle(newTitle)
+        setHasUnsavedChanges(true)
+    }
+
+    const handleDescriptionUpdate = (newDescription: string) => {
+        setUnsavedDescription(newDescription)
+        setHasUnsavedChanges(true)
+    }
+
+    // Initialize unsaved values when FAQ data loads
+    React.useEffect(() => {
+        if (faqData) {
+            setUnsavedTitle(faqData.title || "")
+            setUnsavedDescription(faqData.description || "")
+            setHasUnsavedChanges(false)
+        }
+    }, [faqData])
+
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,11 +183,174 @@ export function FAQManagementDialog({
                     </DialogHeader>
 
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-3">
+                        <TabsList className="grid w-full grid-cols-4">
+                            <TabsTrigger value="view">View FAQ</TabsTrigger>
                             <TabsTrigger value="manage">Manage FAQ</TabsTrigger>
                             <TabsTrigger value="import">Import FAQ</TabsTrigger>
                             <TabsTrigger value="generate">Generate Form</TabsTrigger>
                         </TabsList>
+
+                        <TabsContent value="view" className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        FAQ Overview
+                                    </CardTitle>
+                                    <CardDescription>
+                                        View and edit the general information for your FAQ section
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-6">
+                                        {/* First Time Setup - No Data Available */}
+                                        {(!faqData?.title && !faqData?.description) ? (
+                                            <div className="space-y-4">
+                                                <div className="text-center py-8">
+                                                    <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                                                    <h3 className="text-lg font-medium mb-2">Set up your FAQ section</h3>
+                                                    <p className="text-sm text-gray-500 mb-6">
+                                                        Add a title and description to get started with your FAQ section
+                                                    </p>
+                                                </div>
+
+                                                {/* Title Input */}
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">FAQ Title</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Enter FAQ title..."
+                                                        value={unsavedTitle}
+                                                        onChange={(e) => handleTitleUpdate(e.target.value)}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    />
+                                                </div>
+
+                                                {/* Description Input */}
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">FAQ Description</label>
+                                                    <textarea
+                                                        placeholder="Enter FAQ description..."
+                                                        value={unsavedDescription}
+                                                        onChange={(e) => handleDescriptionUpdate(e.target.value)}
+                                                        rows={4}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                                                    />
+                                                </div>
+
+                                                {/* Save Button for First Time */}
+                                                {(unsavedTitle || unsavedDescription) && (
+                                                    <div className="flex justify-end pt-4">
+                                                        <Button
+                                                            onClick={saveChanges}
+                                                            className="bg-blue-600 hover:bg-blue-700"
+                                                        >
+                                                            Create FAQ Section
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            /* Existing Data - Preview with Double-click Edit */
+                                            <div className="space-y-4">
+                                                {/* Title Section */}
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">FAQ Title</label>
+                                                    {!hasUnsavedChanges ? (
+                                                        <div
+                                                            className="w-full px-3 py-2 border border-transparent rounded-md text-sm cursor-pointer hover:bg-gray-500/50 transition-colors"
+                                                            onDoubleClick={() => setHasUnsavedChanges(true)}
+                                                        >
+                                                            {faqData?.title || "No title set"}
+                                                        </div>
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            value={unsavedTitle}
+                                                            onChange={(e) => handleTitleUpdate(e.target.value)}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                            autoFocus
+                                                        />
+                                                    )}
+                                                </div>
+
+                                                {/* Description Section */}
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">FAQ Description</label>
+                                                    {!hasUnsavedChanges ? (
+                                                        <div
+                                                            className="w-full px-3 py-2 border border-transparent rounded-md text-sm cursor-pointer hover:bg-gray-500/50 transition-colors min-h-[80px]"
+                                                            onDoubleClick={() => setHasUnsavedChanges(true)}
+                                                        >
+                                                            {faqData?.description || "No description set"}
+                                                        </div>
+                                                    ) : (
+                                                        <textarea
+                                                            value={unsavedDescription}
+                                                            onChange={(e) => handleDescriptionUpdate(e.target.value)}
+                                                            rows={4}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                                                            autoFocus
+                                                        />
+                                                    )}
+                                                </div>
+
+                                                {/* Save/Cancel Buttons */}
+                                                {hasUnsavedChanges && (
+                                                    <div className="flex justify-end gap-2 pt-4 border-t">
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setUnsavedTitle(faqData?.title || "")
+                                                                setUnsavedDescription(faqData?.description || "")
+                                                                setHasUnsavedChanges(false)
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                        <Button
+                                                            onClick={saveChanges}
+                                                            className="bg-blue-600 hover:bg-blue-700"
+                                                        >
+                                                            Save Changes
+                                                        </Button>
+                                                    </div>
+                                                )}
+
+                                                {/* Preview Section */}
+                                                {(faqData?.title || faqData?.description) && !hasUnsavedChanges && (
+                                                    <div className="space-y-2">
+                                                        <label className="text-sm font-medium">Preview</label>
+                                                        <div className="border rounded-lg p-4">
+                                                            {faqData?.title && (
+                                                                <h2 className="text-xl font-bold mb-2">{faqData.title}</h2>
+                                                            )}
+                                                            {faqData?.description && (
+                                                                <p className="text-gray-700">{faqData.description}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Statistics */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                                            <div className="text-center">
+                                                <div className="text-2xl font-bold">{faqItems.length}</div>
+                                                <div className="text-sm text-muted-foreground">Total Questions</div>
+                                            </div>
+                                            <div className="text-center">
+                                                <div className="text-2xl font-bold">
+                                                    {faqData?.lastUpdated ? new Date(faqData.lastUpdated).toLocaleDateString() : "Never"}
+                                                </div>
+                                                <div className="text-sm text-muted-foreground">Last Updated</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
 
                         <TabsContent value="manage" className="space-y-6">
                             {/* FAQ Statistics */}

@@ -129,6 +129,18 @@ export function ProgramFormDialog({ open, onOpenChange, program, collegeId, onSu
         setUploadingImages(prev => ({ ...prev, [key]: true }))
 
         try {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                toast.error("Please select a valid image file")
+                return
+            }
+
+            // Validate file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("Image size must be less than 5MB")
+                return
+            }
+
             const uploadResult = await uploadService.uploadFile(file, {
                 context: "program",
                 subContext: "description",
@@ -146,7 +158,7 @@ export function ProgramFormDialog({ open, onOpenChange, program, collegeId, onSu
             form.setValue(`description.${descriptionIndex}.image`, currentImages)
             toast.success("Image uploaded successfully")
         } catch (error) {
-            toast.error("Failed to upload image")
+            toast.error("Failed to upload image. Please try again.")
             console.error("Upload error:", error)
         } finally {
             setUploadingImages(prev => ({ ...prev, [key]: false }))
@@ -428,30 +440,54 @@ export function ProgramFormDialog({ open, onOpenChange, program, collegeId, onSu
 
                                                             <div className="space-y-2">
                                                                 <FormLabel className="text-xs">Image File</FormLabel>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Input
-                                                                        type="file"
-                                                                        accept="image/*"
-                                                                        onChange={(e) => {
-                                                                            const file = e.target.files?.[0]
-                                                                            if (file) {
-                                                                                handleImageUpload(file, descriptionIndex, recordIndex)
-                                                                            }
-                                                                        }}
-                                                                        disabled={uploadingImages[`${descriptionIndex}-${recordIndex}`]}
-                                                                    />
-                                                                    {uploadingImages[`${descriptionIndex}-${recordIndex}`] && (
-                                                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                                                    )}
-                                                                </div>
-                                                                {form.watch(`description.${descriptionIndex}.image.${recordIndex}.content`) && (
-                                                                    <div className="mt-2">
-                                                                        <Image
-                                                                            fill
-                                                                            src={form.watch(`description.${descriptionIndex}.image.${recordIndex}.content`)}
-                                                                            alt="Preview"
-                                                                            className="w-20 h-20 object-cover rounded border"
+                                                                <div className="space-y-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Input
+                                                                            type="file"
+                                                                            accept="image/*"
+                                                                            onChange={(e) => {
+                                                                                const file = e.target.files?.[0]
+                                                                                if (file) {
+                                                                                    handleImageUpload(file, descriptionIndex, recordIndex)
+                                                                                }
+                                                                            }}
+                                                                            disabled={uploadingImages[`${descriptionIndex}-${recordIndex}`]}
+                                                                            className="flex-1"
                                                                         />
+                                                                        {uploadingImages[`${descriptionIndex}-${recordIndex}`] && (
+                                                                            <div className="flex items-center gap-2 text-blue-600">
+                                                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                                                <span className="text-xs">Uploading...</span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <div className="text-xs text-gray-500">
+                                                                        Supported formats: JPG, PNG, GIF, WebP (max 5MB)
+                                                                    </div>
+                                                                </div>
+
+                                                                {form.watch(`description.${descriptionIndex}.image.${recordIndex}.content`) && (
+                                                                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="relative w-16 h-16 border rounded overflow-hidden bg-white">
+                                                                                <Image
+                                                                                    src={form.watch(`description.${descriptionIndex}.image.${recordIndex}.content`)}
+                                                                                    alt="Preview"
+                                                                                    fill
+                                                                                    className="object-cover"
+                                                                                    sizes="64px"
+                                                                                />
+                                                                            </div>
+                                                                            <div className="flex-1">
+                                                                                <p className="text-sm font-medium text-green-800">
+                                                                                    Image uploaded successfully
+                                                                                </p>
+                                                                                <p className="text-xs text-green-600">
+                                                                                    Ready to use in your content
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 )}
                                                             </div>

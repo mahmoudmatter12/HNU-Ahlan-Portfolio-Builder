@@ -38,7 +38,10 @@ export interface WhyUsSectionSettings {
 }
 
 export interface CustomSectionSettings {
-  customStyles?: Record<string, any>;
+  images?: string[];
+  title?: string;
+  description?: string;
+  imageDisplayType?: "slider" | "grid" | "single" | "banner" | "carousel" | "gallery" | "list" | "background";
 }
 
 export type SectionSettings =
@@ -130,7 +133,10 @@ export const SECTION_TYPE_CONFIGS = {
     description: "Custom content with markdown support",
     icon: "📝",
     defaultSettings: {
-      customStyles: {},
+      images: [],
+      title: "",
+      description: "",
+      imageDisplayType: "slider",
     } as CustomSectionSettings,
   },
 } as const;

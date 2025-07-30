@@ -106,7 +106,9 @@ export class FAQService {
     collegeId: string,
     submissionId: string,
     action: "approve" | "reject",
-    answers?: Record<string, string>
+    answers?:
+      | Record<string, string>
+      | { questions: Array<{ question: string; answer: string }> }
   ): Promise<FAQData> {
     const response = await api.put(
       `/collage/${collegeId}/faq/submissions/${submissionId}`,

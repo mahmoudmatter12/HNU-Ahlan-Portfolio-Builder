@@ -23,7 +23,7 @@ import {
     MessageSquare,
 } from "lucide-react"
 import { MarkdownPreview } from "@/components/markdown-preview"
-import { Textarea } from "@/components/ui/textarea"
+import MDEditor from "@uiw/react-md-editor"
 
 interface FAQSubmissionsDialogProps {
     open: boolean
@@ -52,8 +52,22 @@ export function FAQSubmissionsDialog({
         enabled: open
     })
 
+    console.log("submissions?.data", submissions)
+
+    // Extract questions from submission data
+    const getSubmissionQuestions = (submission: any) => {
+        if (!submission?.data) return []
+
+        // The data object has questions as keys
+        const questions = Object.keys(submission.data)
+        return questions.map(question => ({
+            question,
+            answer: submission.data[question] || ""
+        }))
+    }
+
     const processMutation = useMutation({
-        mutationFn: ({ submissionId, action, answers }: { submissionId: string; action: 'approve' | 'reject'; answers?: Record<string, string> }) =>
+        mutationFn: ({ submissionId, action, answers }: { submissionId: string; action: 'approve' | 'reject'; answers?: Record<string, string> | { questions: Array<{ question: string; answer: string }> } }) =>
             FAQService.processFAQSubmission(collegeId, submissionId, action, answers),
         onSuccess: (data, variables) => {
             const action = variables.action === 'approve' ? 'approved' : 'rejected'
@@ -85,9 +99,11 @@ export function FAQSubmissionsDialog({
     const handleSubmitWithAnswers = () => {
         if (!selectedSubmission) return
 
+        // Get questions from submission data
+        const submissionQuestions = Object.keys(selectedSubmission.data || {})
+
         // Validate that all questions have answers
-        const questions = selectedSubmission.formSection?.fields || []
-        const missingAnswers = questions.filter((field: any) => !answers[field.id]?.trim())
+        const missingAnswers = submissionQuestions.filter((_, index) => !answers[`answer_${index}`]?.trim())
 
         if (missingAnswers.length > 0) {
             toast.error(`Please provide answers for all questions`)
@@ -98,7 +114,12 @@ export function FAQSubmissionsDialog({
         processMutation.mutate({
             submissionId: selectedSubmission.id,
             action: 'approve',
-            answers
+            answers: {
+                questions: submissionQuestions.map((question, index) => ({
+                    question: question,
+                    answer: answers[`answer_${index}`] || ""
+                }))
+            }
         })
     }
 
@@ -258,7 +279,7 @@ export function FAQSubmissionsDialog({
                                             <span className="font-medium">Submitted:</span> {new Date(selectedSubmission.submittedAt).toLocaleString()}
                                         </div>
                                         <div>
-                                            <span className="font-medium">Questions:</span> {selectedSubmission.formSection?.fields?.length || 0}
+                                            <span className="font-medium">Questions:</span> {Object.keys(selectedSubmission.data || {}).length}
                                         </div>
                                     </div>
                                 </CardContent>
@@ -267,21 +288,20 @@ export function FAQSubmissionsDialog({
                             {/* Answers */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Answers</CardTitle>
+                                    <CardTitle>Submitted Questions & Answers</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
-                                        {selectedSubmission.formSection?.fields?.map((field: any) => {
-                                            const answer = selectedSubmission.data[field.id] || ""
-                                            return (
-                                                <div key={field.id} className="border rounded-lg p-4">
-                                                    <h4 className="font-medium mb-2">{field.label}</h4>
-                                                    <div className="prose prose-sm max-w-none">
-                                                        <MarkdownPreview content={answer} />
-                                                    </div>
+                                        {Object.entries(selectedSubmission.data || {}).map(([question, userAnswer], index) => (
+                                            <div key={index} className="border rounded-lg p-4">
+                                                <h4 className="font-medium mb-2 text-blue-600">Question {index + 1}:</h4>
+                                                <p className="text-gray-700 mb-3">{question}</p>
+                                                <h5 className="font-medium mb-2 text-green-600">User&apos;s Answer:</h5>
+                                                <div className="prose prose-sm max-w-none  p-3 rounded">
+                                                    <MarkdownPreview content={userAnswer as string} />
                                                 </div>
-                                            )
-                                        })}
+                                            </div>
+                                        ))}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -292,35 +312,37 @@ export function FAQSubmissionsDialog({
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <MessageSquare className="h-5 w-5" />
-                                            Add Answers
+                                            Provide FAQ Answers
                                         </CardTitle>
                                         <CardDescription>
-                                            Provide answers to the submitted questions. These will be added to your FAQ section.
+                                            Write professional answers to the submitted questions. These will be added to your FAQ section.
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-4">
-                                            {selectedSubmission.formSection?.fields?.map((field: any) => {
-                                                const question = selectedSubmission.data[field.id] || ""
-                                                return (
-                                                    <div key={field.id} className="space-y-2">
-                                                        <div className="p-3 bg-gray-50 rounded-lg">
-                                                            <h4 className="font-medium text-sm text-gray-700">Question:</h4>
-                                                            <p className="text-sm">{question}</p>
-                                                        </div>
-                                                        <div>
-                                                            <label className="text-sm font-medium">Your Answer:</label>
-                                                            <Textarea
-                                                                placeholder="Provide a detailed answer..."
-                                                                value={answers[field.id] || ""}
-                                                                onChange={(e) => handleAnswerChange(field.id, e.target.value)}
-                                                                className="mt-1"
-                                                                rows={3}
+                                            {Object.entries(selectedSubmission.data || {}).map(([question, userAnswer], index) => (
+                                                <div key={index} className="space-y-2">
+                                                    <div className="p-3 bg-gray-50 rounded-lg">
+                                                        <h4 className="font-medium text-sm text-gray-700">Question {index + 1}:</h4>
+                                                        <p className="text-sm text-gray-900">{question}</p>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-sm font-medium">Your Professional Answer:</label>
+                                                        <div data-color-mode="dark" className="mt-1">
+                                                            <MDEditor
+                                                                value={answers[`answer_${index}`] || ""}
+                                                                onChange={(value) => handleAnswerChange(`answer_${index}`, value || "")}
+                                                                height={200}
+                                                                preview="edit"
+                                                                hideToolbar={false}
+                                                                textareaProps={{
+                                                                    placeholder: "Provide a detailed, professional answer in markdown format...",
+                                                                }}
                                                             />
                                                         </div>
                                                     </div>
-                                                )
-                                            })}
+                                                </div>
+                                            ))}
                                         </div>
                                     </CardContent>
                                 </Card>

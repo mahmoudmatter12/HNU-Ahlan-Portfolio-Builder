@@ -32,14 +32,14 @@ export function CollageLeadersDisplay({ leaders, onEdit }: CollageLeadersDisplay
                         <CardHeader className="pb-3">
                             <div className="flex items-center space-x-3">
                                 <Avatar className="h-12 w-12">
-                                    <AvatarImage src={leader.image} alt={leader.name} />
+                                    <AvatarImage src={leader.image} alt={leader.name} className="object-cover" />
                                     <AvatarFallback className="bg-blue-100 text-blue-600">
                                         {leader.name.charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <CardTitle className="text-lg truncate">{leader.name}</CardTitle>
-                                    <p className="text-sm text-gray-600 truncate">{leader.collage}</p>
+                                    <p className="text-sm text-gray-600 truncate">{leader.collage.slice(0, 30)}...</p>
                                 </div>
                             </div>
                         </CardHeader>

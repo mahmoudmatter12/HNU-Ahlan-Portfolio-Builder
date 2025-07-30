@@ -32,10 +32,12 @@ import type {
     AboutSectionSettings,
     StudentActivitiesSectionSettings,
     WhyUsSectionSettings,
+    CustomSectionSettings,
 } from "@/types/section"
 import { SECTION_TYPE_CONFIGS } from "@/types/section"
 import type { College, CollegeSection } from "@/types/Collage"
 import Image from "next/image"
+import { Switch } from "@/components/ui/switch"
 
 // Base schema for all sections
 const baseSectionSchema = z.object({
@@ -399,6 +401,20 @@ export function SectionFormDialog({ open, onOpenChange, section, collegeId, onSu
                                 />
                             </div>
 
+                            {/* Show Images */}
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-medium">Show Images</label>
+                                <Switch
+                                    id="show-images"
+                                    checked={(sectionSettings as AboutSectionSettings)?.showImages || false}
+                                    onCheckedChange={(checked) => setSectionSettings(prev => ({
+                                        ...prev,
+                                        showImages: checked
+                                    } as AboutSectionSettings))}
+                                    className="mt-1"
+                                />
+                            </div>
+
                             {/* Description */}
                             <div>
                                 <label className="text-sm font-medium">Description</label>
@@ -672,10 +688,109 @@ export function SectionFormDialog({ open, onOpenChange, section, collegeId, onSu
                             </CardTitle>
                             <CardDescription>{config.description}</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-white">
-                                Use the content editor below to write custom markdown content for this section.
-                            </p>
+                        <CardContent className="space-y-4">
+                            {/* Images */}
+                            <div>
+                                <label className="text-sm font-medium">Images</label>
+                                <div className="mt-2 space-y-2">
+                                    {(sectionSettings as CustomSectionSettings)?.images?.map((image, index) => (
+                                        <div key={index} className="relative w-full h-24 rounded-lg overflow-hidden">
+                                            <Image
+                                                fill
+                                                src={image}
+                                                alt={`Custom ${index + 1}`}
+                                                className="object-cover"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="sm"
+                                                className="absolute top-2 right-2"
+                                                onClick={() => removeImage("images", index)}
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {uploadingFiles && (
+                                        <div className="w-full h-24 rounded-lg bg-gray-100 flex items-center justify-center">
+                                            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                                            <span className="ml-2 text-sm text-gray-600">Uploading...</span>
+                                        </div>
+                                    )}
+                                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={(e) => e.target.files && handleFileUpload(e.target.files, "images")}
+                                            className="hidden"
+                                            id="custom-images-upload"
+                                        />
+                                        <label htmlFor="custom-images-upload" className="cursor-pointer">
+                                            <Upload className="h-6 w-6 mx-auto mb-1 text-gray-400" />
+                                            <p className="text-xs text-gray-600">Add images</p>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Title */}
+                            <div>
+                                <label className="text-sm font-medium">Section Title</label>
+                                <Input
+                                    placeholder="Custom Section Title"
+                                    value={(sectionSettings as CustomSectionSettings)?.title || ""}
+                                    onChange={(e) => setSectionSettings(prev => ({
+                                        ...prev,
+                                        title: e.target.value
+                                    } as CustomSectionSettings))}
+                                    className="mt-1"
+                                />
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <label className="text-sm font-medium">Description</label>
+                                <Textarea
+                                    placeholder="Brief description of this custom section..."
+                                    value={(sectionSettings as CustomSectionSettings)?.description || ""}
+                                    onChange={(e) => setSectionSettings(prev => ({
+                                        ...prev,
+                                        description: e.target.value
+                                    } as CustomSectionSettings))}
+                                    className="mt-1"
+                                />
+                            </div>
+
+                            {/* Image Display Type */}
+                            <div>
+                                <label className="text-sm font-medium">Image Display Type</label>
+                                <Select
+                                    value={(sectionSettings as CustomSectionSettings)?.imageDisplayType || "slider"}
+                                    onValueChange={(value) => setSectionSettings(prev => ({
+                                        ...prev,
+                                        imageDisplayType: value as "slider" | "grid" | "single" | "banner" | "carousel" | "gallery" | "list" | "background"
+                                    } as CustomSectionSettings))}
+                                >
+                                    <SelectTrigger className="mt-1">
+                                        <SelectValue placeholder="Select display type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="slider">Slider</SelectItem>
+                                        <SelectItem value="grid">Grid</SelectItem>
+                                        <SelectItem value="single">Single Image</SelectItem>
+                                        <SelectItem value="banner">Banner</SelectItem>
+                                        <SelectItem value="carousel">Carousel</SelectItem>
+                                        <SelectItem value="gallery">Gallery</SelectItem>
+                                        <SelectItem value="list">List</SelectItem>
+                                        <SelectItem value="background">Background</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Choose how images should be displayed in this section
+                                </p>
+                            </div>
                         </CardContent>
                     </Card>
                 )

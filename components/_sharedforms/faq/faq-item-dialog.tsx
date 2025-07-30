@@ -42,8 +42,6 @@ export function FAQItemDialog({ open, onOpenChange, item, collegeId, onSuccess }
     const [error, setError] = useState<string | null>(null)
     const isEditing = !!item?.id
 
-    const queryClient = useQueryClient()
-
     const form = useForm<FAQItemFormData>({
         resolver: zodResolver(faqItemSchema),
         defaultValues: {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./[locale]/globals.css";
 
 export const metadata: Metadata = {
     title: "Ahlan Helwan National University",

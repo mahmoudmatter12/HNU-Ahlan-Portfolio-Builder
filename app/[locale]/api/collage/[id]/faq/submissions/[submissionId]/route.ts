@@ -77,21 +77,43 @@ export async function PUT(
           const submissionData = submission.data as Record<string, string>;
           const fields = submission.formSection.fields;
 
-          const newFAQItems = fields.map((field, index) => {
-            const userQuestion = submissionData[field.id] || "";
-            const adminAnswer = answers?.[field.id] || "";
-
-            return {
+          // Check if answers contains the new structure with questions array
+          let newFAQItems;
+          if (
+            answers &&
+            typeof answers === "object" &&
+            "questions" in answers &&
+            Array.isArray(answers.questions)
+          ) {
+            // New structure with custom questions and answers
+            newFAQItems = answers.questions.map((item: any, index: number) => ({
               id: `faq_${Date.now()}_${Math.random()
                 .toString(36)
                 .substr(2, 9)}`,
-              question: userQuestion,
-              answer: adminAnswer,
+              question: item.question || "",
+              answer: item.answer || "",
               order: currentFAQ.items.length + index,
               createdAt: new Date(),
               updatedAt: new Date(),
-            };
-          });
+            }));
+          } else {
+            // Legacy structure - use submission questions with admin answers
+            newFAQItems = fields.map((field, index) => {
+              const userQuestion = submissionData[field.id] || "";
+              const adminAnswer = answers?.[field.id] || "";
+
+              return {
+                id: `faq_${Date.now()}_${Math.random()
+                  .toString(36)
+                  .substr(2, 9)}`,
+                question: userQuestion,
+                answer: adminAnswer,
+                order: currentFAQ.items.length + index,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              };
+            });
+          }
 
           const updatedFAQ: FAQData = {
             ...currentFAQ,

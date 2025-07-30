@@ -141,7 +141,7 @@ export function ProgramManagement({ collegeId }: ProgramManagementProps) {
                                         <div className="flex-1">
                                             <CardTitle className="text-lg">{program.name}</CardTitle>
                                             <CardDescription className="mt-1">
-                                                /{program.slug}
+                                                departments/{program.slug}
                                             </CardDescription>
                                         </div>
                                         <DropdownMenu>

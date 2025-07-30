@@ -34,18 +34,21 @@ export async function POST(
       lastUpdated: new Date(),
     };
 
+    // Ensure items is always an array
+    const items = currentFAQ.items || [];
+
     const newItem = {
       id: `faq_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       question,
       answer,
-      order: order || currentFAQ.items.length,
+      order: order || items.length,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     const updatedFAQ: FAQData = {
       ...currentFAQ,
-      items: [...currentFAQ.items, newItem],
+      items: [...items, newItem],
       lastUpdated: new Date(),
     };
 

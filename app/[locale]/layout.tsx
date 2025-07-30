@@ -4,6 +4,7 @@ import { GlobalProviders } from "@/context/proiders";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import notFound from "../not-found";
 import { routing } from "@/i18n/routing";
+import BackgroundDecorations from "@/components/BackgroundDecorations";
 
 export const metadata: Metadata = {
   title: "Ahlan Helwan National University",
@@ -27,12 +28,14 @@ export default async function LocaleLayout({
   }
 
   return (
-    <NextIntlClientProvider locale={locale}>
-      <GlobalProviders>
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-          {children}
-        </div>
-      </GlobalProviders>
-    </NextIntlClientProvider>
+    <BackgroundDecorations>
+      <NextIntlClientProvider locale={locale}>
+        <GlobalProviders>
+          <div className="min-h-screen">
+            {children}
+          </div>
+        </GlobalProviders>
+      </NextIntlClientProvider>
+    </BackgroundDecorations>
   );
 }

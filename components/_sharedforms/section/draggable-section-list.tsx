@@ -80,7 +80,12 @@ function DraggableSectionItem({ section, onView, onEdit, onDelete }: DraggableSe
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                                 <span className="text-lg">{config?.icon}</span>
-                                <h3 className="font-medium truncate">{section.title}</h3>
+                                <h3 className="font-medium truncate">
+                                    {section.sectionType === "CUSTOM" && section.settings && 'title' in section.settings && section.settings.title 
+                                        ? section.settings.title 
+                                        : section.title
+                                    }
+                                </h3>
                                 <Badge variant="secondary" className="text-xs">
                                     {config?.label}
                                 </Badge>
@@ -88,11 +93,15 @@ function DraggableSectionItem({ section, onView, onEdit, onDelete }: DraggableSe
                                     Order: {section.order}
                                 </Badge>
                             </div>
-                            {section.content && (
+                            {section.sectionType === "CUSTOM" && section.settings && 'description' in section.settings && section.settings.description ? (
+                                <div className="text-xs text-gray-500 mt-1 line-clamp-2">
+                                    {section.settings.description}
+                                </div>
+                            ) : section.content ? (
                                 <div className="text-xs text-gray-500 mt-1 line-clamp-2">
                                     {section.content.replace(/[#*`]/g, '').substring(0, 100)}...
                                 </div>
-                            )}
+                            ) : null}
                             <div className="text-xs text-gray-400 mt-1">
                                 Updated: {new Date(section.updatedAt).toLocaleDateString()}
                             </div>
@@ -303,7 +312,12 @@ export function DraggableSectionList({
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
                                             <span className="text-lg">{SECTION_TYPE_CONFIGS[activeSection.sectionType as keyof typeof SECTION_TYPE_CONFIGS]?.icon}</span>
-                                            <h3 className="font-medium">{activeSection.title}</h3>
+                                            <h3 className="font-medium">
+                                                {activeSection.sectionType === "CUSTOM" && activeSection.settings && 'title' in activeSection.settings && activeSection.settings.title 
+                                                    ? activeSection.settings.title 
+                                                    : activeSection.title
+                                                }
+                                            </h3>
                                             <Badge variant="secondary" className="text-xs">
                                                 {SECTION_TYPE_CONFIGS[activeSection.sectionType as keyof typeof SECTION_TYPE_CONFIGS]?.label}
                                             </Badge>
