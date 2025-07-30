@@ -58,6 +58,7 @@ import { ThemePreview } from "../../../../../../../components/_sharedforms/theme
 import { FAQManagementDialog } from "../../../../../../../components/_sharedforms/faq/faq-management-dialog"
 import { MarkdownPreview } from "../../../../../../../components/markdown-preview"
 import Image from "next/image"
+import BackgroundDecorations from "@/components/BackgroundDecorations"
 
 const collegeTypeColors = {
   TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -900,26 +901,26 @@ function CollageFAQ({ college }: { college: College }) {
 function CollageSocialMedia({ college, setEditingSocialMedia }: { college: College, setEditingSocialMedia: (open: boolean) => void }) {
   return (
     <>
-      <div className="space-y-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Social Media</CardTitle>
-              <CardDescription>Manage college social media links</CardDescription>
-            </div>
-            <Button size="sm" onClick={() => setEditingSocialMedia(true)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Social Media
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <SocialMediaDisplay
-              socialMedia={college.socialMedia}
-              onEdit={() => setEditingSocialMedia(true)}
-            />
-          </CardContent>
-        </Card>
-      </div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Social Media</CardTitle>
+                <CardDescription>Manage college social media links</CardDescription>
+              </div>
+              <Button size="sm" onClick={() => setEditingSocialMedia(true)}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Social Media
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <SocialMediaDisplay
+                socialMedia={college.socialMedia}
+                onEdit={() => setEditingSocialMedia(true)}
+              />
+            </CardContent>
+          </Card>
+        </div>
     </>
   )
 }

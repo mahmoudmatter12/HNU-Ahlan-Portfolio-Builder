@@ -43,12 +43,14 @@ const customIcons: Record<string, { icon: any; color: string; bgColor: string }>
 export function SocialMediaDisplay({ socialMedia, onEdit }: SocialMediaDisplayProps) {
     if (!socialMedia || Object.keys(socialMedia).length === 0) {
         return (
-            <div className="text-center py-8 text-gray-500">
-                <div className="h-12 w-12 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">📱</span>
+            <div className="">
+                <div className="text-center py-8 text-gray-500">
+                    <div className="h-12 w-12 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <span className="text-2xl">📱</span>
+                    </div>
+                    <p className="text-sm">No social media links added yet</p>
+                    <p className="text-xs">Click &quot;Edit Social Media&quot; to add links</p>
                 </div>
-                <p className="text-sm">No social media links added yet</p>
-                <p className="text-xs">Click &quot;Edit Social Media&quot; to add links</p>
             </div>
         )
     }

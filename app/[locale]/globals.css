@@ -269,3 +269,20 @@
 .no-visible-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Global Card Styles */
+/* [data-slot="card"] {
+  @apply bg-slate-800/50 backdrop-blur-sm rounded-2xl p-2 border border-slate-700;
+}
+
+[data-slot="card-header"] {
+  @apply bg-slate-900/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700;
+}
+
+[data-slot="card-content"] {
+  @apply bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700;
+}
+
+[data-slot="card-footer"] {
+  @apply bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700;
+} */
