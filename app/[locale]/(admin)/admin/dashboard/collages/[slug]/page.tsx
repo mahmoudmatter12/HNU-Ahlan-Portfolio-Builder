@@ -73,7 +73,7 @@ function CollegeDetails() {
   const locale = useLocale()
   const queryClient = useQueryClient()
   const slug = params.slug as string
-  const { isCollageCreator } = useAuthStatus()
+  const { canViewCollage, isCollageCreator } = useAuthStatus()
   const [editingCollege, setEditingCollege] = useState<College | null>(null)
   const [deletingCollege, setDeletingCollege] = useState<College | null>(null)
   const [copiedUrl, setCopiedUrl] = useState(false)
@@ -86,8 +86,6 @@ function CollegeDetails() {
   const [editingGallery, setEditingGallery] = useState(false)
   const [editingLeaders, setEditingLeaders] = useState(false)
   const [editingSocialMedia, setEditingSocialMedia] = useState(false)
-
-
 
 
   const {
@@ -218,7 +216,7 @@ function CollegeDetails() {
     )
   }
 
-  if (!isCollageCreator(slug)) {
+  if (!canViewCollage(college.id, slug)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="text-red-500 text-lg font-semibold">You are not authorized to access this page</div>
@@ -901,26 +899,26 @@ function CollageFAQ({ college }: { college: College }) {
 function CollageSocialMedia({ college, setEditingSocialMedia }: { college: College, setEditingSocialMedia: (open: boolean) => void }) {
   return (
     <>
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Social Media</CardTitle>
-                <CardDescription>Manage college social media links</CardDescription>
-              </div>
-              <Button size="sm" onClick={() => setEditingSocialMedia(true)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Social Media
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <SocialMediaDisplay
-                socialMedia={college.socialMedia}
-                onEdit={() => setEditingSocialMedia(true)}
-              />
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Social Media</CardTitle>
+              <CardDescription>Manage college social media links</CardDescription>
+            </div>
+            <Button size="sm" onClick={() => setEditingSocialMedia(true)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Social Media
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <SocialMediaDisplay
+              socialMedia={college.socialMedia}
+              onEdit={() => setEditingSocialMedia(true)}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </>
   )
 }

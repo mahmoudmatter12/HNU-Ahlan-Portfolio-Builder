@@ -16,6 +16,17 @@ export const useAuthStatus = () => {
       return true;
     return false;
   }
+  // if the user is a member of this collage so the collage will the ther userId in tue users and the user will have the collageId in the CollageId
+  function isMemberOfCollage(collageId: string) {
+    if (user?.collegeId === collageId) return true;
+    return false;
+  }
+
+  function canViewCollage(collageId: string, slug: string) {
+    if (user?.userType === "SUPERADMIN" || user?.userType === "OWNER") return true;
+    if (isMemberOfCollage(collageId) || isCollageCreator(slug)) return true;
+    return false;
+  }
 
   return {
     // Authentication status
@@ -31,10 +42,11 @@ export const useAuthStatus = () => {
     isSuperAdmin: user?.userType === "SUPERADMIN" || user?.userType === "OWNER",
     isGuest: user?.userType === "GUEST",
     isOwner: user?.userType === "OWNER",
-    
+
     // Include the function itself, not its execution
     isCollageCreator,
-
+    isMemberOfCollage,
+    canViewCollage,
     // Additional checks
     isOnboarded: user?.onboarded ?? false,
   };

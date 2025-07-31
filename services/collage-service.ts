@@ -1,5 +1,6 @@
 import { api } from "@/lib/axios";
 import type {
+  CollageWithMemberResponse,
   College,
   CollegeSection,
 } from "@/types/Collage";
@@ -32,7 +33,7 @@ export class CollegeService {
 
   // Update a college
   static async updateCollege(id: string, data: Partial<College>) {
-    console.log("Data", data)
+    console.log("Data", data);
     const res = await api.put<College>(`/collage/${id}/update`, data);
     return res.data;
   }
@@ -142,5 +143,13 @@ export class CollegeService {
       `/collage/${collegeId}/programs/${programId}`
     );
     return res.data;
+  }
+
+  static async getDisplayCollages(userId: string) {
+    const res = await api.post<CollageWithMemberResponse>(
+      `/collage/displaycollages`,
+      { userId }
+    );
+    return res;
   }
 }

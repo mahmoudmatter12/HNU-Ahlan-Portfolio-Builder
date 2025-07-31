@@ -35,6 +35,7 @@ import { useCurrentUser } from "@/context/userContext"
 import { SignOutButton } from "@clerk/nextjs"
 import { CollegeService } from "@/services/collage-service"
 import { useQuery } from "@tanstack/react-query"
+import { CollageWithMemberResponse } from "@/types/Collage"
 
 interface AdminLayoutProps {
     children: React.ReactNode
@@ -62,28 +63,6 @@ interface SubItem {
 interface NavSection {
     title: string
     items: NavItem[]
-}
-
-// Mock user data
-const mockUsers = {
-    admin: {
-        id: "1",
-        name: "University Admin",
-        email: "admin@university.edu",
-        userType: "ADMIN",
-        image: "/avatars/admin.png",
-        unreadMessages: 3,
-        lastLogin: new Date().toISOString()
-    },
-    superadmin: {
-        id: "0",
-        name: "System Superadmin",
-        email: "superadmin@university.edu",
-        userType: "SUPERADMIN",
-        image: "/avatars/superadmin.png",
-        unreadMessages: 5,
-        lastLogin: new Date().toISOString()
-    }
 }
 
 // Navigation configuration with role-based access
@@ -174,7 +153,7 @@ const navigationSections: NavSection[] = [
                 description: "System configuration",
                 roles: ['OWNER'],
                 badge: "Soon"
-                
+
 
             },
             {
@@ -212,21 +191,29 @@ function SidebarContent({
     const [openCollages, setOpenCollages] = useState(false)
 
     // Fetch collages based on user type
-    const collages = useQuery({
-        queryKey: ['collages'],
+    const {
+        data: collageData,
+    } = useQuery({
+        queryKey: ["displayCollages", user?.id],
         queryFn: () => {
-            if (user?.userType === 'SUPERADMIN' || user?.userType === 'OWNER') {
-                // Superadmin gets all collages
-                return CollegeService.getColleges({})
-            } else {
-                // Admin gets only their created collages
-                return CollegeService.getColleges({ createdById: user?.id })
-            }
-        }
+            if (!user?.id) throw new Error("User ID is required");
+            return CollegeService.getDisplayCollages(user.id);
+        },
+        enabled: !!user?.id,
+        staleTime: 1000 * 60 * 5,
+        gcTime: 1000 * 60 * 10,
     })
 
+    function normalizeCollages(collageData: CollageWithMemberResponse | undefined) {
+        // make new array to contain createdCollages and memberCollages
+        const newArray = [...(collageData?.data?.createdCollages?.collages || []), ...(collageData?.data?.memberCollages?.collages || [])]
+        return newArray
+    }
+
+
+
     // Create collages navigation item with subitems
-    const collagesSubItems: (SubItem & { logoUrl?: string })[] = collages.data?.map((collage) => ({
+    const collagesSubItems: (SubItem & { logoUrl?: string })[] = normalizeCollages(collageData?.data)?.map((collage) => ({
         title: collage.name,
         href: `/admin/dashboard/collages/${collage.slug}`,
         icon: FolderOpen,
@@ -298,7 +285,7 @@ function SidebarContent({
                                         // Get the badge value - either static or dynamic
                                         let badgeValue = item.badge
                                         if (item.dynamicBadge && item.title === "Collage") {
-                                            badgeValue = collages.data?.length?.toString() || "0";
+                                            badgeValue = normalizeCollages(collageData?.data)?.length?.toString() || "0";
                                         }
 
                                         if (collapsed) {
@@ -470,12 +457,10 @@ function SidebarContent({
 function DesktopSidebar({
     collapsed,
     setCollapsed,
-    user,
     locale
 }: {
     collapsed: boolean;
     setCollapsed: (collapsed: boolean) => void;
-    user: typeof mockUsers.admin | typeof mockUsers.superadmin;
     locale: string;
 }) {
     return (
@@ -522,14 +507,12 @@ function MobileSidebar({ locale }: { locale: string }) {
 export function AdminLayout({ children }: AdminLayoutProps) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
     const locale = useLocale()
-    const currentUser = useCurrentUser();
     return (
         <div className="flex h-screen bg-gray-950">
             {/* Desktop Sidebar */}
             <DesktopSidebar
                 collapsed={sidebarCollapsed}
                 setCollapsed={setSidebarCollapsed}
-                user={currentUser as unknown as typeof mockUsers.admin | typeof mockUsers.superadmin}
                 locale={locale} // Pass locale to sidebar if needed
             />
 

@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import { UserType } from "@prisma/client";
 
 export class UserService {
   static async getUsers(params?: {
@@ -37,6 +38,16 @@ export class UserService {
 
   static async getSuperAdmins() {
     const res = await api.get("/users/superadmins");
+    return res.data;
+  }
+
+  static async toggleUserRole(userId: string, role: UserType) {
+    const res = await api.patch(`/users/${userId}/toggle-role`, { role });
+    return res.data;
+  }
+
+  static async moveUserToCollage(userId: string, collageId: string) {
+    const res = await api.patch(`/users/${userId}/move-to-collage`, { collageId });
     return res.data;
   }
 }

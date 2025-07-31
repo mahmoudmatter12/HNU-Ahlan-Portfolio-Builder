@@ -25,6 +25,11 @@ type CollageCardProps = {
 
 export function CollageCard({ college, isSuperAdmin, onEdit, onDelete }: CollageCardProps) {
     const locale = useLocale();
+    const users = college.User?.length || 0;
+    const sections = college.sections?.length || 0;
+    const forms = college.forms?.length || 0;
+    const programs = college.programs?.length || 0;
+
     return (
         <Card className="hover:shadow-lg transition-shadow duration-200 bg-gray-900/50 border-gray-800 hover:border-gray-700">
             <CardHeader className="flex flex-col items-center pt-6 pb-2">
@@ -48,21 +53,26 @@ export function CollageCard({ college, isSuperAdmin, onEdit, onDelete }: Collage
                 <CardDescription className="mt-1 text-gray-400 text-center w-full">/{college.slug}</CardDescription>
             </CardHeader>
             <CardContent className="pb-3">
-                <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-4 gap-4 text-sm">
                     <div className="flex flex-col items-center gap-1 p-2 bg-gray-800/50 rounded">
                         <Users className="h-5 w-5 text-gray-400" />
-                        <span className="text-gray-300 font-medium">{college._count?.users || 0}</span>
+                        <span className="text-gray-300 font-medium">{users}</span>
                         <span className="text-xs text-gray-500">Users</span>
                     </div>
                     <div className="flex flex-col items-center gap-1 p-2 bg-gray-800/50 rounded">
                         <FileText className="h-5 w-5 text-gray-400" />
-                        <span className="text-gray-300 font-medium">{college._count?.sections || 0}</span>
+                        <span className="text-gray-300 font-medium">{sections}</span>
                         <span className="text-xs text-gray-500">Sections</span>
                     </div>
                     <div className="flex flex-col items-center gap-1 p-2 bg-gray-800/50 rounded">
                         <Calendar className="h-5 w-5 text-gray-400" />
-                        <span className="text-gray-300 font-medium">{college._count?.forms || 0}</span>
+                        <span className="text-gray-300 font-medium">{forms}</span>
                         <span className="text-xs text-gray-500">Forms</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1 p-2 bg-gray-800/50 rounded">
+                        <FileText className="h-5 w-5 text-gray-400" />
+                        <span className="text-gray-300 font-medium">{programs}</span>
+                        <span className="text-xs text-gray-500">Programs</span>
                     </div>
                 </div>
                 {college.createdBy && isSuperAdmin && (

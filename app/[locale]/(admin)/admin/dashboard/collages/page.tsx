@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, Edit, Trash2, Eye, Users, FileText, Calendar, MoreVertical } from "lucide-react"
-import Link from "next/link"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Plus, Search, Edit, Trash2, Eye, Users, FileText, Calendar, MoreVertical, Crown, UserCheck, Building2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import type { College } from "@/types/Collage"
@@ -16,23 +14,14 @@ import { useLocale } from "next-intl"
 import { CollegeFormDialog } from "../../../../../../components/_sharedforms/collage/college-form-dialog"
 import { DeleteCollegeDialog } from "../../../../../../components/_sharedforms/collage/delete-college-dialog"
 import { useCurrentUser, useIsSuperAdmin } from "@/context/userContext"
-import { useAuthStatus } from "@/hooks/use-auth"
-import Image from "next/image"
-import { CollageCard } from "../../../../../../components/_sharedforms/collage/CollageCard";
+import { CollageCard } from "../../../../../../components/_sharedforms/collage/CollageCard"
 
-const collegeTypeColors = {
-    TECHNICAL: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
-    MEDICAL: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-    ARTS: "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300",
-    OTHER: "bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300",
-}
 
 function Collages() {
     const locale = useLocale()
     const queryClient = useQueryClient()
     const currentUser = useCurrentUser()
     const isSuperAdmin = useIsSuperAdmin()
-    const { isOwner } = useAuthStatus()
     const [searchQuery, setSearchQuery] = useState("")
     const [typeFilter, setTypeFilter] = useState<string>("all")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -40,21 +29,17 @@ function Collages() {
     const [deletingCollege, setDeletingCollege] = useState<College | null>(null)
 
     const {
-        data: colleges,
+        data: collageData,
         isLoading,
         isError,
         error,
     } = useQuery({
-        queryKey: ["colleges", currentUser?.id, isSuperAdmin],
+        queryKey: ["displayCollages", currentUser?.id],
         queryFn: () => {
-            // If superadmin, get all colleges, otherwise get only user's colleges
-            if (isSuperAdmin || isOwner) {
-                return CollegeService.getColleges()
-            } else {
-                return CollegeService.getColleges({ createdById: currentUser?.id })
-            }
+            if (!currentUser?.id) throw new Error("User ID is required");
+            return CollegeService.getDisplayCollages(currentUser.id);
         },
-        enabled: !!currentUser, // Only run query when user is loaded
+        enabled: !!currentUser?.id,
         staleTime: 1000 * 60 * 5,
         gcTime: 1000 * 60 * 10,
     })
@@ -62,7 +47,7 @@ function Collages() {
     const deleteMutation = useMutation({
         mutationFn: (id: string) => CollegeService.deleteCollege(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["colleges", currentUser?.id, isSuperAdmin] })
+            queryClient.invalidateQueries({ queryKey: ["displayCollages", currentUser?.id] })
             toast.success("College deleted successfully")
             setDeletingCollege(null)
         },
@@ -71,15 +56,6 @@ function Collages() {
             console.error("Delete error:", error)
         },
     })
-
-    const filteredColleges =
-        colleges?.filter((college) => {
-            const matchesSearch =
-                college.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                college.slug.toLowerCase().includes(searchQuery.toLowerCase())
-            const matchesType = typeFilter === "all" || college.type === typeFilter
-            return matchesSearch && matchesType
-        }) || []
 
     const handleDelete = (college: College) => {
         setDeletingCollege(college)
@@ -91,9 +67,20 @@ function Collages() {
         }
     }
 
+    // Filter function for search and type
+    const filterCollages = (collages: College[]) => {
+        return collages.filter((college) => {
+            const matchesSearch =
+                college.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                college.slug.toLowerCase().includes(searchQuery.toLowerCase())
+            const matchesType = typeFilter === "all" || college.type === typeFilter
+            return matchesSearch && matchesType
+        })
+    }
+
     if (isLoading || !currentUser) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-8">
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-white">Colleges</h1>
                 </div>
@@ -125,8 +112,13 @@ function Collages() {
         )
     }
 
+    const data = collageData?.data?.data
+    const createdCollages = filterCollages(data?.createdCollages?.collages || [])
+    const memberCollages = filterCollages(data?.memberCollages?.collages || [])
+    const totalCount = data?.totalCount || 0
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -139,13 +131,10 @@ function Collages() {
                         )}
                     </div>
                     <p className="text-gray-400 mt-1">
-                        {isSuperAdmin
-                            ? "Manage all university colleges and their settings"
-                            : "Manage your created colleges and their settings"
-                        }
+                        Manage your colleges and collaborate with others
                     </p>
                 </div>
-                <Button onClick={() => setIsAddDialogOpen(true)} className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white">
+                <Button onClick={() => setIsAddDialogOpen(true)} className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
                     <Plus className="h-4 w-4" />
                     Add College
                 </Button>
@@ -176,67 +165,122 @@ function Collages() {
                 </Select>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <Card className="bg-gray-900/50 border-gray-800">
-                    <CardContent className="p-4">
-                        <div className="text-2xl font-bold text-white">{colleges?.length || 0}</div>
-                        <div className="text-sm text-gray-400">
-                            {isSuperAdmin ? "Total Colleges" : "My Colleges"}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border-blue-700/50">
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="text-3xl font-bold text-white">{totalCount}</div>
+                                <div className="text-sm text-blue-200">Total Colleges</div>
+                            </div>
+                            <Building2 className="h-8 w-8 text-blue-300" />
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gray-900/50 border-gray-800">
-                    <CardContent className="p-4">
-                        <div className="text-2xl font-bold text-white">{colleges?.filter((c) => c.type === "TECHNICAL").length || 0}</div>
-                        <div className="text-sm text-gray-400">Technical</div>
+                <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border-purple-700/50">
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="text-3xl font-bold text-white">{data?.createdCollages?.count || 0}</div>
+                                <div className="text-sm text-purple-200">Created by You</div>
+                            </div>
+                            <Crown className="h-8 w-8 text-purple-300" />
+                        </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gray-900/50 border-gray-800">
-                    <CardContent className="p-4">
-                        <div className="text-2xl font-bold text-white">{colleges?.filter((c) => c.type === "MEDICAL").length || 0}</div>
-                        <div className="text-sm text-gray-400">Medical</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-gray-900/50 border-gray-800">
-                    <CardContent className="p-4">
-                        <div className="text-2xl font-bold text-white">{colleges?.filter((c) => c.type === "ARTS").length || 0}</div>
-                        <div className="text-sm text-gray-400">Arts</div>
+                <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border-green-700/50">
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="text-3xl font-bold text-white">{data?.memberCollages?.count || 0}</div>
+                                <div className="text-sm text-green-200">Member Of</div>
+                            </div>
+                            <UserCheck className="h-8 w-8 text-green-300" />
+                        </div>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Colleges Grid */}
-            {filteredColleges.length === 0 ? (
-                <Card className="p-12 text-center bg-gray-900/50 border-gray-800">
-                    <div className="text-gray-400 text-lg mb-2">No colleges found</div>
-                    <div className="text-gray-500 mb-4">
-                        {searchQuery || typeFilter !== "all"
-                            ? "Try adjusting your search or filters"
-                            : isSuperAdmin
-                                ? "Get started by adding your first college"
-                                : "You haven't created any colleges yet. Get started by adding your first college"
-                        }
+            {/* Created Colleges Section */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Crown className="h-6 w-6 text-purple-400" />
+                        <h2 className="text-2xl font-semibold text-white">Colleges You Created</h2>
+                        <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
+                            {createdCollages.length}
+                        </Badge>
                     </div>
-                    {!searchQuery && typeFilter === "all" && (
-                        <Button onClick={() => setIsAddDialogOpen(true)} className="bg-gray-800 hover:bg-gray-700 text-white">
+                    {createdCollages.length === 0 && (
+                        <Button onClick={() => setIsAddDialogOpen(true)} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
                             <Plus className="h-4 w-4 mr-2" />
-                            Add College
+                            Create Your First College
                         </Button>
                     )}
-                </Card>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredColleges.map((college) => (
-                        <CollageCard
-                            key={college.id}
-                            college={college}
-                            isSuperAdmin={isSuperAdmin}
-                            onEdit={setEditingCollege}
-                            onDelete={handleDelete}
-                        />
-                    ))}
                 </div>
+
+                {createdCollages.length === 0 ? (
+                    <Card className="p-12 text-center bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-purple-700/30">
+                        <Crown className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+                        <div className="text-purple-200 text-lg mb-2">No colleges created yet</div>
+                        <div className="text-purple-300 mb-6">
+                            Start building your college portfolio by creating your first college
+                        </div>
+                        <Button onClick={() => setIsAddDialogOpen(true)} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Create College
+                        </Button>
+                    </Card>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {createdCollages.map((college) => (
+                            <CollageCard
+                                key={college.id}
+                                college={college}
+                                isSuperAdmin={isSuperAdmin}
+                                onEdit={setEditingCollege}
+                                onDelete={handleDelete}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Member Colleges Section */}
+            {data?.memberCollages && data.memberCollages.count > 0 && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        <UserCheck className="h-6 w-6 text-green-400" />
+                        <h2 className="text-2xl font-semibold text-white">Colleges You&apos;re Member Of</h2>
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+                            {memberCollages.length}
+                        </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {memberCollages.map((college) => (
+                            <CollageCard
+                                key={college.id}
+                                college={college}
+                                isSuperAdmin={isSuperAdmin}
+                                onEdit={setEditingCollege}
+                                onDelete={handleDelete}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* No Results Message */}
+            {searchQuery && totalCount > 0 && createdCollages.length === 0 && memberCollages.length === 0 && (
+                <Card className="p-12 text-center bg-gray-900/50 border-gray-800">
+                    <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <div className="text-gray-400 text-lg mb-2">No colleges found</div>
+                    <div className="text-gray-500">
+                        Try adjusting your search or filters
+                    </div>
+                </Card>
             )}
 
             {/* Dialogs */}
@@ -244,7 +288,7 @@ function Collages() {
                 open={isAddDialogOpen}
                 onOpenChange={setIsAddDialogOpen}
                 onSuccess={() => {
-                    queryClient.invalidateQueries({ queryKey: ["colleges", currentUser?.id, isSuperAdmin] })
+                    queryClient.invalidateQueries({ queryKey: ["displayCollages", currentUser?.id] })
                     setIsAddDialogOpen(false)
                 }}
             />
@@ -254,7 +298,7 @@ function Collages() {
                 onOpenChange={(open) => !open && setEditingCollege(null)}
                 college={editingCollege}
                 onSuccess={() => {
-                    queryClient.invalidateQueries({ queryKey: ["colleges", currentUser?.id, isSuperAdmin] })
+                    queryClient.invalidateQueries({ queryKey: ["displayCollages", currentUser?.id] })
                     setEditingCollege(null)
                 }}
             />

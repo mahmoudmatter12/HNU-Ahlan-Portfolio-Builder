@@ -26,7 +26,7 @@ export interface College {
   createdAt: Date;
   updatedAt: Date;
   galleryImages: Record<string, any> | null;
-  users: CollegeUser[];
+  User: CollegeUser[];
   sections: CollegeSection[];
   forms: CollegeFormSection[];
   formSubmissions: CollegeFormSubmission[];
@@ -180,4 +180,19 @@ export interface CollageLeader {
 
 export interface CollageLeadersData {
   leaders: CollageLeader[];
+}
+
+export interface CollageWithMemberResponse {
+  success: boolean;
+  data: {
+    createdCollages?: {
+      count: number;
+      collages: College[];
+    };
+    memberCollages?: {
+      count: number;
+      collages: College[];
+    };
+    totalCount: number;
+  };
 }

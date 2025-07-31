@@ -324,7 +324,7 @@ export const UniversityProvider: React.FC<UniversityProviderProps> = ({ children
 
         const collegesCount = university.colleges.length;
         const totalUsers = university.colleges.reduce(
-            (acc, college) => acc + (college.users?.length || 0),
+            (acc, college) => acc + (college.User?.length || 0),
             0
         );
         const totalSections = university.colleges.reduce(
