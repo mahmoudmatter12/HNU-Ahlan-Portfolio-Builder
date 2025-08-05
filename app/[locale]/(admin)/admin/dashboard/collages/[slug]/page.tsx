@@ -241,11 +241,11 @@ function CollegeDetails() {
       value: "forms",
       content: <CollageForms college={college} />
     },
-    {
-      label: "Theme Config",
-      value: "theme",
-      content: <CollageThemeConfig college={college} setEditingTheme={setEditingTheme} />
-    },
+    // {
+    //   label: "Theme Config",
+    //   value: "theme",
+    //   content: <CollageThemeConfig college={college} setEditingTheme={setEditingTheme} />
+    // },
     {
       label: "Gallery",
       value: "gallery",
@@ -712,7 +712,7 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
         </div>
 
         {/* Theme Preview */}
-        <ThemePreview theme={college.theme} />
+        {/* <ThemePreview theme={college.theme} /> */}
 
         {/* Recent Activity TODO: Add recent activity will be all logs that are related to _COLLAGE */}
         <Card>
