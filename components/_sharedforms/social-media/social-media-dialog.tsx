@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { CollegeService } from "@/services/collage-service"
+import { CollegeService } from "@/services/collage.service"
 import {
     Dialog,
     DialogContent,

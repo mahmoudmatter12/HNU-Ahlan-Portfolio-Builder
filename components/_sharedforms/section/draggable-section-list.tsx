@@ -21,7 +21,7 @@ import {
     useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { SectionService } from '@/services/section-service'
+import { SectionService } from '@/services/section.service'
 import { toast } from 'sonner'
 import { Loader2, GripVertical, Eye, Edit, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -81,8 +81,8 @@ function DraggableSectionItem({ section, onView, onEdit, onDelete }: DraggableSe
                             <div className="flex items-center gap-2">
                                 <span className="text-lg">{config?.icon}</span>
                                 <h3 className="font-medium truncate">
-                                    {section.sectionType === "CUSTOM" && section.settings && 'title' in section.settings && section.settings.title 
-                                        ? section.settings.title 
+                                    {section.sectionType === "CUSTOM" && section.settings && 'title' in section.settings && section.settings.title
+                                        ? section.settings.title
                                         : section.title
                                     }
                                 </h3>
@@ -313,8 +313,8 @@ export function DraggableSectionList({
                                         <div className="flex items-center gap-2">
                                             <span className="text-lg">{SECTION_TYPE_CONFIGS[activeSection.sectionType as keyof typeof SECTION_TYPE_CONFIGS]?.icon}</span>
                                             <h3 className="font-medium">
-                                                {activeSection.sectionType === "CUSTOM" && activeSection.settings && 'title' in activeSection.settings && activeSection.settings.title 
-                                                    ? activeSection.settings.title 
+                                                {activeSection.sectionType === "CUSTOM" && activeSection.settings && 'title' in activeSection.settings && activeSection.settings.title
+                                                    ? activeSection.settings.title
                                                     : activeSection.title
                                                 }
                                             </h3>

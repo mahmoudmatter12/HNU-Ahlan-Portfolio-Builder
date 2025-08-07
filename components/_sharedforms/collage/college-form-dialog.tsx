@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { CollegeService } from "@/services/collage-service"
-import { UploadService } from "@/services/upload-service"
+import { CollegeService } from "@/services/collage.service"
+import { UploadService } from "@/services/upload.service"
 import {
     Dialog,
     DialogContent,
@@ -206,7 +206,7 @@ export function CollegeFormDialog({ open, onOpenChange, college, onSuccess }: Co
                 createdById: data.createdById || user?.id,
                 faq: data.faq ? JSON.parse(data.faq) : [],
                 universityId: data.universityId || university?.id,
-                logoUrl: data.logoUrl || "no-logo-url",
+                logoUrl: data.logoUrl ,
             }
 
             if (isEditing && college) {

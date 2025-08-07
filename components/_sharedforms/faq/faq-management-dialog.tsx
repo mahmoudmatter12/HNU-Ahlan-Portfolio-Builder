@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { FAQService } from "@/services/faq-service"
+import { FAQService } from "@/services/faq.service"
 import {
     Dialog,
     DialogContent,

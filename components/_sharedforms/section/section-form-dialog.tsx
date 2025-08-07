@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { SectionService } from "@/services/section-service"
-import { UploadService } from "@/services/upload-service"
+import { SectionService } from "@/services/section.service"
+import { UploadService } from "@/services/upload.service"
 import MDEditor from '@uiw/react-md-editor'
 import {
     Dialog,

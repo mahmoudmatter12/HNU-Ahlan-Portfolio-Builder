@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation } from "@tanstack/react-query"
-import { FormService } from "@/services/form-service"
+import { FormService } from "@/services/form.service"
 import {
     Dialog,
     DialogContent,

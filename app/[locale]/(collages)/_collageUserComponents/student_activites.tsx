@@ -209,6 +209,10 @@ function StudentActivites({ college }: StudentActivitesProps) {
         }
     }
 
+    if (activities.length === 0) {
+        return null
+    }
+
     const renderActivitiesLayout = () => {
         if (!activities || activities.length === 0) {
             return (

@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { CollegeService } from "@/services/collage-service"
-import { UploadService } from "@/services/upload-service"
+import { CollegeService } from "@/services/collage.service"
+import { UploadService } from "@/services/upload.service"
 import {
     Dialog,
     DialogContent,

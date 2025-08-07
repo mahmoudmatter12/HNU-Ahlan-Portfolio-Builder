@@ -1,5 +1,5 @@
 'use client'
-import { CollegeService } from '@/services/collage-service'
+import { CollegeService } from '@/services/collage.service'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import React from 'react'
@@ -14,6 +14,8 @@ import FQA_section from '../_collageUserComponents/FQA_section'
 import CustomSection from '../_collageUserComponents/custom_section'
 import CollageLeadersSection from '../_collageUserComponents/collage_leaders_section'
 import FormIndicatorSection from '../_collageUserComponents/form_indicator_section'
+import { Loader2 } from 'lucide-react'
+import NotFound from '@/app/not-found'
 
 function CollegePage() {
   const { slug } = useParams()
@@ -23,10 +25,12 @@ function CollegePage() {
   })
   const { university } = useUniversity()
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div className="flex justify-center items-center h-screen">
+      <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+    </div>
   }
   if (!college) {
-    return <div>Not found</div>
+    return <NotFound />
   }
 
   return (

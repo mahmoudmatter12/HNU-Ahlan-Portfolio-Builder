@@ -36,7 +36,7 @@ import {
     Check,
     X
 } from "lucide-react";
-import { UniService } from "@/services/uni-service";
+import { UniService } from "@/services/uni.service";
 import { SocialMediaLinks } from "@/types/uni";
 import { cn } from "@/lib/utils";
 

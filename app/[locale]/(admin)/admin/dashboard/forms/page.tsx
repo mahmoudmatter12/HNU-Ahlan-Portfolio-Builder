@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { FormService } from "@/services/form-service"
-import { CollegeService } from "@/services/collage-service"
+import { FormService } from "@/services/form.service"
+import { CollegeService } from "@/services/collage.service"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"

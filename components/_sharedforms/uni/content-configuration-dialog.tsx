@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useUniversityContent } from "@/context/universityContext";
 import { UniversityContent } from "@/types/uni";
-import { UploadService } from "@/services/upload-service";
+import { UploadService } from "@/services/upload.service";
 import {
     ImageIcon,
     VideoIcon,

@@ -33,7 +33,7 @@ import { Header } from "./header"
 import { useLocale } from "next-intl";
 import { useCurrentUser } from "@/context/userContext"
 import { SignOutButton } from "@clerk/nextjs"
-import { CollegeService } from "@/services/collage-service"
+import { CollegeService } from "@/services/collage.service"
 import { useQuery } from "@tanstack/react-query"
 import { CollageWithMemberResponse } from "@/types/Collage"
 

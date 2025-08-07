@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { GraduationCap, ExternalLink, Play, Image as ImageIcon, ArrowRight, BookOpen } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useLocale } from 'next-intl'
+import { Button } from '@/components/ui/button'
 
 export interface Program {
     id: string;
@@ -53,7 +55,7 @@ const extractHeadlines = (markdown: string): string[] => {
 }
 
 // Function to render department card
-const DepartmentCard = ({ department, index }: { department: Program; index: number }) => {
+const DepartmentCard = ({ department, index, locale, slug }: { department: Program; index: number, locale: string, slug: string }) => {
     const firstDescription = department.description?.[0]
     const headlines = firstDescription?.description ? extractHeadlines(firstDescription.description) : []
     const firstImage = firstDescription?.image?.[0]
@@ -70,6 +72,7 @@ const DepartmentCard = ({ department, index }: { department: Program; index: num
         }
     }
 
+
     return (
         <motion.div
             variants={cardVariants}
@@ -78,7 +81,7 @@ const DepartmentCard = ({ department, index }: { department: Program; index: num
             viewport={{ once: true, amount: 0.2 }}
             className="group relative bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 hover:border-slate-600 transition-all duration-300 overflow-hidden"
         >
-            <Link href={`/programs/${department.slug}`} className="block">
+            <Link href={`/${locale}/${slug}/programs/${department.slug}`} className="block">
                 {/* Image Preview Section */}
                 <div className="relative h-90 w-full overflow-hidden">
                     {firstImage ? (
@@ -290,6 +293,8 @@ const DepartmentCard = ({ department, index }: { department: Program; index: num
 
 function Departments({ college }: { college: College }) {
     const departments = college.programs as Program[]
+    const slug = college.slug
+    const locale = useLocale()
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -300,6 +305,10 @@ function Departments({ college }: { college: College }) {
                 delayChildren: 0.2
             }
         }
+    }
+
+    if (departments.length === 0) {
+        return null
     }
 
     const renderDepartmentsLayout = () => {
@@ -323,7 +332,7 @@ function Departments({ college }: { college: College }) {
             case 1:
                 return (
                     <div className="max-w-4xl mx-auto">
-                        <DepartmentCard department={departments[0]} index={0} />
+                        <DepartmentCard department={departments[0]} index={0} locale={locale} slug={slug} />
                     </div>
                 )
 
@@ -331,7 +340,7 @@ function Departments({ college }: { college: College }) {
                 return (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {departments.map((dept, index) => (
-                            <DepartmentCard key={dept.id} department={dept} index={index} />
+                            <DepartmentCard key={dept.id} department={dept} index={index} locale={locale} slug={slug} />
                         ))}
                     </div>
                 )
@@ -340,7 +349,7 @@ function Departments({ college }: { college: College }) {
                 return (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {departments.map((dept, index) => (
-                            <DepartmentCard key={dept.id} department={dept} index={index} />
+                            <DepartmentCard key={dept.id} department={dept} index={index} locale={locale} slug={slug} />
                         ))}
                     </div>
                 )
@@ -349,7 +358,7 @@ function Departments({ college }: { college: College }) {
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {departments.map((dept, index) => (
-                            <DepartmentCard key={dept.id} department={dept} index={index} />
+                            <DepartmentCard key={dept.id} department={dept} index={index} locale={locale} slug={slug} />
                         ))}
                     </div>
                 )
@@ -358,11 +367,11 @@ function Departments({ college }: { college: College }) {
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {departments.slice(0, 3).map((dept, index) => (
-                            <DepartmentCard key={dept.id} department={dept} index={index} />
+                            <DepartmentCard key={dept.id} department={dept} index={index} locale={locale} slug={slug} />
                         ))}
                         <div className="md:col-span-2 lg:col-span-1">
                             {departments.slice(3).map((dept, index) => (
-                                <DepartmentCard key={dept.id} department={dept} index={index + 3} />
+                                <DepartmentCard key={dept.id} department={dept} index={index + 3} locale={locale} slug={slug} />
                             ))}
                         </div>
                     </div>
@@ -372,7 +381,7 @@ function Departments({ college }: { college: College }) {
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {departments.map((dept, index) => (
-                            <DepartmentCard key={dept.id} department={dept} index={index} />
+                            <DepartmentCard key={dept.id} department={dept} index={index} locale={locale} slug={slug} />
                         ))}
                     </div>
                 )
@@ -410,6 +419,15 @@ function Departments({ college }: { college: College }) {
                 >
                     {renderDepartmentsLayout()}
                 </motion.div>
+
+                {/* view all programs button */}
+                <div className="flex justify-center mt-10">
+                    <Button variant="outline" asChild>
+                        <Link href={`/${locale}/${slug}/programs`}>
+                            View All Programs Details
+                        </Link>
+                    </Button>
+                </div>
             </div>
         </section>
     )

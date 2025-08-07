@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { FormService } from "@/services/form-service"
+import { FormService } from "@/services/form.service"
 import {
     Dialog,
     DialogContent,
@@ -96,7 +96,7 @@ export function FormSubmissionsDialog({ open, onOpenChange, form }: FormSubmissi
             return (
                 <div className="flex items-center gap-2">
                     {isImage ? (
-                        <Image className="h-4 w-4 text-blue-600"  />
+                        <Image className="h-4 w-4 text-blue-600" />
                     ) : (
                         <File className="h-4 w-4 text-gray-600" />
                     )}

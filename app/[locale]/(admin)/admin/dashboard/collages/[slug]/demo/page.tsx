@@ -1,6 +1,6 @@
 'use client'
 import { College } from '@/types/Collage';
-import { CollegeService } from '@/services/collage-service';
+import { CollegeService } from '@/services/collage.service';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation'
 import React, { useState } from 'react'

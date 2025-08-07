@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { College } from '@/types/Collage'
 import { FAQItem } from '@/types/faq'
 import { FormSection } from '@/types/form'
-import { FAQService } from '@/services/faq-service'
+import { FAQService } from '@/services/faq.service'
 import { MarkdownPreview } from '@/components/markdown-preview'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
@@ -210,42 +210,45 @@ function FQA_section({ collage }: FQA_sectionProps) {
         setSelectedItem(item)
     }
 
-    if (!faq || !faq.items || faq.items.length === 0) {
-        return (
-            <div className="py-12 text-center">
-                <div className="max-w-md mx-auto">
-                    <HelpCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No FAQ Available</h3>
-                    <p className="text-gray-500 mb-6">
-                        There are no frequently asked questions available for this college yet.
-                    </p>
-                    {formLinks && formLinks.length > 0 && (
-                        <div className="space-y-3">
-                            <p className="text-sm text-gray-600">Have a question? Ask the administrators:</p>
-                            <div className="flex flex-col gap-2">
-                                {formLinks.map((form: FormSection) => (
-                                    <Button
-                                        key={form.id}
-                                        variant="outline"
-                                        size="sm"
-                                        className="justify-start"
-                                        onClick={() => window.open(`/form/${form.id}`, '_blank')}
-                                    >
-                                        <MessageCircle className="mr-2 h-4 w-4" />
-                                        {form.title}
-                                        <ExternalLink className="ml-auto h-4 w-4" />
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        )
+    if (!faq || !faq.items) {
+        return null
     }
 
+    // if (!faq || !faq.items) {
+    //     return (
+    //         <div className="py-12 text-center">
+    //             <div className="max-w-md mx-auto">
+    //                 <HelpCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+    //                 <h3 className="text-lg font-medium text-gray-900 mb-2">No FAQ Available</h3>
+    //                 <p className="text-gray-500 mb-6">
+    //                     There are no frequently asked questions available for this college yet.
+    //                 </p>
+    //                 {formLinks && formLinks.length > 0 && (
+    //                     <div className="space-y-3">
+    //                         <p className="text-sm text-gray-600">Have a question? Ask the administrators:</p>
+    //                         <div className="flex flex-col gap-2">
+    //                             {formLinks.map((form: FormSection) => (
+    //                                 <Button
+    //                                     key={form.id}
+    //                                     variant="outline"
+    //                                     size="sm"
+    //                                     className="justify-start"
+    //                                     onClick={() => window.open(`/form/${form.id}`, '_blank')}
+    //                                 >
+    //                                     <MessageCircle className="mr-2 h-4 w-4" />
+    //                                     {form.title}
+    //                                     <ExternalLink className="ml-auto h-4 w-4" />
+    //                                 </Button>
+    //                             ))}
+    //                         </div>
+    //                     </div>
+    //                 )}
+    //             </div>
+    //         </div>
+    //     )
+    // }
+
     // Check if selected item exists in filtered results
-    const isSelectedInFiltered = selectedItem && filteredItems.some(item => item.id === selectedItem.id)
 
     return (
         <section className="relative py-12 lg:py-20 w-full">

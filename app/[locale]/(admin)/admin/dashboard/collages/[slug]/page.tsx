@@ -1,7 +1,7 @@
 "use client"
-import { CollegeService } from "@/services/collage-service"
-import { FormService } from "@/services/form-service"
-import { SectionService } from "@/services/section-service"
+import { CollegeService } from "@/services/collage.service"
+import { FormService } from "@/services/form.service"
+import { SectionService } from "@/services/section.service"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
 import { useState } from "react"
@@ -161,13 +161,13 @@ function CollegeDetails() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+          <div className="h-8 bg-gray-200 rounded w-32 sm:w-48 animate-pulse"></div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {[...Array(3)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardHeader>
@@ -182,7 +182,7 @@ function CollegeDetails() {
               </Card>
             ))}
           </div>
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <Card className="animate-pulse">
               <CardHeader>
                 <div className="h-6 bg-gray-200 rounded w-1/2"></div>
@@ -203,10 +203,10 @@ function CollegeDetails() {
 
   if (isError || !college) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="text-red-500 text-lg font-semibold">College not found</div>
-        <div className="text-gray-600">{error?.toString()}</div>
-        <div className="flex gap-2">
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 p-4">
+        <div className="text-red-500 text-lg font-semibold text-center">College not found</div>
+        <div className="text-gray-600 text-center text-sm sm:text-base">{error?.toString()}</div>
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button variant="outline" onClick={() => router.back()}>
             Go Back
           </Button>
@@ -218,9 +218,9 @@ function CollegeDetails() {
 
   if (!canViewCollage(college.id, slug)) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="text-red-500 text-lg font-semibold">You are not authorized to access this page</div>
-        <div className="text-gray-600">You are not the creator of this collage</div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4 p-4">
+        <div className="text-red-500 text-lg font-semibold text-center">You are not authorized to access this page</div>
+        <div className="text-gray-600 text-center text-sm sm:text-base">You are not the creator of this collage</div>
       </div>
     )
   }
@@ -274,76 +274,75 @@ function CollegeDetails() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={() => router.push(`/${locale}/admin/dashboard/collages`)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Colleges
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{college.name}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-gray-600">/{college.slug}</span>
-              <Badge className={collegeTypeColors[college.type]} variant="secondary">
-                {college.type}
-              </Badge>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+            <Button variant="outline" size="sm" onClick={() => router.push(`/${locale}/admin/dashboard/collages`)} className="w-full sm:w-auto">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Back to Colleges</span>
+              <span className="sm:hidden">Back</span>
+            </Button>
+            <div className="w-full sm:w-auto">
+              <h1 className="text-2xl sm:text-3xl font-bold break-words">{college.name}</h1>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
+                <span className="text-gray-600 text-sm sm:text-base break-all">/{college.slug}</span>
+                <Badge className={`${collegeTypeColors[college.type]} text-xs sm:text-sm`} variant="secondary">
+                  {college.type}
+                </Badge>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={copyPublicUrl}>
-            {copiedUrl ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-            {copiedUrl ? "Copied!" : "Copy URL"}
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/${locale}/${college.slug}`} target="_blank">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Public
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/${locale}/admin/dashboard/collages/${college.slug}/gallery-demo`}>
-              <ImageIcon className="h-4 w-4 mr-2" />
-              Gallery Demo
-            </Link>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditingCollege(college)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit College
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete College
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" onClick={copyPublicUrl} className="flex-1 sm:flex-none">
+              {copiedUrl ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+              <span className="hidden sm:inline">{copiedUrl ? "Copied!" : "Copy URL"}</span>
+              <span className="sm:hidden">{copiedUrl ? "Copied!" : "Copy"}</span>
+            </Button>
+            <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
+              <Link href={`/${locale}/${college.slug}`} target="_blank">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">View Public</span>
+                <span className="sm:hidden">Public</span>
+              </Link>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setEditingCollege(college)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit College
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete College
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
 
         {/* Main Content */}
-        <div className="lg:col-span-2">
+        <div className="xl:col-span-3 w-full">
           <CollageTabs tabs={tabs} />
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 xl:col-span-1">
 
           {/* College Info */}
           <Card>
             <CardHeader>
-              <CardTitle>College Information</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">College Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Logo */}
@@ -351,24 +350,24 @@ function CollegeDetails() {
                 <div>
                   <label className="text-sm font-medium text-gray-600">Logo</label>
                   <div className="mt-1">
-                    <Image src={college.logoUrl} alt="Logo" width={100} height={100} />
+                    <Image src={college.logoUrl} alt="Logo" width={100} height={100} className="rounded-lg" />
                   </div>
                 </div>
               )}
               <div>
                 <label className="text-sm font-medium text-gray-600">Name</label>
-                <div className="mt-1">{college.name}</div>
+                <div className="mt-1 text-sm sm:text-base break-words">{college.name}</div>
               </div>
               <Separator />
               <div>
                 <label className="text-sm font-medium text-gray-600">Slug</label>
-                <div className="mt-1 font-mono text-sm">/{college.slug}</div>
+                <div className="mt-1 font-mono text-xs sm:text-sm break-all">/{college.slug}</div>
               </div>
               <Separator />
               <div>
                 <label className="text-sm font-medium text-gray-600">Type</label>
                 <div className="mt-1">
-                  <Badge className={collegeTypeColors[college.type]} variant="secondary">
+                  <Badge className={`${collegeTypeColors[college.type]} text-xs sm:text-sm`} variant="secondary">
                     {college.type}
                   </Badge>
                 </div>
@@ -376,11 +375,11 @@ function CollegeDetails() {
               <Separator />
               <div>
                 <label className="text-sm font-medium text-gray-600">Created</label>
-                <div className="mt-1 text-sm">{new Date(college.createdAt).toLocaleDateString()}</div>
+                <div className="mt-1 text-xs sm:text-sm">{new Date(college.createdAt).toLocaleDateString()}</div>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Updated</label>
-                <div className="mt-1 text-sm">{new Date(college.updatedAt).toLocaleDateString()}</div>
+                <div className="mt-1 text-xs sm:text-sm">{new Date(college.updatedAt).toLocaleDateString()}</div>
               </div>
             </CardContent>
           </Card>
@@ -389,18 +388,18 @@ function CollegeDetails() {
           {college.createdBy && (
             <Card>
               <CardHeader>
-                <CardTitle>Created By</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Created By</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
-                  <Avatar>
+                  <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                     {college.createdBy.image ? <AvatarImage src={college.createdBy.image} /> : <AvatarFallback>
                       {college.createdBy.name?.charAt(0) || college.createdBy.email?.charAt(0)}
                     </AvatarFallback>}
                   </Avatar>
-                  <div>
-                    <div className="font-medium">{college.createdBy.name || "Unknown"}</div>
-                    <div className="text-sm text-gray-600">{college.createdBy.email}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm sm:text-base truncate">{college.createdBy.name || "Unknown"}</div>
+                    <div className="text-xs sm:text-sm text-gray-600 truncate">{college.createdBy.email}</div>
                     <Badge variant="outline" className="mt-1 text-xs">
                       {college.createdBy.userType}
                     </Badge>
@@ -413,12 +412,13 @@ function CollegeDetails() {
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
                 variant="outline"
-                className="w-full justify-start bg-transparent"
+                size="sm"
+                className="w-full justify-start bg-transparent text-sm"
                 onClick={() => setEditingCollege(college)}
               >
                 <Edit className="h-4 w-4 mr-2" />
@@ -426,19 +426,20 @@ function CollegeDetails() {
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start bg-transparent"
+                size="sm"
+                className="w-full justify-start bg-transparent text-sm"
                 onClick={() => setIsCreateFormOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Form
               </Button>
-              <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+              <Button variant="outline" size="sm" className="w-full justify-start bg-transparent text-sm" asChild>
                 <Link href={`/${locale}/${college.slug}`} target="_blank">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View Public Page
                 </Link>
               </Button>
-              <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+              <Button variant="outline" size="sm" className="w-full justify-start bg-transparent text-sm" asChild>
                 <Link href={`/${locale}/admin/dashboard/collages/${slug}/project-demo`}>
                   <FileText className="h-4 w-4 mr-2" />
                   Project Demo
@@ -446,7 +447,8 @@ function CollegeDetails() {
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start text-red-600 hover:text-red-600 bg-transparent"
+                size="sm"
+                className="w-full justify-start text-red-600 hover:text-red-600 bg-transparent text-sm"
                 onClick={handleDelete}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -577,7 +579,6 @@ function CollegeDetails() {
 }
 
 function CollageOverView({ college, formsData }: { college: College, formsData: any }) {
-  const [activeTab, setActiveTab] = useState("overview")
   const stats = college.statistics || {
     totalUsers: college._count?.users || 0,
     totalSections: college._count?.sections || 0,
@@ -592,17 +593,17 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Enhanced Stats Cards - Clickable */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-blue-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.totalUsers}</div>
+                <Users className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalUsers}</div>
                   <div className="text-xs text-gray-600">Users</div>
                 </div>
               </div>
@@ -612,11 +613,11 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-green-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.totalSections}</div>
+                <FileText className="h-4 w-4 text-green-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalSections}</div>
                   <div className="text-xs text-gray-600">Sections</div>
                 </div>
               </div>
@@ -626,11 +627,11 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-purple-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.totalForms}</div>
+                <Calendar className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalForms}</div>
                   <div className="text-xs text-gray-600">Forms</div>
                 </div>
               </div>
@@ -640,11 +641,11 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4 text-orange-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.totalFormSubmissions}</div>
+                <Settings className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalFormSubmissions}</div>
                   <div className="text-xs text-gray-600">Submissions</div>
                 </div>
               </div>
@@ -653,15 +654,15 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
         </div>
 
         {/* Additional Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-indigo-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.totalFormFields}</div>
+                <TrendingUp className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalFormFields}</div>
                   <div className="text-xs text-gray-600">Form Fields</div>
                 </div>
               </div>
@@ -671,11 +672,11 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.activeForms}</div>
+                <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.activeForms}</div>
                   <div className="text-xs text-gray-600">Active Forms</div>
                 </div>
               </div>
@@ -685,11 +686,11 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-cyan-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.totalPrograms}</div>
+                <FileText className="h-4 w-4 text-cyan-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalPrograms}</div>
                   <div className="text-xs text-gray-600">Programs</div>
                 </div>
               </div>
@@ -699,11 +700,11 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
           <Card
             className="cursor-pointer hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-4">
+            <CardContent className="p-3 sm:p-4">
               <div className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-rose-500" />
-                <div>
-                  <div className="text-2xl font-bold">{stats.averageSubmissionsPerForm}</div>
+                <BarChart3 className="h-4 w-4 text-rose-500 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.averageSubmissionsPerForm}</div>
                   <div className="text-xs text-gray-600">Avg/Form</div>
                 </div>
               </div>
@@ -717,21 +718,21 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
         {/* Recent Activity TODO: Add recent activity will be all logs that are related to _COLLAGE */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates and changes</CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Recent Activity</CardTitle>
+            <CardDescription className="text-sm">Latest updates and changes</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                <div className="flex-1">
+                <div className="h-2 w-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium">College created</div>
                   <div className="text-xs text-gray-600">{new Date(college.createdAt).toLocaleDateString()}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1">
+                <div className="h-2 w-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium">Last updated</div>
                   <div className="text-xs text-gray-600">{new Date(college.updatedAt).toLocaleDateString()}</div>
                 </div>
@@ -747,16 +748,16 @@ function CollageOverView({ college, formsData }: { college: College, formsData: 
 function CollageSectionManagment({ college, setCreatingSection, setViewingSection, setEditingSection, setDeletingSection, slug }: { college: College, setCreatingSection: (section: any) => void, setViewingSection: (section: any) => void, setEditingSection: (section: any) => void, setDeletingSection: (section: any) => void, slug: string }) {
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Sections</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Sections</CardTitle>
+              <CardDescription className="text-sm">
                 Manage college sections and content. Drag sections to reorder them.
               </CardDescription>
             </div>
-            <Button size="sm" onClick={() => setCreatingSection(true)}>
+            <Button size="sm" onClick={() => setCreatingSection(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Section
             </Button>
@@ -780,7 +781,7 @@ function CollageSectionManagment({ college, setCreatingSection, setViewingSectio
 function CollageForms({ college }: { college: College }) {
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <FormManagementDemo collegeId={college.id} />
       </div>
     </>
@@ -790,16 +791,16 @@ function CollageForms({ college }: { college: College }) {
 function CollageThemeConfig({ college, setEditingTheme }: { college: College, setEditingTheme: (open: boolean) => void }) {
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Theme Settings</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Theme Settings</CardTitle>
+              <CardDescription className="text-sm">
                 Customize the appearance of your college page
               </CardDescription>
             </div>
-            <Button size="sm" onClick={() => setEditingTheme(true)}>
+            <Button size="sm" onClick={() => setEditingTheme(true)} className="w-full sm:w-auto">
               <Edit className="h-4 w-4 mr-2" />
               Edit Theme
             </Button>
@@ -816,14 +817,14 @@ function CollageThemeConfig({ college, setEditingTheme }: { college: College, se
 function CollageGallery({ college, setEditingGallery }: { college: College, setEditingGallery: (open: boolean) => void }) {
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Gallery Images</CardTitle>
-              <CardDescription>Manage college gallery events and images</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Gallery Images</CardTitle>
+              <CardDescription className="text-sm">Manage college gallery events and images</CardDescription>
             </div>
-            <Button size="sm" onClick={() => setEditingGallery(true)}>
+            <Button size="sm" onClick={() => setEditingGallery(true)} className="w-full sm:w-auto">
               <Edit className="h-4 w-4 mr-2" />
               Edit Gallery
             </Button>
@@ -845,14 +846,14 @@ function CollageFAQ({ college }: { college: College }) {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>FAQ</CardTitle>
-              <CardDescription>Manage college FAQ</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">FAQ</CardTitle>
+              <CardDescription className="text-sm">Manage college FAQ</CardDescription>
             </div>
-            <Button size="sm" onClick={() => setShowFAQDialog(true)}>
+            <Button size="sm" onClick={() => setShowFAQDialog(true)} className="w-full sm:w-auto">
               <Edit className="h-4 w-4 mr-2" />
               Manage FAQ
             </Button>
@@ -862,8 +863,8 @@ function CollageFAQ({ college }: { college: College }) {
               {college.faq && (college.faq as any)?.items?.length > 0 ? (
                 <div className="space-y-4">
                   {(college.faq as any).items.slice(0, 3).map((item: any, index: number) => (
-                    <div key={item.id} className="border rounded-lg p-4">
-                      <h4 className="font-medium mb-2">{item.question}</h4>
+                    <div key={item.id} className="border rounded-lg p-3 sm:p-4">
+                      <h4 className="font-medium mb-2 text-sm sm:text-base">{item.question}</h4>
                       <div className="prose prose-sm max-w-none">
                         <MarkdownPreview content={item.answer} />
                       </div>
@@ -899,14 +900,14 @@ function CollageFAQ({ college }: { college: College }) {
 function CollageSocialMedia({ college, setEditingSocialMedia }: { college: College, setEditingSocialMedia: (open: boolean) => void }) {
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Social Media</CardTitle>
-              <CardDescription>Manage college social media links</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Social Media</CardTitle>
+              <CardDescription className="text-sm">Manage college social media links</CardDescription>
             </div>
-            <Button size="sm" onClick={() => setEditingSocialMedia(true)}>
+            <Button size="sm" onClick={() => setEditingSocialMedia(true)} className="w-full sm:w-auto">
               <Edit className="h-4 w-4 mr-2" />
               Edit Social Media
             </Button>
@@ -928,14 +929,14 @@ function CollageCollageLeaders({ college, setEditingLeaders }: { college: Colleg
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Collage Leaders</CardTitle>
-              <CardDescription>Manage college collage leaders</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Collage Leaders</CardTitle>
+              <CardDescription className="text-sm">Manage college collage leaders</CardDescription>
             </div>
-            <Button size="sm" onClick={() => setEditingLeaders(true)}>
+            <Button size="sm" onClick={() => setEditingLeaders(true)} className="w-full sm:w-auto">
               <Edit className="h-4 w-4 mr-2" />
               Edit Collage Leaders
             </Button>
@@ -955,7 +956,7 @@ function CollageCollageLeaders({ college, setEditingLeaders }: { college: Colleg
 function CollagePrograms({ college }: { college: College }) {
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <ProgramManagement collegeId={college.id} />
       </div>
     </>
@@ -968,12 +969,13 @@ function CollageTabs({ tabs }: { tabs: { label: string, value: string, content: 
       <div data-tabs>
         <Tabs
           aria-label="College management tabs"
-          className="space-y-6"
+          className="space-y-4 sm:space-y-0 overflow-x-auto"
           color="primary"
           radius="full"
           classNames={{
-            panel: "space-y-6",
-            tab: "text-white data-[selected=true]:text-black",
+            panel: "space-y-4 sm:space-y-6",
+            tab: "text-white data-[selected=true]:text-black text-sm sm:text-base",
+            tabList: "md:w-full w-[600px] overflow-x-auto",
           }}
         >
           {tabs.map((tab) => (

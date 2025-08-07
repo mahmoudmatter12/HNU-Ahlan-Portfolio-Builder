@@ -52,8 +52,8 @@ import {
     RefreshCw,
     Building2
 } from 'lucide-react'
-import { UserService } from '@/services/user-service'
-import { CollegeService } from '@/services/collage-service'
+import { UserService } from '@/services/user.service'
+import { CollegeService } from '@/services/collage.service'
 import { User } from '@/types/user'
 import { College } from '@/types/Collage'
 import { toast } from 'sonner'

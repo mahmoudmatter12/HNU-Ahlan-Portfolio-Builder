@@ -56,8 +56,8 @@ import {
     Target
 } from "lucide-react";
 import { SocialMediaLinks, University, UniversityContent } from "@/types/uni";
-import { UniService } from "@/services/uni-service";
-import { UploadService } from "@/services/upload-service";
+import { UniService } from "@/services/uni.service";
+import { UploadService } from "@/services/upload.service";
 import { CollegeType } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { FAQService } from "@/services/faq-service"
+import { FAQService } from "@/services/faq.service"
 import { useRouter } from "next/navigation"
 import {
     Dialog,

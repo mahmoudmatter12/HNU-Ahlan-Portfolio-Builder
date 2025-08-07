@@ -6,8 +6,26 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import { useRef } from "react"
+import { UniversityContent } from "@/types/uni"
+import { College } from "@/types/Collage"
+export interface University {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+  socialMedia: Record<string, any> | null;
+  newsItems: Record<string, any> | null;
+  description: string | null;
+  content: UniversityContent | null;
+  colleges: College[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+interface HeroSectionProps {
+  university: University | null
+}
 
-export function HeroSection() {
+export function HeroSection({ university }: HeroSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -16,9 +34,8 @@ export function HeroSection() {
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-
   const scrollToNextSection = () => {
-    const nextSection = document.getElementById("about-section")
+    const nextSection = document.getElementById("collage-section")
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: "smooth" })
     }
@@ -55,7 +72,7 @@ export function HeroSection() {
               className="bg-white/10 border-white/20 text-white backdrop-blur-sm px-4 py-2 text-sm"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              Welcome to Excellence
+              Welcome to {university?.name}
             </Badge>
           </motion.div>
 
@@ -68,7 +85,7 @@ export function HeroSection() {
           >
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-4">
               <span className="text-white font-extrabold">
-                Helwan National University
+                {university?.name}
               </span>
             </h1>
           </motion.div>
@@ -81,7 +98,7 @@ export function HeroSection() {
             className="mb-8"
           >
             <p className="text-xl sm:text-2xl lg:text-3xl text-gray-200 font-light max-w-3xl mx-auto leading-relaxed">
-              Discover the gateway to <span className="text-blue-400 font-medium">Helwan National University</span> —
+              Discover the gateway to <span className="text-blue-400 font-medium">{university?.name}</span> —
               where innovation meets tradition, and dreams become reality.
             </p>
           </motion.div>

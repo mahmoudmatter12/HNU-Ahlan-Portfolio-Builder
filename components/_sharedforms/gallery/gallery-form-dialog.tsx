@@ -13,7 +13,7 @@ import { Upload, X, Plus, Image as ImageIcon, Calendar, Trash2, Eye } from "luci
 import { toast } from "sonner"
 
 import type { GalleryEvent, GalleryImage, GalleryData, College } from "@/types/Collage"
-import { CollegeService } from "@/services/collage-service"
+import { CollegeService } from "@/services/collage.service"
 import { useQueryClient } from "@tanstack/react-query"
 import Image from "next/image"
 

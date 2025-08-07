@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useUser as useClerkUser } from '@clerk/nextjs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { UserService } from '@/services/user-service';
+import { UserService } from '@/services/user.service';
 import { setUserIdHeader } from '@/lib/axios';
 import { User } from '@/types/user';
 

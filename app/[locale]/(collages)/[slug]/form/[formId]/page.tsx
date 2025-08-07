@@ -2,7 +2,6 @@
 // this for the forms that are created by the college
 import { useState } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
-import { FormService } from "@/services/form-service"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +10,7 @@ import { FileText, Send, CheckCircle, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 import { useParams } from "next/navigation"
 import { FormPreview } from "@/components/_sharedforms/form/form-preview"
+import { FormService } from "@/services/form.service"
 
 export default function FormPage() {
     const params = useParams()

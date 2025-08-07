@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { FormService } from "@/services/form-service"
+import { FormService } from "@/services/form.service"
 import {
     Dialog,
     DialogContent,

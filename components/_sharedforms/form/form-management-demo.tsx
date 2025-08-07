@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { FormService } from "@/services/form-service"
+import { FormService } from "@/services/form.service"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -325,7 +325,7 @@ export function FormManagementDemo({ collegeId }: FormManagementDemoProps) {
                                                     toggleFormActiveMutation.mutate(form.id)
                                                 }}>
                                                     <ToggleLeft className="h-4 w-4 mr-2" />
-                                                    {form.active ? "Deactivate Form" : "Activate Form"} 
+                                                    {form.active ? "Deactivate Form" : "Activate Form"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => setEditingForm(form)}>
                                                     <Edit className="h-4 w-4 mr-2" />
